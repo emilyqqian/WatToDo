@@ -2,6 +2,8 @@ import mysql.connector
 from datetime import datetime, timedelta
 import getpass
 import argparse
+import os
+from dotenv import load_dotenv
 
 # the table we are currently using
 # when query, remember to choose the correct table
@@ -37,10 +39,25 @@ def init():
     username = args.username;
     password = args.password;
     
-    # since this code is probably going to run in the back-end, I won't add any error handler. 
-    # Its the front-end's responsibility to ensure they send us the correct username and password
+    # I think i was wrong, this should be in the front-end, as the connection is specific to each user
+    # However, im not sure, so I would just write down more options
+    # We have the following options: 
+    # 1), We can put this in front-end, and we will have a two-end system. The client will communicate with the database directly
+    # 2), We can put this in the back-end, and the client will just be a GUI and will send all requests to this code, and this code will communicate with the database, so a three-end system
+    # Im assuming 1) because it seems easier, so that means the log in system must be more robost enough to handle all kinds of edge cases
+    
+    # Because assume in front-end, we can access env file
+    load_dotenv()
+    if not password:
+        password = os.getenv("DB_PASSWORD")
+    if not username:
+        username = os.getenv("DB_USERNAME")
+    
     if not username or not password:
-        raise ValueError("Username or Password not Specified!");
+        # I think ValueError is too harsh, maybe?
+        #raise ValueError("Username or Password not Specified!");
+        print("Username or Password not Specified! Usage: python3 code.py -u <username> -p <password>")
+        quit()
         
     print(f"Logging in with username '{username}' and password '{password}'");
     
@@ -52,6 +69,12 @@ def init():
     global cursor
     (database, cursor) = temp_connection
     print("Connection Established")
+    
+    # If we sucessfully loged in, write passwords and usernames to a .env file as buffer
+    # so user don't need to enter username and passwords again next time
+    with open('.env', 'a') as env_file:  # Use 'a' mode to append or 'w' to overwrite
+        env_file.write(f'DB_PASSWORD={password}\n')
+        env_file.write(f'DB_USERNAME={username}\n')
     
 ########## Helper Functions - These are functions that might be useful for the six functions or testcases ##########
     
@@ -80,3 +103,4 @@ def assertTaskValid(task, allowNullDoneDate = False):
     
 if __name__ == "__main__":
     init()
+    
