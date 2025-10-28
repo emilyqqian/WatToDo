@@ -86,6 +86,10 @@ DatabaseResult updateTask(Task task);
 // functions about taskBoard
 DatabaseResult getTaskBoardByUser(unsigned int user_id, std::vector<TaskBoard> &returnedTaskList);
 DatabaseResult createTaskBoard(User owner);
+// Note: the updateTaskBoard function should only be called to update members and names. 
+// If you want to update the task list, call addTask, updateTask, or deleteTask individually
+// This is because mysql cannot store array, so updating tasks through updating taskBoard would require you to 
+// iterate through the entire task table, check the difference, and update, which is extremely slow
 DatabaseResult updateTaskBoard(TaskBoard taskboard);
 DatabaseResult deleteTaskBoard(TaskBoard taskboard);
 
