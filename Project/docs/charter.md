@@ -20,9 +20,11 @@ WatToDo enables individuals and teams to organize, share, and track tasks throug
 - Users: `registerUser`, `getUser`, `updateUserInfo`, `inviteUser`, `getAllInvitation`.
 - Tasks: `addTask`, `updateTask`, `deleteTask`.
 - Task Boards: `createTaskBoard`, `updateTaskBoard`, `deleteTaskBoard`, `getTaskBoardByUser`.
+- Leaderboard: `getLeaderboard`
 - Display Up-coming tasks on front end.  
 - User-specific task retrieval based on `userid`. 
-- Implementation of shared task boards and user roles (Owner, Contributor, Viewer).
+- Implementation of shared task boards and user roles (Member, Admin).
+- Implementation of assigning tasks to specific users
 - XP and achievement system with streak tracking logic and a Leaderboard for streaks.
 - Comprehensive test plan and test cases for all functions.
 
