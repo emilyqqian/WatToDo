@@ -57,6 +57,9 @@ enum DatabaseResult{
     OTHER_ERROR // unknown error
 };
 
+//init function
+void initDatabase();// needs to be called first
+
 // helper functions
 // Im trying to use id instead of the whole class as much as possible
 // so the frontend don't need to give back the entire user/task/taskboard
