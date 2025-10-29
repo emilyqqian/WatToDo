@@ -54,6 +54,7 @@ enum DatabaseResult{
     SQL_ERROR, // there is an error when sending sql to database
     USER_ACCESS_DENINED, // when a user who is not admin try to modify the task board
     DUPLICATE_NAME, // when multiple users having the same username
+    NAME_OVERFLOW, // when the length of a string exceeds the maximum length allowed
     OTHER_ERROR // unknown error
 };
 
@@ -80,17 +81,15 @@ DatabaseResult getAllInvitation(unsigned int user_id, std::unordered_multimap<Us
 
 // functions about task
 DatabaseResult addTask(unsigned int taskboard_id, Task task);// note: you do not need to assign taskID and all other part, I will cover that
-DatabaseResult deleteTask(Task task);
+DatabaseResult deleteTask(unsigned int task_id);
 DatabaseResult updateTask(Task task);
 
 // functions about taskBoard
 DatabaseResult getTaskBoardByUser(unsigned int user_id, std::vector<TaskBoard> &returnedTaskList);
 DatabaseResult createTaskBoard(User owner);
-// Note: the updateTaskBoard function should only be called to update members and names. 
-// If you want to update the task list, call addTask, updateTask, or deleteTask individually
-// This is because mysql cannot store array, so updating tasks through updating taskBoard would require you to 
-// iterate through the entire task table, check the difference, and update, which is extremely slow
-DatabaseResult updateTaskBoard(TaskBoard taskboard);
+DatabaseResult updateUserStatus(unsigned int user_id, unsigned int taskboard_id, bool isAdmin);
+DatabaseResult addUserToTaskboard(unsigned int user_id, unsigned int taskboard_id);
+DatabaseResult kickOutUserFromTaskboard(unsigned int user_id, unsigned int taskboard_id);
 DatabaseResult deleteTaskBoard(TaskBoard taskboard);
 
 #endif
