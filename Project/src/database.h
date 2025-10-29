@@ -13,9 +13,10 @@ class User{
     unsigned int userid;
     std::string username;// username has to be unique
     unsigned int password;// hash of password
+    unsigned int xpPoint;
 
     // used internally
-    User(unsigned int userid, std::string username, unsigned int password);
+    User(unsigned int userid, std::string username, unsigned int password, unsigned int xpPoint);
 };
 
 class Task{
