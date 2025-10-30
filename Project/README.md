@@ -12,6 +12,8 @@ Make sure you have the following libraries installed:
 
 ## Database Setup:
 - After connecting to a database, run the script in `src/databaseScheme.sql` to set up the necessary tables.
+- Note: This only applies if you do not have your database set-up already.
+- If you are in Project-Team 17, Please do not run this script, as it will reset the entire database
 
 ## Build Instructions:
 - Make sure you have CMake and mysqlcppconn installed
