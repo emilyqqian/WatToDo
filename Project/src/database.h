@@ -74,7 +74,7 @@ void closeDatabaseConnection();// if you want to pass valgrind, call this to clo
 
 // functions about user
 DatabaseResult registerUser(std::string username, unsigned int password);
-DatabaseResult getUser(std::string username, User &returnedUser);
+DatabaseResult getUser(std::string username, User **returnedUser);
 DatabaseResult updateUserInfo(User user);
 
 // functions about user inviting other users to join taskboard

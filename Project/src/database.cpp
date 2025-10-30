@@ -3,15 +3,12 @@
 #include <iostream>
 #include <format>
 #include <list>
+#include <memory>
 
 mysqlx::Session *session;
 mysqlx::Schema *db;
 
-#ifdef TEST_ENVIRONMENT
-std::string prefix = "TEST_";
-#else
-std::string prefix = "";
-#endif
+std::unique_ptr<mysqlx::Table> userTable, taskTable, taskboardTable, taskboardUserTable, invitationTable;
 
 User::User(unsigned int userid, std::string username, unsigned int password, unsigned int xpPoint){
     this->username = username;
@@ -53,9 +50,25 @@ void initDatabase() {
         std::cout << "Connected to MySQL Server!" << std::endl;
 
         std::string useDBQuery = "USE ";
-		std::string dbName = MYSQL_DB_NAME;
-		session->sql(useDBQuery + dbName).execute();
+		session->sql(useDBQuery + MYSQL_DB_NAME).execute();
 		std::cout << "Database Initialized Successfully" << std::endl;
+
+		mysqlx::Schema db = session->getSchema(MYSQL_DB_NAME);
+		
+#ifdef TEST_ENV
+		userTable = std::make_unique<mysqlx::Table>(db.getTable("Test_User"));
+		taskTable = std::make_unique<mysqlx::Table>(db.getTable("Test_Task"));
+		taskboardTable = std::make_unique<mysqlx::Table>(db.getTable("Test_Taskboard"));
+		taskboardUserTable = std::make_unique<mysqlx::Table>(db.getTable("Test_TaskboardUser"));
+		invitationTable = std::make_unique<mysqlx::Table>(db.getTable("Test_Invitation"));
+#else
+        userTable = std::make_unique<mysqlx::Table>(db.getTable("User"));
+        taskTable = std::make_unique<mysqlx::Table>(db.getTable("Task"));
+        taskboardTable = std::make_unique<mysqlx::Table>(db.getTable("Taskboard"));
+        taskboardUserTable = std::make_unique<mysqlx::Table>(db.getTable("TaskboardUser"));
+        invitationTable = std::make_unique<mysqlx::Table>(db.getTable("Invitation"));
+#endif
+
     }
     catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
@@ -64,7 +77,7 @@ void initDatabase() {
 }
 
 void closeDatabaseConnection() {
-	session->close();
+    session->close();
 	delete session;
 }
 
@@ -74,12 +87,12 @@ DatabaseResult registerUser(std::string username, unsigned int password){
         if (username.length() > 50) return NAME_OVERFLOW;
 
         // test if we already have existing users with that name
-        mysqlx::SqlResult res = session->sql("select * from User where username = ?").bind(username).execute();
+		mysqlx::RowResult res = userTable->select("*").where("username = :username").bind("username", username).execute();
         if (res.count() != 0){
             return DUPLICATE_NAME;
         }
 
-        session->sql(std::format("insert into {}User (username, password_hash) values (?, ?)", prefix)).bind(username).bind(password).execute();
+		userTable->insert("username", "password_hash").values(username, password).execute();
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
@@ -87,17 +100,19 @@ DatabaseResult registerUser(std::string username, unsigned int password){
     }
 }
 
-DatabaseResult getUser(std::string username, User *returnedUser){
+DatabaseResult getUser(std::string username, User **returnedUser){
     try{
         // first get the encrypted username;
         if (username.length() > 50) return DOES_NOT_EXIST;
 
-        mysqlx::SqlResult result = session->sql(std::format("select user_id, username, password_hash, xp from {}User where username = ?", prefix)).bind(username).execute();
-
-        if (!result.hasData()) return DOES_NOT_EXIST;
+        mysqlx::RowResult res = userTable->select("*").where("username = :username").bind("username", username).execute();
+        if (res.count() == 0) {
+            return DOES_NOT_EXIST;
+        }
         
-        mysqlx::Row row = result.fetchOne();
-        returnedUser = new User(row[0].get<unsigned int>(), row[1].get<std::string>(), row[2].get<unsigned int>(), row[3].get<unsigned int>());
+        mysqlx::Row row = res.fetchOne();
+
+		*returnedUser = new User(row[0].get<int>(), row[1].get<std::string>(), row[2].get<int>(), row[3].get<int>());
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
@@ -105,23 +120,22 @@ DatabaseResult getUser(std::string username, User *returnedUser){
     }
 }
 
-DatabaseResult updateUserInfo(User user){
+DatabaseResult updateUserInfo(User user) {
     try{
         // first get the encrypted username;
         if (user.username.length() > 50) return NAME_OVERFLOW;
 
         // test if we already have existing users with that name
-        if (session->sql(std::format("select * from {}User where username = ?", prefix)).bind(user.username).execute().hasData()){
+        if (userTable->select("*").where("username = :username and not user_id = :uid").bind("username", user.username).bind("uid", user.userid).execute().count() > 0) {
             return DUPLICATE_NAME;
         }
 
         // test if user with that userid actually exist
-        if (!session->sql(std::format("select * from {}User where user_id = ?", prefix)).bind(user.userid).execute().hasData()){
+        if (userTable->select("*").where("user_id = :uid").bind("uid", user.userid).execute().count() == 0) {
             return DOES_NOT_EXIST;
         }
 
-        session->sql(std::format("update {}User set username = ?, password_hash = ?, xp = ? where user_id = ?", prefix))
-        .bind(user.username).bind(user.password).bind(user.points).bind(user.userid).execute();
+		userTable->update().set("username", user.username).set("password_hash", user.password).set("xp", user.points).where("user_id = :uid").bind("uid", user.userid).execute();
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
@@ -129,9 +143,9 @@ DatabaseResult updateUserInfo(User user){
     }
 }
 
-std::unordered_map<std::string, unsigned int> getLeaderboard(){
+std::unordered_map<std::string, unsigned int> getLeaderboard() {
     try{
-        std::list<mysqlx::Row> rows =  session->sql(std::format("select username, xp from {}User", prefix)).execute().fetchAll();
+		std::list<mysqlx::Row> rows = userTable->select("username", "xp").execute().fetchAll();
         
         std::unordered_map<std::string, unsigned int> leaderboard;
         for (mysqlx::Row row : rows){
@@ -147,9 +161,11 @@ std::unordered_map<std::string, unsigned int> getLeaderboard(){
 
 int main() {
 	initDatabase();
-    User *user;
-    std::cout << getUser("s969chen", user) << std::endl;
-    std::cout << "id: " << user->userid << ", name: " << user->username << ", password: " << user->password << std::endl;
+    User *user = new User();
+	auto map = getLeaderboard();
+	for (auto const& pair : map) {
+		std::cout << "Username and xp: " << pair.first << " and " << pair.second << std::endl;
+	}
 	closeDatabaseConnection();
 	return 0;
 }
