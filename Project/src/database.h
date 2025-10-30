@@ -97,7 +97,7 @@ DatabaseResult kickOutUserFromTaskboard(unsigned int user_id, unsigned int taskb
 DatabaseResult deleteTaskBoard(TaskBoard taskboard);
 
 // functions about leaderboard
-std::unordered_map<User, unsigned int> getLeaderboard();// I don't think theres a need to use DatabaseResult here, since this function will always succeed
+std::unordered_map<std::string, unsigned int> getLeaderboard();// I don't think theres a need to use DatabaseResult here, since this function will always succeed
 // if you want to set xp, just call updateUserInfo
 // if you want to get xp, just call getLeaderboard() and find the user. The cost are negligible
 #endif

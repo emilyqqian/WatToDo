@@ -2,6 +2,7 @@
 #include "database.h"
 #include <iostream>
 #include <format>
+#include <list>
 
 mysqlx::Session *session;
 mysqlx::Schema *db;
@@ -130,6 +131,22 @@ DatabaseResult updateUserInfo(User user){
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
 		return SQL_ERROR;
+    }
+}
+
+std::unordered_map<std::string, unsigned int> getLeaderboard(){
+    try{
+        std::list<mysqlx::Row> rows =  session->sql(std::format("select username, xp from {}User", prefix)).execute();
+        
+        std::unordered_map<std::string, unsigned int> leaderboard();
+        for (mysqlx::Row row : rows){
+            leaderboard[row[0].get<std::string>()] = row[1].get<unsigned int>();
+        }
+        
+        return leaderboard;
+    }catch (const mysqlx::Error& err) {
+        std::cerr << "Error: " << err.what() << std::endl;
+		return std::unordered_map<std::string, unsigned int>();
     }
 }
 
