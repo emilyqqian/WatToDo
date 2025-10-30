@@ -13,14 +13,23 @@ std::string prefix = "TEST_";
 std::string prefix = "";
 #endif
 
+std::string replaceAll(std::string str, const std::string& from, const std::string& to) {
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+    }
+    return str;
+}
+
 bool encrypt(std::string &str, int maxLength){
-    if (str.length > maxLength) return false;
-    str.replace("\"", "\\\"");
+    if (str.length() > maxLength) return false;
+    str = replaceAll(str, "\"", "\\\"");
     return true;
 }
 
 std::string decrypt(std::string str){
-    return str.replace("\\\"", "\"");
+    return replaceAll(str, "\\\"", "\"");
 }
 
 User::User(unsigned int userid, std::string username, unsigned int password, unsigned int xpPoint){
@@ -35,6 +44,8 @@ Task::Task(std::string title, std::string type, time_t startDate, time_t duedate
     this->type = type;
     this->startDate = startDate;
     this->duedate = duedate;
+    // initialized but garbage value
+    this->assignedUser = User();
 }
 
 Task::Task(std::string title, std::string type, unsigned int taskID, bool pinned, time_t startDate, time_t duedate, time_t finished, bool isFinished, bool isAssigned, User assignedUser){
@@ -83,17 +94,18 @@ DatabaseResult registerUser(std::string username, unsigned int password){
 
         // test if we already have existing users with that name
         if (session->sql(std::format("select * from {}User where username = \"{}\"", prefix, username)).execute().hasData()){
-            return DUPLICATE_NAME
+            return DUPLICATE_NAME;
         }
 
-        session->sql(std::format("insert into {}User (username, password_hash) values (\"{}\", {]})", prefix, username, password)).execute();
+        session->sql(std::format("insert into {}User (username, password_hash) values (\"{}\", {})", prefix, username, password)).execute();
+        return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
 		return SQL_ERROR;
     }
 }
 
-DatabaseResult getUser(std::string username, User &returnedUser){
+DatabaseResult getUser(std::string username, User *returnedUser){
     try{
         // first get the encrypted username;
         if (!encrypt(username, 50)) return DOES_NOT_EXIST;
@@ -102,8 +114,8 @@ DatabaseResult getUser(std::string username, User &returnedUser){
 
         if (!result.hasData()) return DOES_NOT_EXIST;
         
-        Row row = result.fetchOne();
-        returnedUser = new User(row[0].get<unsigned int>(), decrypt(row[1].get<std::string>()), row[2].get(unsigned int), row[3].get<unsigned int>());
+        mysqlx::Row row = result.fetchOne();
+        returnedUser = new User(row[0].get<unsigned int>(), decrypt(row[1].get<std::string>()), row[2].get<unsigned int>(), row[3].get<unsigned int>());
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
@@ -114,7 +126,7 @@ DatabaseResult getUser(std::string username, User &returnedUser){
 DatabaseResult updateUserInfo(User user){
     try{
         // first get the encrypted username;
-        if (!encrypt(user.username, 50)) return OVERFLOW;
+        if (!encrypt(user.username, 50)) return NAME_OVERFLOW;
 
         // test if we already have existing users with that name
         if (session->sql(std::format("select * from {}User where username = \"{}\"", prefix, user.username)).execute().hasData()){
@@ -126,7 +138,7 @@ DatabaseResult updateUserInfo(User user){
             return DOES_NOT_EXIST;
         }
 
-        session->sql(std::formate("update {}User set username = \"{}\", password_hash = {}, xp = {} where user_id = {}", prefix, user.username, user.password, user.points, user.userid)).execute();
+        session->sql(std::format("update {}User set username = \"{}\", password_hash = {}, xp = {} where user_id = {}", prefix, user.username, user.password, user.points, user.userid)).execute();
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
@@ -136,9 +148,9 @@ DatabaseResult updateUserInfo(User user){
 
 std::unordered_map<std::string, unsigned int> getLeaderboard(){
     try{
-        std::list<mysqlx::Row> rows =  session->sql(std::format("select username, xp from {}User", prefix)).execute();
+        std::list<mysqlx::Row> rows =  session->sql(std::format("select username, xp from {}User", prefix)).execute().fetchAll();
         
-        std::unordered_map<std::string, unsigned int> leaderboard();
+        std::unordered_map<std::string, unsigned int> leaderboard;
         for (mysqlx::Row row : rows){
             leaderboard[row[0].get<std::string>()] = row[1].get<unsigned int>();
         }

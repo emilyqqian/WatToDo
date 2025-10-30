@@ -17,6 +17,9 @@ class User{
 
     // used internally
     User(unsigned int userid, std::string username, unsigned int password, unsigned int xpPoint);
+
+    // default garbage-value constructor
+    User() {};
 };
 
 class Task{
