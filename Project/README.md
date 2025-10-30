@@ -1,63 +1,46 @@
-# SE101 Team Project – To-Do App Evolution
+# Setup Guide:
 
-Student teams will **devise, design, develop, debug, and demo** a significant software project using **Scrum in GitLab**.  
-All deliverables live in this GitLab repository.
+The following instructions will (hopefully) help you set up the development environment for the backend of the To-Do App project.
+- If not, ask chatgpt. Don't ask me. I spent 2h trying to compile my code
 
----
+## Libraries:
+Make sure you have the following libraries installed:
+- Mysqlsh (Optional but Recommended)
+- mysqlcppconn (Version 9.5)
+- CMake
+- Crow (@yash please write something about this)
 
-## Project Options
-1. **Extend the To-Do App into a full web application** (web-accessible, persistent data).  
-2. **Extend the To-Do App into a full Android app** (Teams 1–23 only).  
-3. **Propose your own project** → Must be approved via `docs/charter.md`.
+## Database Setup:
+- After connecting to a database, run the script in `src/databaseScheme.sql` to set up the necessary tables.
+- Note: This only applies if you do not have your database set-up already.
+- If you are in Project-Team 17, Please do not run this script, as it will reset the entire database
 
----
-
-## Required Deliverables & Grading
-
-| % | Deliverable | Path | Stance |
-|---|-------------|------|--------|
-| **5%** | **Project Charter** | `docs/charter.md` | Formal agreement on scope, team roles, and success criteria. |
-| **10%** | **Product & Sprint Backlogs** | GitLab **Issue Boards** | Live, groomed boards showing prioritized stories and sprint commitments. |
-| **10%** | **Requirements & Design** | `docs/user_stories.md`, `docs/domain_model.md`, `docs/use_cases.md` | Clear, traceable user needs and system structure. |
-| **15%** | **Source Code & Build** | `src/`, `build/` (if needed) | Clean, versioned, buildable code with tagged `v1.0` release. |
-| **10%** | **Tests & Results** | `docs/test_plan.md` `tests/`, `docs/test_report.md` | Automated tests with execution proof and coverage ≥70%. |
-| **5%** | **User Manual** | `docs/user_manual.md` | Simple guide for end-users to operate the app. |
-| **10%** | **Final Video Demo** | `docs/demo.mp4`  | 2–4 min walkthrough of all user stories in action. |
-| **10%** | **Final Sprint Review** | `docs/review_presentation.pdf` + live demo | Summary of increment, velocity, and stakeholder feedback. |
-| **10%** | **Sprint Retrospectives** | `docs/sprint_retrospectives.md` | Reflections per sprint on process and improvements. |
-| **10%** | **Weekly Progress & Git Hygiene** | Commits, issues, boards | Consistent activity, meaningful messages, and backlog updates. |
-| **5%** | **README & Setup Guide** | `README.md` | Reproducible instructions to run the app from scratch. |
-
-> **Total: 100%**
-
----
-
-## Directory Structure (Required)
-```plaintext
-.
-├── README.md                  ← This file (setup + overview)
-├── docs/
-│   ├── charter.md
-│   ├── user_stories.md
-│   ├── domain_model.md
-│   ├── use_cases.md
-│   ├── test_report.md
-│   ├── user_manual.md
-│   ├── sprint_retrospectives.md
-│   ├── review_presentation.pdf
-│   └── demo.mp4               ← Final demo video
-├── src/                       ← All source code
-├── tests/                     ← Unit + integration tests
-├── build/                     ← Optional: compiled output
-└── .gitlab-ci.yml             ← Optional: CI pipeline (bonus)
+## Build Instructions:
+- Make sure you have CMake and mysqlcppconn installed
+- Include the following in your CMakeLists.txt:
 ```
+set(MYSQL_USER <YOUR USERNAME>)
+set(MYSQL_PASSWORD <YOUR PASSWORD>)
+set(MYSQL_DB_NAME <YOUR DATABASE NAME>)
 
----
+set(MYSQL_CONCPP_DIR <YOUR mysqlcppconn DIRECTORY>)
+include_directories("${MYSQL_CONCPP_DIR}/include")
+link_directories("${MYSQL_CONCPP_DIR}/lib64/vs14")
 
-## GitLab Setup
-- Use **Issue Boards** under **Plan > Issue boards**  
-  - One board: **Product Backlog** (label: `backlog`)  
-  - One board per sprint: **Sprint 1**, **Sprint 2**, etc. (use **Milestones** or **Iterations**)  
-- Label issues: `type::story`, `type::bug`, `priority::high`, `sprint::1`, etc.  
-- Tag final release: `git tag v1.0 && git push origin v1.0`
+add_executable(backend database.cpp)
+target_link_libraries(backend mysqlcppconnx)
 
+target_compile_definitions(backend PRIVATE
+    MYSQL_USER="${MYSQL_USER}"
+    MYSQL_PASSWORD="${MYSQL_PASSWORD}"
+    MYSQL_DB_NAME="${MYSQL_DB_NAME}"
+)
+
+@yash please add crow build instructions here
+
+```
+If you are using Windows and have installed mysqlcppconn in the default location, your `MYSQL_CONCPP_DIR` would be:
+"C:/Program Files/MySQL/MySQL Connector C++ 9.5"
+
+## Troubleshooting:
+[Chatgpt goated](https://chatgpt.com/share/69028f5f-50b4-8003-8409-90088d953218)
