@@ -29,7 +29,8 @@ class Task{
     time_t duedate;
     time_t finishedOn;
     bool finished = false;
-	User assignedUser = NULL;
+	bool assigned = false;
+	User assignedUser;
 
     // used to create a new task, only necessary informations are included
     Task(std::string title, std::string type, time_t startDate, time_t duedate);

@@ -1,22 +1,37 @@
 #include <mysqlx/xdevapi.h>
+#include "database.h"
 #include <iostream>
 
-int main() {
-    try {
-        mysqlx::Session sess("riku.shoshin.uwaterloo.ca", 33060, "s969chen", "Welcome1!");
+mysqlx::Session *session;
+mysqlx::Schema *db;
 
+mysqlx::Table *userTable, *taskTable, *taskboardTable, *taskboardUserTable;
+
+void initDatabase() {
+    std::string user = MYSQL_USER;
+    std::string password = MYSQL_PASSWORD;
+
+    std::cout << "username and password: " << user << " " << password << std::endl;
+
+    try {
+        session = new mysqlx::Session("riku.shoshin.uwaterloo.ca", 33060, user, password);
         std::cout << "Connected to MySQL Server!" << std::endl;
 
-        mysqlx::Schema db = sess.getSchema("se101_s969chen");
-        mysqlx::Table table = db.getTable("Foo");
+        *db = session->getSchema(MYSQL_DB_NAME);
+        mysqlx::Table table = db->getTable("Foo");
 
         mysqlx::RowResult res = table.select("A").execute();
         for (mysqlx::Row row : res)
             std::cout << "User: " << row[0].get<std::string>() << std::endl;
 
-        sess.close();
+        session->close();
     }
     catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
     }
+}
+
+int main() {
+	initDatabase();
+	return 0;
 }
