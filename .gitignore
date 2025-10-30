@@ -1,2 +1,6 @@
 .env
 .vs
+CMakeLists.txt
+.cmake
+CMakeSettings.json
+out/
