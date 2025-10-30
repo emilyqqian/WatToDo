@@ -63,6 +63,7 @@ enum DatabaseResult{
 
 //init function
 void initDatabase();// needs to be called first
+void closeDatabaseConnection();// if you want to pass valgrind, call this to close the connection properly
 
 // helper functions
 // Im trying to use id instead of the whole class as much as possible
@@ -76,7 +77,7 @@ DatabaseResult updateUserInfo(User user);
 // functions about user inviting other users to join taskboard
 
 // invite a user to join the taskboard
-DatabaseResult inviteUser(User fromUser, std::string toUserName, unsigned int taskBoard_id); 
+DatabaseResult inviteUser(User fromUser, unsigned int toUser, unsigned int taskBoard_id); 
 // returns all invitations the user "whom" has received
 // the key of the dictionary is "who invits you", and the value of the dictionary is "to what taskboard"
 // there is no "accept invitation" thing, you just directly updtae the taskboard, thats enough
