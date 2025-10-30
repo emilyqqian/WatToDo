@@ -36,7 +36,7 @@ class Task{
     Task(std::string title, std::string type, time_t startDate, time_t duedate);
 
     // used to recreate a task form database/frontend
-    Task(std::string title, std::string type, unsigned int taskID, bool pinned, time_t startDate, time_t duedate, time_t finished, bool isFinished);
+    Task(std::string title, std::string type, unsigned int taskID, bool pinned, time_t startDate, time_t duedate, time_t finished, bool isFinished, bool isAssigned, User assignedUser);
 };
 
 class TaskBoard{
@@ -70,7 +70,7 @@ void closeDatabaseConnection();// if you want to pass valgrind, call this to clo
 // so the frontend don't need to give back the entire user/task/taskboard
 
 // functions about user
-DatabaseResult registerUser(std::string, unsigned int password);
+DatabaseResult registerUser(std::string username, unsigned int password);
 DatabaseResult getUser(std::string username, User &returnedUser);
 DatabaseResult updateUserInfo(User user);
 
