@@ -1,2 +1,5 @@
 .env
 .vs
+out/
+CMakeLists.txt
+CMakeSettings.json
