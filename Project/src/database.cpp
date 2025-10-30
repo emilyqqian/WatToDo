@@ -13,25 +13,6 @@ std::string prefix = "TEST_";
 std::string prefix = "";
 #endif
 
-std::string replaceAll(std::string str, const std::string& from, const std::string& to) {
-    size_t start_pos = 0;
-    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
-        str.replace(start_pos, from.length(), to);
-        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
-    }
-    return str;
-}
-
-bool encrypt(std::string &str, int maxLength){
-    if (str.length() > maxLength) return false;
-    str = replaceAll(str, "\"", "\\\"");
-    return true;
-}
-
-std::string decrypt(std::string str){
-    return replaceAll(str, "\\\"", "\"");
-}
-
 User::User(unsigned int userid, std::string username, unsigned int password, unsigned int xpPoint){
     this->username = username;
     this->password = password;
@@ -90,14 +71,15 @@ void closeDatabaseConnection() {
 DatabaseResult registerUser(std::string username, unsigned int password){
     try{
         // test if name overflows
-        if (!encrypt(username, 50)) return NAME_OVERFLOW;
+        if (username.length() > 50) return NAME_OVERFLOW;
 
         // test if we already have existing users with that name
-        if (session->sql(std::format("select * from {}User where username = \"{}\"", prefix, username)).execute().hasData()){
+        mysqlx::SqlResult res = session->sql("select * from User where username = ?").bind(username).execute();
+        if (res.count() != 0){
             return DUPLICATE_NAME;
         }
 
-        session->sql(std::format("insert into {}User (username, password_hash) values (\"{}\", {})", prefix, username, password)).execute();
+        session->sql(std::format("insert into {}User (username, password_hash) values (?, ?)", prefix)).bind(username).bind(password).execute();
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
@@ -108,14 +90,14 @@ DatabaseResult registerUser(std::string username, unsigned int password){
 DatabaseResult getUser(std::string username, User *returnedUser){
     try{
         // first get the encrypted username;
-        if (!encrypt(username, 50)) return DOES_NOT_EXIST;
+        if (username.length() > 50) return DOES_NOT_EXIST;
 
-        mysqlx::SqlResult result = session->sql(std::format("select * from {}User where username = \"{}\"", prefix, username)).execute();
+        mysqlx::SqlResult result = session->sql(std::format("select user_id, username, password_hash, xp from {}User where username = ?", prefix)).bind(username).execute();
 
         if (!result.hasData()) return DOES_NOT_EXIST;
         
         mysqlx::Row row = result.fetchOne();
-        returnedUser = new User(row[0].get<unsigned int>(), decrypt(row[1].get<std::string>()), row[2].get<unsigned int>(), row[3].get<unsigned int>());
+        returnedUser = new User(row[0].get<unsigned int>(), row[1].get<std::string>(), row[2].get<unsigned int>(), row[3].get<unsigned int>());
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
@@ -126,19 +108,20 @@ DatabaseResult getUser(std::string username, User *returnedUser){
 DatabaseResult updateUserInfo(User user){
     try{
         // first get the encrypted username;
-        if (!encrypt(user.username, 50)) return NAME_OVERFLOW;
+        if (user.username.length() > 50) return NAME_OVERFLOW;
 
         // test if we already have existing users with that name
-        if (session->sql(std::format("select * from {}User where username = \"{}\"", prefix, user.username)).execute().hasData()){
+        if (session->sql(std::format("select * from {}User where username = ?", prefix)).bind(user.username).execute().hasData()){
             return DUPLICATE_NAME;
         }
 
         // test if user with that userid actually exist
-        if (!session->sql(std::format("select * from {}User where user_id = \"{}\"", prefix, user.userid)).execute().hasData()){
+        if (!session->sql(std::format("select * from {}User where user_id = ?", prefix)).bind(user.userid).execute().hasData()){
             return DOES_NOT_EXIST;
         }
 
-        session->sql(std::format("update {}User set username = \"{}\", password_hash = {}, xp = {} where user_id = {}", prefix, user.username, user.password, user.points, user.userid)).execute();
+        session->sql(std::format("update {}User set username = ?, password_hash = ?, xp = ? where user_id = ?", prefix))
+        .bind(user.username).bind(user.password).bind(user.points).bind(user.userid).execute();
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
@@ -164,6 +147,9 @@ std::unordered_map<std::string, unsigned int> getLeaderboard(){
 
 int main() {
 	initDatabase();
+    User *user;
+    std::cout << getUser("s969chen", user) << std::endl;
+    std::cout << "id: " << user->userid << ", name: " << user->username << ", password: " << user->password << std::endl;
 	closeDatabaseConnection();
 	return 0;
 }
