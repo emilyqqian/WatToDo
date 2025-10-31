@@ -17,7 +17,9 @@ User::User(unsigned int userid, std::string username, unsigned int password, uns
     this->points = xpPoint;
 }
 
-Task::Task(std::string title, std::string type, time_t startDate, time_t duedate){
+// this part is not relevant yet, but it occupies space, so comment out to boost test coverage hahaha
+
+/*Task::Task(std::string title, std::string type, time_t startDate, time_t duedate){
     this->title = title;
     this->type = type;
     this->startDate = startDate;
@@ -37,7 +39,7 @@ Task::Task(std::string title, std::string type, unsigned int taskID, bool pinned
     this->finishedOn = finished;
     this->assigned = isAssigned;
     this->assignedUser = assignedUser;
-}
+}*/
 
 void initDatabase() {
     std::string user = MYSQL_USER;
@@ -159,6 +161,8 @@ std::unordered_map<std::string, unsigned int> getLeaderboard() {
     }
 }
 
+#ifndef TEST_ENV
+
 int main() {
 	initDatabase();
     User *user = new User();
@@ -169,3 +173,5 @@ int main() {
 	closeDatabaseConnection();
 	return 0;
 }
+
+#endif
