@@ -1,5 +1,9 @@
 .env
 .vs
-out/
+.vscode
 CMakeLists.txt
+.cmake
 CMakeSettings.json
+out/
+build/
+.DS_Store

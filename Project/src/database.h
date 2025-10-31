@@ -17,6 +17,9 @@ class User{
 
     // used internally
     User(unsigned int userid, std::string username, unsigned int password, unsigned int xpPoint);
+
+    // default garbage-value constructor
+    User() {};
 };
 
 class Task{
@@ -29,13 +32,14 @@ class Task{
     time_t duedate;
     time_t finishedOn;
     bool finished = false;
-	User assignedUser = NULL;
+	bool assigned = false;
+	User assignedUser;
 
     // used to create a new task, only necessary informations are included
     Task(std::string title, std::string type, time_t startDate, time_t duedate);
 
     // used to recreate a task form database/frontend
-    Task(std::string title, std::string type, unsigned int taskID, bool pinned, time_t startDate, time_t duedate, time_t finished, bool isFinished);
+    Task(std::string title, std::string type, unsigned int taskID, bool pinned, time_t startDate, time_t duedate, time_t finished, bool isFinished, bool isAssigned, User assignedUser);
 };
 
 class TaskBoard{
@@ -62,20 +66,21 @@ enum DatabaseResult{
 
 //init function
 void initDatabase();// needs to be called first
+void closeDatabaseConnection();// if you want to pass valgrind, call this to close the connection properly
 
 // helper functions
 // Im trying to use id instead of the whole class as much as possible
 // so the frontend don't need to give back the entire user/task/taskboard
 
 // functions about user
-DatabaseResult registerUser(std::string, unsigned int password);
-DatabaseResult getUser(std::string username, User &returnedUser);
+DatabaseResult registerUser(std::string username, unsigned int password);
+DatabaseResult getUser(std::string username, User **returnedUser);
 DatabaseResult updateUserInfo(User user);
 
 // functions about user inviting other users to join taskboard
 
 // invite a user to join the taskboard
-DatabaseResult inviteUser(User fromUser, std::string toUserName, unsigned int taskBoard_id); 
+DatabaseResult inviteUser(User fromUser, unsigned int toUser, unsigned int taskBoard_id); 
 // returns all invitations the user "whom" has received
 // the key of the dictionary is "who invits you", and the value of the dictionary is "to what taskboard"
 // there is no "accept invitation" thing, you just directly updtae the taskboard, thats enough
@@ -95,7 +100,7 @@ DatabaseResult kickOutUserFromTaskboard(unsigned int user_id, unsigned int taskb
 DatabaseResult deleteTaskBoard(TaskBoard taskboard);
 
 // functions about leaderboard
-std::unordered_map<User, unsigned int> getLeaderboard();// I don't think theres a need to use DatabaseResult here, since this function will always succeed
+std::unordered_map<std::string, unsigned int> getLeaderboard();// I don't think theres a need to use DatabaseResult here, since this function will always succeed
 // if you want to set xp, just call updateUserInfo
 // if you want to get xp, just call getLeaderboard() and find the user. The cost are negligible
 #endif
