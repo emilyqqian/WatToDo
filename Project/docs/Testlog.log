@@ -1,0 +1,282 @@
+Start testing: Oct 31 14:13 EDT
+----------------------------------------------------------
+1/9 Testing: UserTest.ForValidUserRegistration
+1/9 Test: UserTest.ForValidUserRegistration
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=UserTest.ForValidUserRegistration" "--gtest_also_run_disabled_tests"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"UserTest.ForValidUserRegistration" start time: Oct 31 14:13 EDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = UserTest.ForValidUserRegistration
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+username and password: s969chen Welcome1!
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 1 test from UserTest
+[ RUN      ] UserTest.ForValidUserRegistration
+[       OK ] UserTest.ForValidUserRegistration (11 ms)
+[----------] 1 test from UserTest (11 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 1 test from 1 test suite ran. (92 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"UserTest.ForValidUserRegistration" end time: Oct 31 14:13 EDT
+"UserTest.ForValidUserRegistration" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/9 Testing: UserTest.ForDuplicateUserRegistration
+2/9 Test: UserTest.ForDuplicateUserRegistration
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=UserTest.ForDuplicateUserRegistration" "--gtest_also_run_disabled_tests"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"UserTest.ForDuplicateUserRegistration" start time: Oct 31 14:13 EDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = UserTest.ForDuplicateUserRegistration
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+username and password: s969chen Welcome1!
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 1 test from UserTest
+[ RUN      ] UserTest.ForDuplicateUserRegistration
+[       OK ] UserTest.ForDuplicateUserRegistration (15 ms)
+[----------] 1 test from UserTest (15 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 1 test from 1 test suite ran. (94 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"UserTest.ForDuplicateUserRegistration" end time: Oct 31 14:13 EDT
+"UserTest.ForDuplicateUserRegistration" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/9 Testing: UserTest.ForInvalidNameUser
+3/9 Test: UserTest.ForInvalidNameUser
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=UserTest.ForInvalidNameUser" "--gtest_also_run_disabled_tests"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"UserTest.ForInvalidNameUser" start time: Oct 31 14:13 EDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = UserTest.ForInvalidNameUser
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+username and password: s969chen Welcome1!
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 1 test from UserTest
+[ RUN      ] UserTest.ForInvalidNameUser
+[       OK ] UserTest.ForInvalidNameUser (0 ms)
+[----------] 1 test from UserTest (0 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 1 test from 1 test suite ran. (66 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"UserTest.ForInvalidNameUser" end time: Oct 31 14:13 EDT
+"UserTest.ForInvalidNameUser" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/9 Testing: UserTest.ForGetValidUser
+4/9 Test: UserTest.ForGetValidUser
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=UserTest.ForGetValidUser" "--gtest_also_run_disabled_tests"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"UserTest.ForGetValidUser" start time: Oct 31 14:13 EDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = UserTest.ForGetValidUser
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+username and password: s969chen Welcome1!
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 1 test from UserTest
+[ RUN      ] UserTest.ForGetValidUser
+[       OK ] UserTest.ForGetValidUser (16 ms)
+[----------] 1 test from UserTest (16 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 1 test from 1 test suite ran. (86 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"UserTest.ForGetValidUser" end time: Oct 31 14:13 EDT
+"UserTest.ForGetValidUser" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/9 Testing: UserTest.ForGetNonExistUser
+5/9 Test: UserTest.ForGetNonExistUser
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=UserTest.ForGetNonExistUser" "--gtest_also_run_disabled_tests"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"UserTest.ForGetNonExistUser" start time: Oct 31 14:13 EDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = UserTest.ForGetNonExistUser
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+username and password: s969chen Welcome1!
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 1 test from UserTest
+[ RUN      ] UserTest.ForGetNonExistUser
+[       OK ] UserTest.ForGetNonExistUser (4 ms)
+[----------] 1 test from UserTest (4 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 1 test from 1 test suite ran. (73 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"UserTest.ForGetNonExistUser" end time: Oct 31 14:13 EDT
+"UserTest.ForGetNonExistUser" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/9 Testing: UserTest.ForUpdateValidUser
+6/9 Test: UserTest.ForUpdateValidUser
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=UserTest.ForUpdateValidUser" "--gtest_also_run_disabled_tests"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"UserTest.ForUpdateValidUser" start time: Oct 31 14:13 EDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = UserTest.ForUpdateValidUser
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+username and password: s969chen Welcome1!
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 1 test from UserTest
+[ RUN      ] UserTest.ForUpdateValidUser
+[       OK ] UserTest.ForUpdateValidUser (49 ms)
+[----------] 1 test from UserTest (49 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 1 test from 1 test suite ran. (115 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"UserTest.ForUpdateValidUser" end time: Oct 31 14:13 EDT
+"UserTest.ForUpdateValidUser" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/9 Testing: UserTest.ForUpdateInvalidNameUser
+7/9 Test: UserTest.ForUpdateInvalidNameUser
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=UserTest.ForUpdateInvalidNameUser" "--gtest_also_run_disabled_tests"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"UserTest.ForUpdateInvalidNameUser" start time: Oct 31 14:13 EDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = UserTest.ForUpdateInvalidNameUser
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+username and password: s969chen Welcome1!
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 1 test from UserTest
+[ RUN      ] UserTest.ForUpdateInvalidNameUser
+[       OK ] UserTest.ForUpdateInvalidNameUser (14 ms)
+[----------] 1 test from UserTest (14 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 1 test from 1 test suite ran. (90 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"UserTest.ForUpdateInvalidNameUser" end time: Oct 31 14:13 EDT
+"UserTest.ForUpdateInvalidNameUser" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/9 Testing: UserTest.ForUpdateNonExistingUser
+8/9 Test: UserTest.ForUpdateNonExistingUser
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=UserTest.ForUpdateNonExistingUser" "--gtest_also_run_disabled_tests"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"UserTest.ForUpdateNonExistingUser" start time: Oct 31 14:13 EDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = UserTest.ForUpdateNonExistingUser
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+username and password: s969chen Welcome1!
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 1 test from UserTest
+[ RUN      ] UserTest.ForUpdateNonExistingUser
+[       OK ] UserTest.ForUpdateNonExistingUser (25 ms)
+[----------] 1 test from UserTest (25 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 1 test from 1 test suite ran. (90 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"UserTest.ForUpdateNonExistingUser" end time: Oct 31 14:13 EDT
+"UserTest.ForUpdateNonExistingUser" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/9 Testing: UserTest.ForLeaderboard
+9/9 Test: UserTest.ForLeaderboard
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=UserTest.ForLeaderboard" "--gtest_also_run_disabled_tests"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"UserTest.ForLeaderboard" start time: Oct 31 14:13 EDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = UserTest.ForLeaderboard
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+username and password: s969chen Welcome1!
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 1 test from UserTest
+[ RUN      ] UserTest.ForLeaderboard
+[       OK ] UserTest.ForLeaderboard (47 ms)
+[----------] 1 test from UserTest (47 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 1 test from 1 test suite ran. (112 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"UserTest.ForLeaderboard" end time: Oct 31 14:13 EDT
+"UserTest.ForLeaderboard" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 31 14:13 EDT
