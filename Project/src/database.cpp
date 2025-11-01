@@ -45,7 +45,8 @@ void initDatabase() {
     std::string user = MYSQL_USER;
     std::string password = MYSQL_PASSWORD;
 
-    std::cout << "username and password: " << user << " " << password << std::endl;
+    // wtf why this is supposed to be debug-only why I pushed it. :(
+    //std::cout << "username and password: " << user << " " << password << std::endl;
 
     try {
         session = new mysqlx::Session("riku.shoshin.uwaterloo.ca", 33060, user, password);
