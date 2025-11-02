@@ -85,8 +85,11 @@ DatabaseResult getUser(std::string username, User &returnedUser){
         }
         
         mysqlx::Row row = res.fetchOne();
+		returnedUser.userid = row[0].get<int>();
+		returnedUser.username = row[1].get<std::string>();
+		returnedUser.password = row[2].get<int>();
+		returnedUser.points = row[3].get<int>();
 
-		returnedUser = User(row[0].get<int>(), row[1].get<std::string>(), row[2].get<int>(), row[3].get<int>());
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
@@ -103,7 +106,12 @@ DatabaseResult getUser(unsigned int userid, User& returnedUser) {
 
         mysqlx::Row row = res.fetchOne();
 
-        returnedUser = User(row[0].get<int>(), row[1].get<std::string>(), row[2].get<int>(), row[3].get<int>());
+        returnedUser.userid = row[0].get<int>();
+        returnedUser.username = row[1].get<std::string>();
+        returnedUser.password = row[2].get<int>();
+        returnedUser.points = row[3].get<int>();
+
+
         return SUCCESS;
     }
     catch (const mysqlx::Error& err) {
@@ -244,10 +252,17 @@ DatabaseResult getTask(unsigned int task_id, Task &returnedTask) {
 			if (res != SUCCESS) return res;
         }
 
-		returnedTask = Task(row[3].get<std::string>(), row[4].get<std::string>(), row[1].get<unsigned int>(), row[0].get<unsigned int>(),
-			row[8].get<bool>(), date(row[6].get<std::string>()), date(row[5].get<std::string>()), 
-            row[7].isNull() ? date() : date(row[7].get<std::string>()),
-            !row[7].isNull(), !row[2].isNull(), row[2].isNull() ? User() : user);
+		returnedTask.taskID = row[0].get<unsigned int>();
+		returnedTask.boardID = row[1].get<unsigned int>();
+		returnedTask.assigned = !row[2].isNull();
+		if (returnedTask.assigned) returnedTask.assignedUser = user;
+		returnedTask.title = row[3].get<std::string>();
+		returnedTask.type = row[4].get<std::string>();
+		returnedTask.duedate = date(row[5].get<std::string>());
+		returnedTask.startDate = date(row[6].get<std::string>());
+		returnedTask.finished = !row[7].isNull();
+		if (returnedTask.finished) returnedTask.finishedOn = date(row[7].get<std::string>());
+		returnedTask.pinned = row[8].get<bool>();
 
 		return SUCCESS;
     }
