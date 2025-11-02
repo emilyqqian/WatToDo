@@ -223,7 +223,7 @@ DatabaseResult updateTask(Task task, unsigned int performed_by) {
 		if (res.fetchOne()[0].get<unsigned int>() != task.boardID) return OTHER_ERROR;
 
         // update task
-		taskTable->update().set("assigned_user_id", task.assigned ? task.assignedUser.userid : mysqlx::nullvalue)
+		taskTable->update().set("assigned_user_id", task.assigned ? (mysqlx::Value)task.assignedUser.userid : mysqlx::nullvalue)
             .set("title", task.title).set("type", task.type).set("pinned", task.pinned)
             .set("start_date", task.startDate.toString()).set("due_date", task.duedate.toString())
             .set("finished_date", task.finished ? task.finishedOn.toString() : mysqlx::nullvalue)
