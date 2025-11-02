@@ -40,56 +40,56 @@ TEST(UserTest, ForInvalidNameUser){
 }
 
 TEST(UserTest, ForGetValidUser) {
-    User *user;
+    User user;
     registerUser("676767", 676767);
     EXPECT_EQ(SUCCESS, getUser("676767", &user));
-    EXPECT_EQ(user->username, "676767");
-    EXPECT_EQ(user->password, 676767);
-    EXPECT_EQ(user->points, 0);
+    EXPECT_EQ(user.username, "676767");
+    EXPECT_EQ(user.password, 676767);
+    EXPECT_EQ(user.points, 0);
 }
 
 TEST(UserTest, ForGetNonExistUser) {
-    User *user;
+    User user;
     EXPECT_EQ(DOES_NOT_EXIST, getUser("676767", &user));
 }
 
 TEST(UserTest, ForUpdateValidUser) {
-    User *user;
+    User user;
     registerUser("676767", 676767);
     EXPECT_EQ(SUCCESS, getUser("676767", &user));
-    user->password = 767676;
-    user->username = "767676";
-    user->points = 676767;
+    user.password = 767676;
+    user.username = "767676";
+    user.points = 676767;
     EXPECT_EQ(SUCCESS, updateUserInfo(*user));
     EXPECT_EQ(SUCCESS, getUser("767676", &user));
-    EXPECT_EQ(767676, user->password);
-    EXPECT_EQ("767676", user->username);
-    EXPECT_EQ(676767, user->points);
+    EXPECT_EQ(767676, user.password);
+    EXPECT_EQ("767676", user.username);
+    EXPECT_EQ(676767, user.points);
 }
 
 TEST(UserTest, ForUpdateInvalidNameUser){
-    User *user;
+    User user;
     registerUser("676767", 676767);
     EXPECT_EQ(SUCCESS, getUser("676767", &user));
-    user->username = "11451419198101145141919810sadj,fkjaghshjakfhdshvdakbgkakbhgknbfvjhksa";
+    user.username = "11451419198101145141919810sadj,fkjaghshjakfhdshvdakbgkakbhgknbfvjhksa";
     EXPECT_EQ(NAME_OVERFLOW, updateUserInfo(*user));
 }
 
 TEST(UserTest, ForUpdateNonExistingUser){
-    User *user;
+    User user;
     registerUser("676767", 676767);
     EXPECT_EQ(SUCCESS, getUser("676767", &user));
-    user->userid = 676767;
+    user.userid = 676767;
     EXPECT_EQ(DOES_NOT_EXIST, updateUserInfo(*user));
 }
 
 TEST(UserTest, ForLeaderboard){
     registerUser("676767", 676767);
     registerUser("676768", 676767);
-    User *user;
+    User user;
     getUser("676767", &user);
-    user->points = 114514;
-    updateUserInfo(*user);
+    user.points = 114514;
+    updateUserInfo(user);
     std::unordered_map<std::string, unsigned int> points = getLeaderboard();
     EXPECT_EQ(2, points.size());
     EXPECT_EQ(114514, points["676767"]);

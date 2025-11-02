@@ -10,37 +10,6 @@ mysqlx::Schema *db;
 
 std::unique_ptr<mysqlx::Table> userTable, taskTable, taskboardTable, taskboardUserTable, invitationTable;
 
-User::User(unsigned int userid, std::string username, unsigned int password, unsigned int xpPoint){
-    this->username = username;
-    this->password = password;
-    this->userid = userid;
-    this->points = xpPoint;
-}
-
-// this part is not relevant yet, but it occupies space, so comment out to boost test coverage hahaha
-
-/*Task::Task(std::string title, std::string type, time_t startDate, time_t duedate){
-    this->title = title;
-    this->type = type;
-    this->startDate = startDate;
-    this->duedate = duedate;
-    // initialized but garbage value
-    this->assignedUser = User();
-}
-
-Task::Task(std::string title, std::string type, unsigned int taskID, bool pinned, time_t startDate, time_t duedate, time_t finished, bool isFinished, bool isAssigned, User assignedUser){
-    this->title = title;
-    this->type = type;
-    this->taskID = taskID;
-    this->pinned = pinned;
-    this->startDate = startDate;
-    this->duedate = duedate;
-    this->finished = isFinished;
-    this->finishedOn = finished;
-    this->assigned = isAssigned;
-    this->assignedUser = assignedUser;
-}*/
-
 void initDatabase() {
     std::string user = MYSQL_USER;
     std::string password = MYSQL_PASSWORD;
@@ -64,12 +33,14 @@ void initDatabase() {
 		taskboardTable = std::make_unique<mysqlx::Table>(db.getTable("Test_Taskboard"));
 		taskboardUserTable = std::make_unique<mysqlx::Table>(db.getTable("Test_TaskboardUser"));
 		invitationTable = std::make_unique<mysqlx::Table>(db.getTable("Test_Invitation"));
+		bool debug = true;
 #else
         userTable = std::make_unique<mysqlx::Table>(db.getTable("User"));
         taskTable = std::make_unique<mysqlx::Table>(db.getTable("Task"));
         taskboardTable = std::make_unique<mysqlx::Table>(db.getTable("Taskboard"));
         taskboardUserTable = std::make_unique<mysqlx::Table>(db.getTable("TaskboardUser"));
         invitationTable = std::make_unique<mysqlx::Table>(db.getTable("Invitation"));
+        bool debug = false;
 #endif
 
     }
@@ -103,7 +74,7 @@ DatabaseResult registerUser(std::string username, unsigned int password){
     }
 }
 
-DatabaseResult getUser(std::string username, User **returnedUser){
+DatabaseResult getUser(std::string username, User &returnedUser){
     try{
         // first get the encrypted username;
         if (username.length() > 50) return DOES_NOT_EXIST;
@@ -115,11 +86,29 @@ DatabaseResult getUser(std::string username, User **returnedUser){
         
         mysqlx::Row row = res.fetchOne();
 
-		*returnedUser = new User(row[0].get<int>(), row[1].get<std::string>(), row[2].get<int>(), row[3].get<int>());
+		returnedUser = User(row[0].get<int>(), row[1].get<std::string>(), row[2].get<int>(), row[3].get<int>());
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
 		return SQL_ERROR;
+    }
+}
+
+DatabaseResult getUser(unsigned int userid, User& returnedUser) {
+    try {
+        mysqlx::RowResult res = userTable->select("*").where("user_id = :userid").bind("userid", userid).execute();
+        if (res.count() == 0) {
+            return DOES_NOT_EXIST;
+        }
+
+        mysqlx::Row row = res.fetchOne();
+
+        returnedUser = User(row[0].get<int>(), row[1].get<std::string>(), row[2].get<int>(), row[3].get<int>());
+        return SUCCESS;
+    }
+    catch (const mysqlx::Error& err) {
+        std::cerr << "Error: " << err.what() << std::endl;
+        return SQL_ERROR;
     }
 }
 
@@ -146,6 +135,128 @@ DatabaseResult updateUserInfo(User user) {
     }
 }
 
+DatabaseResult addTask(unsigned int taskboard_id, Task task) {
+    try {
+        // first see if that taskboard exist;
+        if (taskboardTable->select("*").where("board_id = :board_id").bind("board_id", taskboard_id).execute().count() != 0) return ALREADY_EXIST;
+        
+        // check task's name and type length
+        if (task.title.length() > 100) return NAME_OVERFLOW;
+		if (task.type.length() > 100) return NAME_OVERFLOW;
+        
+		// check time conflict
+		if (task.duedate < task.startDate) return TIME_CONFLICT;
+		if (task.duedate < date()) return TIME_CONFLICT;
+
+        taskTable->insert("board_id", "title", "type", "start_date", "finished_on").values(taskboard_id, task.title, task.type, task.startDate.toString(), task.finishedOn.toString()).execute();
+        
+        return SUCCESS;
+    }
+    catch (const mysqlx::Error& err) {
+        std::cerr << "Error: " << err.what() << std::endl;
+        return SQL_ERROR;
+    }
+}
+
+DatabaseResult deleteTask(unsigned int task_id, unsigned int performed_by) {
+    try {
+
+		// Todo: we should check if the user has admin right to delete the task
+		// However, this is too complicated for now, so we skip this step
+		// We will implement this when we have taskboard admin system
+
+		// first check if we actually have that task
+		if (taskTable->select("*").where("task_id = :task_id").bind("task_id", task_id).execute().count() != 1) return DOES_NOT_EXIST;
+
+		taskTable->remove().where("task_id = :task_id").bind("task_id", task_id).execute();
+		return SUCCESS;
+	}
+	catch (const mysqlx::Error& err) {
+		std::cerr << "Error: " << err.what() << std::endl;
+		return SQL_ERROR;
+    }
+}
+
+DatabaseResult updateTask(Task task, unsigned int performed_by) {
+    try {
+
+        // Todo: we should check if the user has admin right to delete the task
+        // However, this is too complicated for now, so we skip this step
+        // We will implement this when we have taskboard admin system
+
+        // first check if we actually have that task
+        if (taskTable->select("*").where("task_id = :task_id").bind("task_id", task.taskID).execute().count() != 1) return DOES_NOT_EXIST;
+
+        // first see if that taskboard exist;
+        if (taskboardTable->select("*").where("board_id = :board_id").bind("board_id", task.boardID).execute().count() != 1) return DOES_NOT_EXIST;
+
+        // check task's name and type length
+        if (task.title.length() > 100) return NAME_OVERFLOW;
+        if (task.type.length() > 100) return NAME_OVERFLOW;
+
+        // check time conflict
+        if (task.duedate < task.startDate) return TIME_CONFLICT;
+        if (task.duedate < date()) return TIME_CONFLICT;
+
+		// check if assigned user is valid
+        if (task.assigned) {
+            if (userTable->select("*").where("user_id = :uid").bind("uid", task.assignedUser.userid).execute().count() != 1) return DOES_NOT_EXIST;
+        }
+
+        // check if finished date is valid
+        if (task.finished) {
+            if (task.finishedOn < task.startDate) return TIME_CONFLICT;
+			if (task.finishedOn < date()) return TIME_CONFLICT;
+        }
+
+		// ensure that the task remain in the same taskboard
+        // we do not support changing taskboard at this stage
+		mysqlx::RowResult res = taskTable->select("board_id").where("task_id = :task_id").bind("task_id", task.taskID).execute();
+		if (res.fetchOne()[0].get<unsigned int>() != task.boardID) return OTHER_ERROR;
+
+        // update task
+		taskTable->update().set("assigned_user_id", task.assigned ? task.assignedUser.userid : mysqlx::nullvalue)
+            .set("title", task.title).set("type", task.type).set("pinned", task.pinned)
+            .set("start_date", task.startDate.toString()).set("due_date", task.duedate.toString())
+            .set("finished_date", task.finished ? task.finishedOn.toString() : mysqlx::nullvalue)
+            .where("task_id = :task_id").bind("task_id", task.taskID).execute();
+        
+        return SUCCESS;
+    }
+    catch (const mysqlx::Error& err) {
+        std::cerr << "Error: " << err.what() << std::endl;
+        return SQL_ERROR;
+    }
+}
+
+DatabaseResult getTask(unsigned int task_id, Task &returnedTask) {
+    try {
+        // first check if we actually have that task
+        if (taskTable->select("*").where("task_id = :task_id").bind("task_id", task_id).execute().count() != 1) return DOES_NOT_EXIST;
+
+		mysqlx::Row row = taskTable->select("*").where("task_id = :task_id").bind("task_id", task_id).execute().fetchOne();
+
+
+        // prepare user
+        User user;
+        if (!row[2].isNull()) {
+			DatabaseResult res = getUser(row[2].get<unsigned int>(), user);
+			if (res != SUCCESS) return res;
+        }
+
+		returnedTask = Task(row[3].get<std::string>(), row[4].get<std::string>(), row[1].get<unsigned int>(), row[0].get<unsigned int>(),
+			row[8].get<bool>(), date(row[6].get<std::string>()), date(row[5].get<std::string>()), 
+            row[7].isNull() ? date() : date(row[7].get<std::string>()),
+            !row[7].isNull(), !row[2].isNull(), row[2].isNull() ? User() : user);
+
+		return SUCCESS;
+    }
+    catch (const mysqlx::Error& err) {
+        std::cerr << "Error: " << err.what() << std::endl;
+        return SQL_ERROR;
+    }
+}
+
 std::unordered_map<std::string, unsigned int> getLeaderboard() {
     try{
 		std::list<mysqlx::Row> rows = userTable->select("username", "xp").execute().fetchAll();
@@ -166,7 +277,7 @@ std::unordered_map<std::string, unsigned int> getLeaderboard() {
 
 int main() {
 	initDatabase();
-    User *user = new User();
+    User user = User();
 	auto map = getLeaderboard();
 	for (auto const& pair : map) {
 		std::cout << "Username and xp: " << pair.first << " and " << pair.second << std::endl;
