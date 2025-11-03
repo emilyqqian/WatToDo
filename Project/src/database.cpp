@@ -10,6 +10,8 @@ mysqlx::Schema *db;
 
 std::unique_ptr<mysqlx::Table> userTable, taskTable, taskboardTable, taskboardUserTable, invitationTable;
 
+bool debug;
+
 void initDatabase() {
     std::string user = MYSQL_USER;
     std::string password = MYSQL_PASSWORD;
@@ -33,14 +35,14 @@ void initDatabase() {
 		taskboardTable = std::make_unique<mysqlx::Table>(db.getTable("Test_TaskBoard"));
 		taskboardUserTable = std::make_unique<mysqlx::Table>(db.getTable("Test_TaskboardUser"));
 		invitationTable = std::make_unique<mysqlx::Table>(db.getTable("Test_Invitation"));
-		bool debug = true;
+		debug = true;
 #else
         userTable = std::make_unique<mysqlx::Table>(db.getTable("User"));
         taskTable = std::make_unique<mysqlx::Table>(db.getTable("Task"));
         taskboardTable = std::make_unique<mysqlx::Table>(db.getTable("TaskBoard"));
         taskboardUserTable = std::make_unique<mysqlx::Table>(db.getTable("TaskboardUser"));
         invitationTable = std::make_unique<mysqlx::Table>(db.getTable("Invitation"));
-        bool debug = false;
+        debug = false;
 #endif
 
     }
@@ -239,12 +241,10 @@ DatabaseResult updateTask(Task task, unsigned int performed_by) {
 
 DatabaseResult getTask(unsigned int task_id, Task &returnedTask) {
     try {
-        std::cout << "a\n";
         // first check if we actually have that task
         if (taskTable->select("*").where("task_id = :task_id").bind("task_id", task_id).execute().count() != 1) return DOES_NOT_EXIST;
 
 		mysqlx::Row row = taskTable->select("*").where("task_id = :task_id").bind("task_id", task_id).execute().fetchOne();
-        std::cout << "b\n";
 
         // prepare user
         User user;
@@ -252,8 +252,6 @@ DatabaseResult getTask(unsigned int task_id, Task &returnedTask) {
 			DatabaseResult res = getUser(row[2].get<unsigned int>(), user);
 			if (res != SUCCESS) return res;
         }
-        std::cout << "c\n";
-        std::cout << row[5].get<int>() << "\n";
 
 		returnedTask.taskID = row[0].get<unsigned int>();
 		returnedTask.boardID = row[1].get<unsigned int>();
@@ -261,10 +259,10 @@ DatabaseResult getTask(unsigned int task_id, Task &returnedTask) {
 		if (returnedTask.assigned) returnedTask.assignedUser = user;
 		returnedTask.title = row[3].get<std::string>();
 		returnedTask.type = row[4].get<std::string>();
-		returnedTask.duedate = date(row[5].get<std::string>());
-		returnedTask.startDate = date(row[6].get<std::string>());
+		returnedTask.duedate = date(row[5]);
+		returnedTask.startDate = date(row[6]);
 		returnedTask.finished = !row[7].isNull();
-		if (returnedTask.finished) returnedTask.finishedOn = date(row[7].get<std::string>());
+		if (returnedTask.finished) returnedTask.finishedOn = date(row[7]);
 		returnedTask.pinned = row[8].get<bool>();
 
 		return SUCCESS;
@@ -295,9 +293,19 @@ std::unordered_map<std::string, unsigned int> getLeaderboard() {
 
 int main() {
 	initDatabase();
-	Task t(1, "test", "feature", date("2025-06-01"), date("2026-06-10"));
-	std::cout << getTask(1, t) << std::endl;
+	Task t;
+    User u;
+
+    std::cout << "returned status: " << getTask(2, t) << std::endl;
+    std::cout << "returned status: " << getUser(1, u) << std::endl;
+
+    t.assigned = true;
+    t.assignedUser = u;
+
+	std::cout << "returned status: " << updateTask(t, 1) << std::endl;
+    std::cout << "returned status: " << getTask(2, t) << std::endl;
 	std::cout << t.title << " " << t.type << " " << t.startDate.toString() << " " << t.duedate.toString() << std::endl;
+    std::cout << t.assignedUser.username << std::endl;
 	closeDatabaseConnection();
 	return 0;
 }

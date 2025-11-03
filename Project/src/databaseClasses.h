@@ -1,9 +1,40 @@
 #include <string>
 #include <set>
 #include <ctime>
+#include <vector>
+#include <cstddef>
 
 #ifndef _DATABASE_CLASSES_H
 #define _DATABASE_CLASSES_H
+
+std::vector<uint64_t> mysqlx_raw_as_u64_vector(const mysqlx::Value& in_value){
+  std::vector<uint64_t> out;
+
+  const auto bytes = in_value.getRawBytes();
+  auto ptr = reinterpret_cast<const std::byte*>(bytes.first);
+  auto end = reinterpret_cast<const std::byte*>(bytes.first) + bytes.second;
+
+  while (ptr != end) {
+    static constexpr std::byte carry_flag{0b1000'0000};
+    static constexpr std::byte value_mask{0b0111'1111};
+
+    uint64_t v = 0;
+    uint64_t shift = 0;
+    bool is_carry;
+    do {
+      auto byte = *ptr;
+      is_carry = (byte & carry_flag) == carry_flag;
+      v |= std::to_integer<uint64_t>(byte & value_mask) << shift;
+
+      ++ptr;
+      shift += 7;
+    } while (is_carry && ptr != end && shift <= 63);
+
+    out.push_back(v);
+  }
+
+  return out;
+}
 
 class date {
 public:
@@ -12,11 +43,10 @@ public:
     int month;
     int day;
 
-    date(std::string src) {
-        // expected format: YYYY-MM-DD
-        year = std::stoi(src.substr(0, 4));
-        month = std::stoi(src.substr(5, 2));
-        day = std::stoi(src.substr(8, 2));
+    date(int year, int month, int day) {
+        this->year = year;
+        this->month = month;
+        this->day = day;
     }
 
     date() {
@@ -26,6 +56,17 @@ public:
         year = now->tm_year + 1900;
         month = now->tm_mon + 1;
         day = now->tm_mday;
+    }
+
+    date(const mysqlx::Value& value){
+        const auto vector = mysqlx_raw_as_u64_vector(value);
+        if (vector.size() < 3)
+        throw std::out_of_range{"Value is not a valid DATE"};
+
+        year = static_cast<int>(vector.at(0));
+        month = static_cast<int>(vector.at(1));
+        day = static_cast<int>(vector.at(2));
+        //return std::chrono::year{static_cast<int>(vector.at(0))} / static_cast<int>(vector.at(1)) / static_cast<int>(vector.at(2));
     }
 
     int operator <(const date& other) const {
@@ -96,6 +137,11 @@ public:
     bool assigned = false;
     User assignedUser;
 
+    // default init
+    Task(){
+        
+    }
+
     // used to create a new task, only necessary informations are included
     Task(unsigned int boardID, std::string title, std::string type, date startDate, date duedate) {
         this->title = title;
@@ -145,6 +191,13 @@ public:
     std::set<Task> tasklist;
     std::set<User> users;
     std::set<User> admins;
+
+    TaskBoard& operator=(const TaskBoard& other){
+        this->name = other.name;
+        this->tasklist = other.tasklist;
+        this->users = other.users;
+        this->admins = other.admins;
+    }
 };
 
 #endif
