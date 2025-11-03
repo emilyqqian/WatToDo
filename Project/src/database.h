@@ -42,7 +42,16 @@ DatabaseResult inviteUser(User fromUser, unsigned int toUser, unsigned int taskB
 DatabaseResult getAllInvitation(unsigned int user_id, std::unordered_multimap<User, TaskBoard> &returnedInvitations);
 
 // functions about task
-DatabaseResult addTask(unsigned int taskboard_id, Task &task);// note: you do not need to assign taskID. This will automatically set an id for you
+
+// here is how it works:
+// first, you somehow get the id of the taskboard where you want to add this task.
+// second, you create the task with only `title`, `type`, `startDate`, and `duedate`
+// third, call this function to add the task to the database
+// lastly, you may notice that the task is passed by reference.
+// after executing this task, I will fill the `task_id` field of the task, 
+// so you can do more things using ths id. 
+DatabaseResult addTask(unsigned int taskboard_id, Task &task);
+
 DatabaseResult deleteTask(unsigned int task_id, unsigned int performed_by);
 DatabaseResult updateTask(Task task, unsigned int performed_by);
 DatabaseResult getTask(unsigned int task_id, Task &returnedTask);
