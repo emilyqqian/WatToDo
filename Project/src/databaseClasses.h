@@ -121,6 +121,14 @@ public:
 		points = other.points;
 		return *this;
 	}
+
+    bool operator <(const User& other) const {
+        return this->username < other.username;
+    }
+
+    bool operator >(const User& other) const {
+        return other < *this;
+    }
 };
 
 class Task {
@@ -168,6 +176,8 @@ public:
         this->boardID = boardID;
     }
 
+    Task(const mysqlx::Row row);
+
 	Task& operator=(const Task& other) {
 		this->title = other.title;
 		this->type = other.type;
@@ -182,6 +192,15 @@ public:
 		this->boardID = other.boardID;
 		return *this;
 	}
+
+    bool operator <(const Task& other) const {
+        if (this->duedate == other.duedate) return this->startDate < other.startDate;
+        return this->duedate < other.duedate;
+    }
+
+    bool operator >(const Task& other) const {
+        return other < *this;
+    }
 };
 
 class TaskBoard {
@@ -197,6 +216,7 @@ public:
         this->tasklist = other.tasklist;
         this->users = other.users;
         this->admins = other.admins;
+        return *this;
     }
 };
 

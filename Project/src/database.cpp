@@ -12,6 +12,20 @@ std::unique_ptr<mysqlx::Table> userTable, taskTable, taskboardTable, taskboardUs
 
 bool debug;
 
+Task::Task(const mysqlx::Row row){
+    this->taskID = row[0].get<unsigned int>();
+	this->boardID = row[1].get<unsigned int>();
+	this->assigned = !row[2].isNull();
+	if (this->assigned) getUser(row[2].get<unsigned int>(), this->assignedUser);
+	this->title = row[3].get<std::string>();
+	this->type = row[4].get<std::string>();
+	this->duedate = date(row[5]);
+	this->startDate = date(row[6]);
+	this->finished = !row[7].isNull();
+	if (this->finished) this->finishedOn = date(row[7]);
+	this->pinned = row[8].get<bool>();
+}
+
 void initDatabase() {
     std::string user = MYSQL_USER;
     std::string password = MYSQL_PASSWORD;
@@ -273,6 +287,27 @@ DatabaseResult getTask(unsigned int task_id, Task &returnedTask) {
     }
 }
 
+DatabaseResult getAssignedTaskForUser(unsigned int user_id, std::vector<Task> &returnedTaskList){
+    try {
+        // test if user with that userid actually exist
+        if (userTable->select("*").where("user_id = :uid").bind("uid", user_id).execute().count() == 0) {
+            return DOES_NOT_EXIST;
+        }
+
+        std::list<mysqlx::Row> rows = taskTable->select("*").where("assigned_user_id = :uid").bind("uid", user_id).execute().fetchAll();
+        
+        returnedTaskList.clear();
+        for (mysqlx::Row row : rows){
+            returnedTaskList.push_back(Task(row));
+        }
+        
+        return SUCCESS;
+    }catch (const mysqlx::Error& err) {
+        std::cerr << "Error: " << err.what() << std::endl;
+		return SQL_ERROR;
+    }
+}
+
 std::unordered_map<std::string, unsigned int> getLeaderboard() {
     try{
 		std::list<mysqlx::Row> rows = userTable->select("username", "xp").execute().fetchAll();
@@ -293,19 +328,11 @@ std::unordered_map<std::string, unsigned int> getLeaderboard() {
 
 int main() {
 	initDatabase();
-	Task t;
-    User u;
 
-    std::cout << "returned status: " << getTask(2, t) << std::endl;
-    std::cout << "returned status: " << getUser(1, u) << std::endl;
-
-    t.assigned = true;
-    t.assignedUser = u;
-
-	std::cout << "returned status: " << updateTask(t, 1) << std::endl;
-    std::cout << "returned status: " << getTask(2, t) << std::endl;
-	std::cout << t.title << " " << t.type << " " << t.startDate.toString() << " " << t.duedate.toString() << std::endl;
-    std::cout << t.assignedUser.username << std::endl;
+    std::vector<Task> assigned;
+    std::cout << "returned status: " << getAssignedTaskForUser(1, assigned) << std::endl;
+    std::cout << assigned.size() << std::endl;
+    std::cout << assigned[0].title << std::endl;
 	closeDatabaseConnection();
 	return 0;
 }

@@ -46,6 +46,7 @@ DatabaseResult addTask(unsigned int taskboard_id, Task task);// note: you do not
 DatabaseResult deleteTask(unsigned int task_id, unsigned int performed_by);
 DatabaseResult updateTask(Task task, unsigned int performed_by);
 DatabaseResult getTask(unsigned int task_id, Task &returnedTask);
+DatabaseResult getAssignedTaskForUser(unsigned int user_id, std::vector<Task> &returnedTaskList);
 
 // functions about taskBoard
 DatabaseResult getTaskBoardByUser(unsigned int user_id, std::vector<TaskBoard> &returnedTaskList);
