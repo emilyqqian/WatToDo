@@ -159,7 +159,7 @@ DatabaseResult updateUserInfo(User user) {
     }
 }
 
-DatabaseResult addTask(unsigned int taskboard_id, Task task) {
+DatabaseResult addTask(unsigned int taskboard_id, Task& task) {
     try {
         // first see if that taskboard exist;
         if (taskboardTable->select("*").where("board_id = :board_id").bind("board_id", taskboard_id).execute().count() != 1) return DOES_NOT_EXIST;
@@ -172,8 +172,17 @@ DatabaseResult addTask(unsigned int taskboard_id, Task task) {
 		if (task.duedate < task.startDate) return TIME_CONFLICT;
 		if (task.duedate < date()) return TIME_CONFLICT;
 
+        // check if we already have an identical task
+        if (taskTable->select("*").where("board_id = :board_id and title = :title and type = :type").bind("board_id", taskboard_id).bind("title", task.title).bind("type", task.type).execute().count() != 0){
+            return ALREADY_EXIST;
+        }
+
         taskTable->insert("board_id", "title", "type", "start_date", "due_date").values(taskboard_id, task.title, task.type, task.startDate.toString(), task.duedate.toString()).execute();
         
+        task.taskID = taskTable->select("*").where("board_id = :board_id and title = :title and type = :type")
+        .bind("board_id", taskboard_id).bind("title", task.title).bind("type", task.type)
+        .execute().fetchOne()[0].get<unsigned int>();
+
         return SUCCESS;
     }
     catch (const mysqlx::Error& err) {
@@ -329,10 +338,9 @@ std::unordered_map<std::string, unsigned int> getLeaderboard() {
 int main() {
 	initDatabase();
 
-    std::vector<Task> assigned;
-    std::cout << "returned status: " << getAssignedTaskForUser(1, assigned) << std::endl;
-    std::cout << assigned.size() << std::endl;
-    std::cout << assigned[0].title << std::endl;
+    Task t(1, "test", "test", date(), date());
+    std::cout << "returned: " << addTask(1, t) << std::endl;
+    std::cout << "id: " << t.taskID << std::endl;
 	closeDatabaseConnection();
 	return 0;
 }

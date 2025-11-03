@@ -1,9 +1,9 @@
 # Test Plan #2: User Test
 - Author: s969chen
 - Date: Nov 3 2025
-- ID: DB-U-U-2
+- ID: DB-R-U-1
 - Type: Dynamic
-- Level: Unit
+- Level: Regression
 
 ## Description:
 - Test operations about users
