@@ -1,55 +1,9 @@
 #include <string>
-#include <set>
-#include <chrono>
-#include <ctime>
 #include <unordered_map>
+#include "databaseClasses.h"
 
 #ifndef _DATABASE_H
 #define _DATABASE_H
-
-class User{
-    public:
-
-    unsigned int userid;
-    std::string username;// username has to be unique
-    unsigned int password;// hash of password
-	unsigned int points = 0;// points the user has earned
-
-    // used internally
-    User(unsigned int userid, std::string username, unsigned int password, unsigned int xpPoint);
-
-    // default garbage-value constructor
-    User() {};
-};
-
-class Task{
-    public:
-    unsigned int taskID;
-    std::string title;
-    std::string type;
-    bool pinned = false;
-    time_t startDate;
-    time_t duedate;
-    time_t finishedOn;
-    bool finished = false;
-	bool assigned = false;
-	User assignedUser;
-
-    // used to create a new task, only necessary informations are included
-    Task(std::string title, std::string type, time_t startDate, time_t duedate);
-
-    // used to recreate a task form database/frontend
-    Task(std::string title, std::string type, unsigned int taskID, bool pinned, time_t startDate, time_t duedate, time_t finished, bool isFinished, bool isAssigned, User assignedUser);
-};
-
-class TaskBoard{
-    public:
-    unsigned int taskboard_id;
-    std::string name;
-    std::set<Task> tasklist;
-    std::set<User> users;
-    std::set<User> admins;
-};
 
 enum DatabaseResult{
     SUCCESS, // everything goes OK
@@ -74,7 +28,8 @@ void closeDatabaseConnection();// if you want to pass valgrind, call this to clo
 
 // functions about user
 DatabaseResult registerUser(std::string username, unsigned int password);
-DatabaseResult getUser(std::string username, User **returnedUser);
+DatabaseResult getUser(std::string username, User &returnedUser);
+DatabaseResult getUser(unsigned int userid, User& returnedUser);
 DatabaseResult updateUserInfo(User user);
 
 // functions about user inviting other users to join taskboard
@@ -87,9 +42,20 @@ DatabaseResult inviteUser(User fromUser, unsigned int toUser, unsigned int taskB
 DatabaseResult getAllInvitation(unsigned int user_id, std::unordered_multimap<User, TaskBoard> &returnedInvitations);
 
 // functions about task
-DatabaseResult addTask(unsigned int taskboard_id, Task task);// note: you do not need to assign taskID and all other part, I will cover that
-DatabaseResult deleteTask(unsigned int task_id);
-DatabaseResult updateTask(Task task);
+
+// here is how it works:
+// first, you somehow get the id of the taskboard where you want to add this task.
+// second, you create the task with only `title`, `type`, `startDate`, and `duedate`
+// third, call this function to add the task to the database
+// lastly, you may notice that the task is passed by reference.
+// after executing this task, I will fill the `task_id` field of the task, 
+// so you can do more things using ths id. 
+DatabaseResult addTask(unsigned int taskboard_id, Task &task);
+
+DatabaseResult deleteTask(unsigned int task_id, unsigned int performed_by);
+DatabaseResult updateTask(Task task, unsigned int performed_by);
+DatabaseResult getTask(unsigned int task_id, Task &returnedTask);
+DatabaseResult getAssignedTaskForUser(unsigned int user_id, std::vector<Task> &returnedTaskList);
 
 // functions about taskBoard
 DatabaseResult getTaskBoardByUser(unsigned int user_id, std::vector<TaskBoard> &returnedTaskList);
