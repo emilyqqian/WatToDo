@@ -1,0 +1,137 @@
+Use Case 1: Create a New Task Board
+
+Actor: Student / User
+Goal: Create a board to organize tasks
+Preconditions: User is logged in
+Main flow:
+  User clicks 'Create Board'
+
+  User inputs board name, description (optional)
+
+  User selects privacy (private / shared)
+
+  User clicks “Create”
+
+  System saves new board
+Postconditions: A new task board is available to the user
+Exception: Network failure → board is cached locally and synced later
+
+Use Case 2: Invite Members to Board
+
+Actor: Board Owner / Student
+Goal: Invite team members to collaborate
+Preconditions: User is logged in, board exists
+Main flow:
+  User opens board and selects “Invite”
+
+  User enters email/username
+
+  System sends invite notification
+
+  Invite appears on recipient dashboard
+Postconditions: Invite pending for target user
+Exception: Invalid user → system displays error message
+
+Use Case 3: Accept / Reject Board Invite
+
+Actor: Invited User
+Goal: Join or decline shared task board
+Preconditions: User received an invitation
+Main flow:
+  User opens notification/invites panel
+
+  User reviews invite details
+
+  User clicks “Accept” or “Decline”
+
+  System updates board access list
+Postconditions: User gains access / invite removed
+Exception: Board deleted before response → system shows error
+
+Use Case 4: Mark Task as Complete
+
+Actor: Student
+Goal: Update task progress
+Preconditions: Task assigned to user or visible to them
+Main flow:
+  User selects task
+
+  User clicks “Mark as Complete”
+
+  System updates task status and board view
+
+  System awards XP / points / badges (gamified)
+Postconditions: Task status updated and rewards granted
+Exception: Network failure → completion cached locally
+
+Use Case 5: Earn Rewards (Gamification)
+
+Actor: Student
+Goal: Get motivation and track progress
+Preconditions: User completes tasks / participates
+Main flow:
+  User completes tasks or meets milestones
+
+  System calculates XP, badges, streak points
+
+  System updates leaderboard (if enabled)
+Postconditions: Gamified stats updated and displayed
+Exception: System fails to load leaderboard → stats stored and shown later
+
+Use Case 6: View Shared Task Board
+
+Actor: Student
+Goal: See all tasks, assignments, due dates
+Preconditions: User has access to board
+Main flow:
+  User opens board
+
+  System displays tasks, members, due dates, XP badges
+Postconditions: User views current board status
+Exception: Board load failure → retry message
+
+Use Case 7: Login With Verification
+
+Actor: Student
+Goal: Securely access account
+Preconditions: Account exists
+Main flow:
+  User enters email & password
+
+  System checks hashed password
+
+  System sends 2FA code (optional)
+
+  User enters code (if enabled)
+
+  System grants access
+Postconditions: User logged in
+Exception: Invalid credentials → error message
+
+Use Case 7: Store Password Securely
+
+Actor: System (Stakeholder Requirement)
+Goal: Protect user credentials
+Preconditions: User registers or changes password
+Main flow:
+  User submits password
+
+  System hashes password (e.g., bcrypt)
+
+  Store hash in database
+Postconditions: Password never stored in plain text
+Exception: Hash service fails → deny registration/login
+
+Use Case 8: Fast Task Fetching
+
+Actor: System (Performance Requirement)
+Goal: Quickly load user boards and tasks
+Preconditions: User requests data
+Main flow:
+  Backend retrieves data from DB
+
+  Cache frequently accessed boards/tasks
+
+  Return results rapidly
+Postconditions: Data delivered quickly
+Exception: Cache timeout → fallback to DB fetch
