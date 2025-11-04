@@ -3,10 +3,12 @@
 #include <ctime>
 #include <vector>
 #include <cstddef>
+#include <mysqlx/xdevapi.h>
+#include "mysqlx_helpers.h" 
 
 #ifndef _DATABASE_CLASSES_H
 #define _DATABASE_CLASSES_H
-
+/*
 std::vector<uint64_t> mysqlx_raw_as_u64_vector(const mysqlx::Value& in_value){
   std::vector<uint64_t> out;
 
@@ -35,7 +37,7 @@ std::vector<uint64_t> mysqlx_raw_as_u64_vector(const mysqlx::Value& in_value){
 
   return out;
 }
-
+*/
 class date {
 public:
 
