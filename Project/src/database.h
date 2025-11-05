@@ -58,12 +58,28 @@ DatabaseResult getTask(unsigned int task_id, Task &returnedTask);
 DatabaseResult getAssignedTaskForUser(unsigned int user_id, std::vector<Task> &returnedTaskList);
 
 // functions about taskBoard
+
+// question:
+// @yash, when user_id does not exist, do I return an empty list or do i report error?
+// rn im being lazy, which means I would return an empty list
 DatabaseResult getTaskBoardByUser(unsigned int user_id, std::vector<TaskBoard> &returnedTaskList);
-DatabaseResult createTaskBoard(User owner, std::string name, TaskBoard &createdTaskBoard);
-DatabaseResult updateUserStatus(unsigned int user_id, unsigned int taskboard_id, bool isAdmin);
-DatabaseResult addUserToTaskboard(unsigned int user_id, unsigned int taskboard_id);
-DatabaseResult kickOutUserFromTaskboard(unsigned int user_id, unsigned int taskboard_id);
-DatabaseResult deleteTaskBoard(TaskBoard taskboard);
+DatabaseResult createTaskBoard(unsigned int owner_id, std::string name, TaskBoard &createdTaskBoard);
+DatabaseResult updateUserStatus(unsigned int user_id, unsigned int taskboard_id, bool isAdmin, unsigned int performed_by);
+DatabaseResult addUserToTaskboard(unsigned int user_id, unsigned int taskboard_id, unsigned int performed_by);
+DatabaseResult kickOutUserFromTaskboard(unsigned int user_id, unsigned int taskboard_id, unsigned int performed_by);
+DatabaseResult deleteTaskBoard(unsigned int board_id, unsigned int performed_by);
+
+
+// helper functions
+
+// this function checks if a user has the privilege to modify the taskboard
+// if any error occurs, for example, if a user does not exist or the taskboard does not exist
+// it will also report
+DatabaseResult userPrivilegeCheck(unsigned int performed_by, unsigned int taskboard_id);
+// this function does not check any pre-conditions, and does not have any error handling
+// However, it is much more efficient
+// use this only after you have checked that the request is valid
+void internal_addUserToTBoard(unsigned int user_id, unsigned int taskboard_id);
 
 // functions about leaderboard
 std::unordered_map<std::string, unsigned int> getLeaderboard();// I don't think theres a need to use DatabaseResult here, since this function will always succeed
