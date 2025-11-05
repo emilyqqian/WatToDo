@@ -322,52 +322,52 @@ DatabaseResult getTaskBoardByUser(unsigned int user_id, std::vector<TaskBoard> &
         }
 
         std::list<mysqlx::Row> rows = taskboardUserTable->select("board_id, name").where("user_id = :uid").bind("uid", user_id).execute().fetchAll();;
-        returnedTaskList = std::vector();
+        returnedTaskList = std::vector<TaskBoard>();
         
-        for (int i = 0; i < returnedTaskList.size(); i++){
+        for (mysqlx::Row board : rows){
             TaskBoard taskboard = TaskBoard();
-            taskboard.taskboard_id = rows[i][0].get<unsigned int>();
-            taskboard.name = rows[i][1].get<std::string>();
+            taskboard.taskboard_id = board[0].get<unsigned int>();
+            taskboard.name = board[1].get<std::string>();
 
             // get all users
             std::list<mysqlx::Row> users = taskboardUserTable->select("user_id, isAdmin").where("board_id = :bid").bind("bid", taskboard.taskboard_id).execute().fetchAll();
-            for (int j = 0; j < users.size(); j++){
+            for (mysqlx::Row each_user : users){
                 User user;
                 // we expect this to be true, since its in the database. 
                 // if we cannot find that user, there must be a very severe problem
-                if (getUser(users[j][0].get<unsigned int>(), user) != SUCCESS) return SQL_ERROR;
+                if (getUser(each_user[0].get<unsigned int>(), user) != SUCCESS) return SQL_ERROR;
 
                 taskboard.users.insert(user);
-                if (users[j][1].get<bool>()) taskboard.admins.insert(user);
+                if (each_user[1].get<bool>()) taskboard.admins.insert(user);
             }
 
             // get all tasks
-            std::list<mysqlx::row> tasks = taskTable.select("*").where("board_id = :bid").bind("bid", taskboard.taskboard_id).execute().fetchAll();
-            for (int j = 0; j < tasks.size(); j++){
+            std::list<mysqlx::Row> tasks = taskTable->select("*").where("board_id = :bid").bind("bid", taskboard.taskboard_id).execute().fetchAll();
+            for (mysqlx::Row task : tasks){
                 // prepare user
                 User user;
-                if (!row[2].isNull()) {
-			        DatabaseResult res = getUser(row[2].get<unsigned int>(), user);
+                if (!task[2].isNull()) {
+			        DatabaseResult res = getUser(task[2].get<unsigned int>(), user);
 			        if (res != SUCCESS) return SQL_ERROR;
                 }
 
                 Task returnedTask;
-		        returnedTask.taskID = row[0].get<unsigned int>();
-		        returnedTask.boardID = row[1].get<unsigned int>();
-		        returnedTask.assigned = !row[2].isNull();
+		        returnedTask.taskID = task[0].get<unsigned int>();
+		        returnedTask.boardID = task[1].get<unsigned int>();
+		        returnedTask.assigned = !task[2].isNull();
 		        if (returnedTask.assigned) returnedTask.assignedUser = user;
-		        returnedTask.title = row[3].get<std::string>();
-		        returnedTask.type = row[4].get<std::string>();
-		        returnedTask.duedate = date(row[5]);
-		        returnedTask.startDate = date(row[6]);
-		        returnedTask.finished = !row[7].isNull();
-		        if (returnedTask.finished) returnedTask.finishedOn = date(row[7]);
-		        returnedTask.pinned = row[8].get<bool>();
+		        returnedTask.title = task[3].get<std::string>();
+		        returnedTask.type = task[4].get<std::string>();
+		        returnedTask.duedate = date(task[5]);
+		        returnedTask.startDate = date(task[6]);
+		        returnedTask.finished = !task[7].isNull();
+		        if (returnedTask.finished) returnedTask.finishedOn = date(task[7]);
+		        returnedTask.pinned = task[8].get<bool>();
 
                 taskboard.tasklist.insert(returnedTask);
             }
 
-            returnedTaskList.insert(taskboard);
+            returnedTaskList.push_back(taskboard);
         }
 
         return SUCCESS;
@@ -384,15 +384,15 @@ DatabaseResult createTaskBoard(unsigned int owner_id, std::string name, TaskBoar
     DatabaseResult result = getUser(owner_id, owner);
     if (result != SUCCESS) return result;
     createdTaskboard.name = name;
-    createdTaskboard.tasks = std::set();
-    createdTaskboard.users = std::set();
-    createdTaskboard.admins = std::set();
+    createdTaskboard.tasklist = std::set<Task>();
+    createdTaskboard.users = std::set<User>();
+    createdTaskboard.admins = std::set<User>();
     createdTaskboard.users.insert(owner);
     createdTaskboard.admins.insert(owner);
 
     try{
         mysqlx::Result res = taskboardTable->insert("name").values(name).execute();
-        taskboard.taskboard_id = res.getAutoIncrementValue();
+        createdTaskboard.taskboard_id = res.getAutoIncrementValue();
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
@@ -400,7 +400,7 @@ DatabaseResult createTaskBoard(unsigned int owner_id, std::string name, TaskBoar
     }
 }
 
-DatabaseResult userPrivilegeCheck(unsigned int user_id,unsigned int performed_by, unsigned int taskboard_id){
+DatabaseResult userPrivilegeCheck(unsigned int performed_by, unsigned int taskboard_id){
     try{
         // test if that taskboard actually exist
         if (taskboardTable->select("*").where("board_id = :bid").bind("bid", taskboard_id).execute().count() == 0) {
@@ -437,7 +437,7 @@ DatabaseResult updateUserStatus(unsigned int user_id, unsigned int taskboard_id,
         }
 
         // update value
-        taskboardUserTable->set("isAdmin", isAdmin).where("user_id = :uid AND board_id = :bid").bind("uid", user_id).bind("bid", taskboard_id).execute();
+        taskboardUserTable->update().set("isAdmin", isAdmin).where("user_id = :uid AND board_id = :bid").bind("uid", user_id).bind("bid", taskboard_id).execute();
 
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
@@ -494,11 +494,11 @@ DatabaseResult kickOutUserFromTaskboard(unsigned int user_id, unsigned int taskb
 
 DatabaseResult deleteTaskBoard(unsigned int board_id, unsigned int performed_by){
     try{
-        DatabaseResult isValid = userPrivilegeCheck(performed_by, taskboard_id);
+        DatabaseResult isValid = userPrivilegeCheck(performed_by, board_id);
         if (isValid != SUCCESS) return isValid;
 
         // bye bye
-        taskboardTable->remove().where("board_id = :bid").bind("bid", TaskBoard_id).execute();
+        taskboardTable->remove().where("board_id = :bid").bind("bid", board_id).execute();
 
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
@@ -524,15 +524,17 @@ std::unordered_map<std::string, unsigned int> getLeaderboard() {
 }
 
 #ifndef TEST_ENV
-/*
+
 int main() {
 	initDatabase();
 
-    Task t(1, "test", "test", date(), date());
-    std::cout << "returned: " << addTask(1, t) << std::endl;
-    std::cout << "id: " << t.taskID << std::endl;
+
+    TaskBoard board;
+    std::cout << createTaskBoard(1, "test board", board) << std::endl;
+    std::cout << board.taskboard_id << std::endl;
+    
 	closeDatabaseConnection();
 	return 0;
 }
-*/
+
 #endif
