@@ -59,7 +59,7 @@ DatabaseResult getAssignedTaskForUser(unsigned int user_id, std::vector<Task> &r
 
 // functions about taskBoard
 DatabaseResult getTaskBoardByUser(unsigned int user_id, std::vector<TaskBoard> &returnedTaskList);
-DatabaseResult createTaskBoard(User owner);
+DatabaseResult createTaskBoard(User owner, std::string name, TaskBoard &createdTaskBoard);
 DatabaseResult updateUserStatus(unsigned int user_id, unsigned int taskboard_id, bool isAdmin);
 DatabaseResult addUserToTaskboard(unsigned int user_id, unsigned int taskboard_id);
 DatabaseResult kickOutUserFromTaskboard(unsigned int user_id, unsigned int taskboard_id);

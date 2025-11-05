@@ -1,4 +1,3 @@
-#include <mysqlx/xdevapi.h>
 #include "database.h"
 #include <iostream>
 #include <format>
@@ -177,11 +176,9 @@ DatabaseResult addTask(unsigned int taskboard_id, Task& task) {
             return ALREADY_EXIST;
         }
 
-        taskTable->insert("board_id", "title", "type", "start_date", "due_date").values(taskboard_id, task.title, task.type, task.startDate.toString(), task.duedate.toString()).execute();
+        mysqlx::Result res = taskTable->insert("board_id", "title", "type", "start_date", "due_date").values(taskboard_id, task.title, task.type, task.startDate.toString(), task.duedate.toString()).execute();
         
-        task.taskID = taskTable->select("*").where("board_id = :board_id and title = :title and type = :type")
-        .bind("board_id", taskboard_id).bind("title", task.title).bind("type", task.type)
-        .execute().fetchOne()[0].get<unsigned int>();
+        task.taskID = res.getAutoIncrementValue();
 
         return SUCCESS;
     }
@@ -315,6 +312,48 @@ DatabaseResult getAssignedTaskForUser(unsigned int user_id, std::vector<Task> &r
         std::cerr << "Error: " << err.what() << std::endl;
 		return SQL_ERROR;
     }
+}
+
+DatabaseResult getTaskBoardByUser(unsigned int user_id, std::string name, std::vector<TaskBoard> &returnedTaskList){
+    if (name.length() > 100) return NAME_OVERFLOW;
+
+    User owner;
+    DatabaseResult result = getUser(user_id, owner);
+    if (result != SUCCESS) return result;
+    TaskBoard taskboard();
+    taskboard.name = name;
+    taskboard.tasks = std::set();
+    taskboard.users = std::set();
+    taskboard.admins = std::set();
+    taskboard.users.insert(owner);
+    taskboard.admins.insert(owner);
+
+    try{
+        //taskboardTable->insert("name");
+    }catch (const mysqlx::Error& err) {
+        std::cerr << "Error: " << err.what() << std::endl;
+		return SQL_ERROR;
+    }
+}
+
+DatabaseResult createTaskBoard(User owner){
+
+}
+
+DatabaseResult updateUserStatus(unsigned int user_id, unsigned int taskboard_id, bool isAdmin){
+
+}
+
+DatabaseResult addUserToTaskboard(unsigned int user_id, unsigned int taskboard_id){
+
+}
+
+DatabaseResult kickOutUserFromTaskboard(unsigned int user_id, unsigned int taskboard_id){
+
+}
+
+DatabaseResult deleteTaskBoard(TaskBoard taskboard){
+
 }
 
 std::unordered_map<std::string, unsigned int> getLeaderboard() {
