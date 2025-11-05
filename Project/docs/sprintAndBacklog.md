@@ -15,4 +15,4 @@
 ## Sprints 2 (Nov 4 - Nov 11):
 - Integrate backend server and database (Yash)
 - Complete all database functions (Sam)
-- Set-up React and if possible, build a demo website (Emily & Jaite)
+- Set-up React and if possible, build a demo website (Emily, Jaite and Harsh)
