@@ -10,7 +10,7 @@ enum DatabaseResult{
     DOES_NOT_EXIST, // something should exist but does not exist
     ALREADY_EXIST, // something should not exist but found exist
     TIME_CONFLICT, // the task's time is unresonable. This should be checked by the frontend, but again, we shouln't trust that the frontend always returns the correct data, so we check again here
-    USER_CONFLICT, // when updating taskboard, thrown if a user is an admin but not a member
+    USER_CONFLICT, // thrown if there is no admin in a taskboard
     SQL_ERROR, // there is an error when sending sql to database
     USER_ACCESS_DENINED, // when a user who is not admin try to modify the task board
     DUPLICATE_NAME, // when multiple users having the same username
@@ -39,7 +39,7 @@ DatabaseResult inviteUser(unsigned int fromUser, unsigned int toUser, unsigned i
 // returns all invitations the user "whom" has received
 // the key of the dictionary is "who invits you", and the value of the dictionary is "to what taskboard"
 // there is no "accept invitation" thing, you just directly updtae the taskboard, thats enough
-DatabaseResult getAllInvitation(unsigned int user_id, std::unordered_multimap<User, TaskBoard> &returnedInvitations);
+DatabaseResult getAllInvitation(unsigned int user_id, std::unordered_multimap<User, TaskBoard, UserHasher> &returnedInvitations);
 
 // functions about task
 
@@ -80,7 +80,7 @@ DatabaseResult userPrivilegeCheck(unsigned int performed_by, unsigned int taskbo
 // this function does not check any pre-conditions, and does not have any error handling
 // However, it is much more efficient
 // use this only after you have checked that the request is valid
-void internal_addUserToTBoard(unsigned int user_id, unsigned int taskboard_id);
+void internal_addUserToTBoard(unsigned int user_id, unsigned int taskboard_id, bool isAdmin = false);
 
 // functions about leaderboard
 std::unordered_map<std::string, unsigned int> getLeaderboard();// I don't think theres a need to use DatabaseResult here, since this function will always succeed
