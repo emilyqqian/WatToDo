@@ -125,7 +125,7 @@ DatabaseResult registerUser(std::string username, unsigned int password){
             return DUPLICATE_NAME;
         }
 
-		userTable->insert("username", "password_hash").values(username, password).execute();
+		userTable->insert("username", "password_hash").values(username, (int)password).execute();
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
         std::cerr << "Error: " << err.what() << std::endl;
@@ -631,12 +631,16 @@ std::unordered_map<std::string, unsigned int> getLeaderboard() {
 }
 
 #ifndef TEST_ENV
+#ifdef DATABASE_TEST
 
 int main() {
 	initDatabase();
-    std::cout << "result: " << deleteTaskBoard(4, 1) << std::endl;
+    std::cout << "result: " << registerUser("long password", 2147483699) << std::endl;
+    User usr;
+    std::cout << "result: "  << getUser("long password", usr) << std::endl;
+    std::cout << "hash: " << usr.password << std::endl;
 	closeDatabaseConnection();
 	return 0;
 }
-
+#endif
 #endif
