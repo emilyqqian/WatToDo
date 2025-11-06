@@ -213,6 +213,50 @@ public:
     std::set<User> users;
     std::set<User> admins;
 
+    TaskBoard(){}
+
+    TaskBoard(mysqlx::Row board){
+        taskboard_id = board[0].get<unsigned int>();
+        name = board[1].get<std::string>();
+
+        // get all users
+        std::list<mysqlx::Row> users = taskboardUserTable->select("user_id, isAdmin").where("board_id = :bid").bind("bid", taskboard_id).execute().fetchAll();
+        for (mysqlx::Row each_user : users){
+            User user;
+            // we expect this to be true, since its in the database. 
+            // if we cannot find that user, there must be a very severe problem
+            if (getUser(each_user[0].get<unsigned int>(), user) != SUCCESS) return SQL_ERROR;
+
+            users.insert(user);
+            if (each_user[1].get<bool>()) admins.insert(user);
+        }
+
+        // get all tasks
+        std::list<mysqlx::Row> tasks = taskTable->select("*").where("board_id = :bid").bind("bid", taskboard_id).execute().fetchAll();
+        for (mysqlx::Row task : tasks){
+            // prepare user
+            User user;
+            if (!task[2].isNull()) {
+		        DatabaseResult res = getUser(task[2].get<unsigned int>(), user);
+		        if (res != SUCCESS) return SQL_ERROR;
+            }
+
+            Task returnedTask;
+	        returnedTask.taskID = task[0].get<unsigned int>();
+		    returnedTask.boardID = task[1].get<unsigned int>();
+		    returnedTask.assigned = !task[2].isNull();
+	        if (returnedTask.assigned) returnedTask.assignedUser = user;
+	        returnedTask.title = task[3].get<std::string>();
+		    returnedTask.type = task[4].get<std::string>();
+		    returnedTask.duedate = date(task[5]);
+	        returnedTask.startDate = date(task[6]);
+	        returnedTask.finished = !task[7].isNull();
+		    if (returnedTask.finished) returnedTask.finishedOn = date(task[7]);
+		    returnedTask.pinned = task[8].get<bool>();
+            tasklist.insert(returnedTask);
+        }
+    }
+
     TaskBoard& operator=(const TaskBoard& other){
         this->name = other.name;
         this->tasklist = other.tasklist;

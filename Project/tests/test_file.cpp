@@ -142,38 +142,38 @@ TEST_F(UserTest, ForLeaderboard){
 
 TEST_F(TaskTest, ForAddingValidTask){
     Task task(1, "test", "test", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(SUCCESS, addTask(1, task));
+    EXPECT_EQ(SUCCESS, addTask(1, task, 1));
 }
 
 TEST_F(TaskTest, ForAddingInvalidTaskName){
     Task task(1, "asdfgaskdjhfgahjhgduwyqegfdguyefgqywgewuygydgsyaugduygwyuguwefqfasdghasdfuhasdfhasfsdiufsdaufhusadhfusadhfuiahsdiufhuaishdfuihasduifhsdauifhsaudihfuisadhfusadfdsafas", "test", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(NAME_OVERFLOW, addTask(1, task));
+    EXPECT_EQ(NAME_OVERFLOW, addTask(1, task, 1));
     task = Task(1, "test", "asdgfhjgasdgfjhasgdhfgahjsdghjfasghjfdghjasgfhjsagfhsdgfhjasdahsdfhagshdgfuyegudysgyugeywugfyugduysgauyfgewuyfgyudgyauguyfeguyfguydaguyewguyfgaysudgfuyewgfuyg", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(NAME_OVERFLOW, addTask(1, task));
+    EXPECT_EQ(NAME_OVERFLOW, addTask(1, task, 1));
 }
 
 TEST_F(TaskTest, ForAddingTaskToNonExisitingTaskBoard){
     Task t = Task();
-    EXPECT_EQ(DOES_NOT_EXIST, addTask(114514, t));
+    EXPECT_EQ(DOES_NOT_EXIST, addTask(114514, t, 1));
 }
 
 TEST_F(TaskTest, ForAddingTaskWithIncorrectDates){
     Task t(1, "test", "test", date(2025, 10, 15), date(2015, 10, 15));
-    EXPECT_EQ(TIME_CONFLICT, addTask(1, t));
+    EXPECT_EQ(TIME_CONFLICT, addTask(1, t, 1));
     t = Task(1, "test", "test", date(2005, 10, 15), date(2015, 10, 15));
-    EXPECT_EQ(TIME_CONFLICT, addTask(1, t));
+    EXPECT_EQ(TIME_CONFLICT, addTask(1, t, 1));
 }
 
 TEST_F(TaskTest, ForAddingRepetitiveTasks){
     Task t(1, "test", "test", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(SUCCESS, addTask(1, t));
+    EXPECT_EQ(SUCCESS, addTask(1, t, 1));
     t = Task(1, "test", "test", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(ALREADY_EXIST, addTask(1, t));
+    EXPECT_EQ(ALREADY_EXIST, addTask(1, t, 1));
 }
 
 TEST_F(TaskTest, ForDeletingValidTask){
     Task task(1, "test", "test", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(SUCCESS, addTask(1, task));
+    EXPECT_EQ(SUCCESS, addTask(1, task, 1));
     EXPECT_EQ(SUCCESS, deleteTask(task.taskID, 1));
 }
 
@@ -184,7 +184,7 @@ TEST_F(TaskTest, ForDeletingNonExistingTask){
 TEST_F(TaskTest, ForGettingValidTask){
     Task task(1, "test", "test", date(2025, 10, 15), date(2035, 10, 15));
     Task original = task;
-    EXPECT_EQ(SUCCESS, addTask(1, task));
+    EXPECT_EQ(SUCCESS, addTask(1, task, 1));
     EXPECT_EQ(SUCCESS, getTask(task.taskID, task));
     EXPECT_EQ("test", task.title);
     EXPECT_EQ("test", task.type);
@@ -199,7 +199,7 @@ TEST_F(TaskTest, ForGettingNonExistingTask){
 
 TEST_F(TaskTest, ForUpdatingValidTask){
     Task task(1, "test", "test", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(SUCCESS, addTask(1, task));
+    EXPECT_EQ(SUCCESS, addTask(1, task, 1));
     task.title = "debug";
     EXPECT_EQ(SUCCESS, updateTask(task, 1));
     EXPECT_EQ(SUCCESS, getTask(task.taskID, task));
@@ -214,14 +214,14 @@ TEST_F(TaskTest, ForUpdatingNonExistingTask){
 
 TEST_F(TaskTest, ForUpdaingTaskWithInvalidTaskBoard){
     Task task(1, "test", "test", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(SUCCESS, addTask(1, task));
+    EXPECT_EQ(SUCCESS, addTask(1, task, 1));
     task.boardID = 114514;
     EXPECT_EQ(DOES_NOT_EXIST, updateTask(task, 1));
 }
 
 TEST_F(TaskTest, ForUpdatingConflictedTask){
     Task task(1, "test", "test", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(SUCCESS, addTask(1, task));
+    EXPECT_EQ(SUCCESS, addTask(1, task, 1));
     task.startDate = date(2045, 10, 15);
     EXPECT_EQ(TIME_CONFLICT, updateTask(task, 1));
     task.startDate = date(2025, 10, 15);
@@ -235,7 +235,7 @@ TEST_F(TaskTest, ForUpdatingConflictedTask){
 
 TEST_F(TaskTest, ForUpdatingTaskWithInvalidName){
     Task task(1, "test", "test", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(SUCCESS, addTask(1, task));
+    EXPECT_EQ(SUCCESS, addTask(1, task, 1));
     task.title = "askdfjgsdfhjghsjdgfjhgawjhefgjhdsgafuyagweuydgsajhfgeuywfgduysagfyuewgfyudsgfsdfasdfkhdjfhsajkhdfiashdfiuhasdiufhaisuhdfuiasdhfuihasiudhfuiasdhfiuasdhfuisadhfiusdfhisadf";
     EXPECT_EQ(NAME_OVERFLOW, updateTask(task, 1));
     task.title = "test";
@@ -245,7 +245,7 @@ TEST_F(TaskTest, ForUpdatingTaskWithInvalidName){
 
 TEST_F(TaskUserInteg, ForGettingAssignedUser){
     Task task(1, "test", "test", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(SUCCESS, addTask(1, task));
+    EXPECT_EQ(SUCCESS, addTask(1, task, 1));
     task.assigned = true;
     task.assignedUser = User(125, "placeholder", 0, 0);
     EXPECT_EQ(SUCCESS, updateTask(task, 1));
@@ -256,7 +256,7 @@ TEST_F(TaskUserInteg, ForGettingAssignedUser){
 
 TEST_F(TaskUserInteg, ForAssigningInvalidUser){
     Task task(1, "test", "test", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(SUCCESS, addTask(1, task));
+    EXPECT_EQ(SUCCESS, addTask(1, task, 1));
     task.assigned = true;
     task.assignedUser = User(114514, "placeholder", 0, 0);
     EXPECT_EQ(DOES_NOT_EXIST, updateTask(task, 1));
@@ -268,7 +268,7 @@ TEST_F(TaskUserInteg, ForGettingTaskByAssignedUser){
     EXPECT_EQ(0, tasks.size());
 
     Task task(1, "test", "test", date(2025, 10, 15), date(2035, 10, 15));
-    EXPECT_EQ(SUCCESS, addTask(1, task));
+    EXPECT_EQ(SUCCESS, addTask(1, task, 1));
     task.assigned = true;
     task.assignedUser = User(125, "placeholder", 0, 0);
     EXPECT_EQ(SUCCESS, updateTask(task, 1));

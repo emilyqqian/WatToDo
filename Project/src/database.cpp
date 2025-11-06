@@ -158,10 +158,10 @@ DatabaseResult updateUserInfo(User user) {
     }
 }
 
-DatabaseResult addTask(unsigned int taskboard_id, Task& task) {
+DatabaseResult addTask(unsigned int taskboard_id, Task& task, unsigned int performed_by) {
     try {
-        // first see if that taskboard exist;
-        if (taskboardTable->select("*").where("board_id = :board_id").bind("board_id", taskboard_id).execute().count() != 1) return DOES_NOT_EXIST;
+        DatabaseResult ret = userPrivilegeCheck(performed_by, taskboard_id, false);
+        if (ret != SUCCESS) return ret;
         
         // check task's name and type length
         if (task.title.length() > 100) return NAME_OVERFLOW;
@@ -190,13 +190,13 @@ DatabaseResult addTask(unsigned int taskboard_id, Task& task) {
 
 DatabaseResult deleteTask(unsigned int task_id, unsigned int performed_by) {
     try {
-
-		// Todo: we should check if the user has admin right to delete the task
-		// However, this is too complicated for now, so we skip this step
-		// We will implement this when we have taskboard admin system
+        mysqlx::Result res = taskTable->select("board_id").where("task_id = :task_id").bind("task_id", task_id).execute();
 
 		// first check if we actually have that task
-		if (taskTable->select("*").where("task_id = :task_id").bind("task_id", task_id).execute().count() != 1) return DOES_NOT_EXIST;
+		if (res.count() != 1) return DOES_NOT_EXIST;
+
+        DatabaseResult ret = userPrivilegeCheck(performed_by, res.fetchOne()[0].get<unsigned int>(), false);
+        if (ret != SUCCESS) return ret;
 
 		taskTable->remove().where("task_id = :task_id").bind("task_id", task_id).execute();
 		return SUCCESS;
@@ -209,16 +209,11 @@ DatabaseResult deleteTask(unsigned int task_id, unsigned int performed_by) {
 
 DatabaseResult updateTask(Task task, unsigned int performed_by) {
     try {
-
-        // Todo: we should check if the user has admin right to delete the task
-        // However, this is too complicated for now, so we skip this step
-        // We will implement this when we have taskboard admin system
+        DatabaseResult ret = userPrivilegeCheck(performed_by, task.boardID, false);
+        if (ret != SUCCESS) return ret;
 
         // first check if we actually have that task
         if (taskTable->select("*").where("task_id = :task_id").bind("task_id", task.taskID).execute().count() != 1) return DOES_NOT_EXIST;
-
-        // first see if that taskboard exist;
-        if (taskboardTable->select("*").where("board_id = :board_id").bind("board_id", task.boardID).execute().count() != 1) return DOES_NOT_EXIST;
 
         // check task's name and type length
         if (task.title.length() > 100) return NAME_OVERFLOW;
@@ -324,51 +319,7 @@ DatabaseResult getTaskBoardByUser(unsigned int user_id, std::vector<TaskBoard> &
         std::list<mysqlx::Row> rows = taskboardUserTable->select("board_id, name").where("user_id = :uid").bind("uid", user_id).execute().fetchAll();;
         returnedTaskList = std::vector<TaskBoard>();
         
-        for (mysqlx::Row board : rows){
-            TaskBoard taskboard = TaskBoard();
-            taskboard.taskboard_id = board[0].get<unsigned int>();
-            taskboard.name = board[1].get<std::string>();
-
-            // get all users
-            std::list<mysqlx::Row> users = taskboardUserTable->select("user_id, isAdmin").where("board_id = :bid").bind("bid", taskboard.taskboard_id).execute().fetchAll();
-            for (mysqlx::Row each_user : users){
-                User user;
-                // we expect this to be true, since its in the database. 
-                // if we cannot find that user, there must be a very severe problem
-                if (getUser(each_user[0].get<unsigned int>(), user) != SUCCESS) return SQL_ERROR;
-
-                taskboard.users.insert(user);
-                if (each_user[1].get<bool>()) taskboard.admins.insert(user);
-            }
-
-            // get all tasks
-            std::list<mysqlx::Row> tasks = taskTable->select("*").where("board_id = :bid").bind("bid", taskboard.taskboard_id).execute().fetchAll();
-            for (mysqlx::Row task : tasks){
-                // prepare user
-                User user;
-                if (!task[2].isNull()) {
-			        DatabaseResult res = getUser(task[2].get<unsigned int>(), user);
-			        if (res != SUCCESS) return SQL_ERROR;
-                }
-
-                Task returnedTask;
-		        returnedTask.taskID = task[0].get<unsigned int>();
-		        returnedTask.boardID = task[1].get<unsigned int>();
-		        returnedTask.assigned = !task[2].isNull();
-		        if (returnedTask.assigned) returnedTask.assignedUser = user;
-		        returnedTask.title = task[3].get<std::string>();
-		        returnedTask.type = task[4].get<std::string>();
-		        returnedTask.duedate = date(task[5]);
-		        returnedTask.startDate = date(task[6]);
-		        returnedTask.finished = !task[7].isNull();
-		        if (returnedTask.finished) returnedTask.finishedOn = date(task[7]);
-		        returnedTask.pinned = task[8].get<bool>();
-
-                taskboard.tasklist.insert(returnedTask);
-            }
-
-            returnedTaskList.push_back(taskboard);
-        }
+        for (mysqlx::Row board : rows) returnedTaskList.push_back(TaskBoard(board));
 
         return SUCCESS;
     }catch (const mysqlx::Error& err) {
@@ -400,7 +351,7 @@ DatabaseResult createTaskBoard(unsigned int owner_id, std::string name, TaskBoar
     }
 }
 
-DatabaseResult userPrivilegeCheck(unsigned int performed_by, unsigned int taskboard_id){
+DatabaseResult userPrivilegeCheck(unsigned int performed_by, unsigned int taskboard_id, bool requireAdmin = true){
     try{
         // test if that taskboard actually exist
         if (taskboardTable->select("*").where("board_id = :bid").bind("bid", taskboard_id).execute().count() == 0) {
@@ -408,9 +359,13 @@ DatabaseResult userPrivilegeCheck(unsigned int performed_by, unsigned int taskbo
         }
 
         // test if the operator is an admin
-        if (taskboardUserTable->select("isAdmin").where("user_id = :uid AND board_id = :bid").bind("uid", performed_by).bind("bid", taskboard_id).execute().count() == 0) {
+        mysqlx::Result res = taskboardUserTable->select("isAdmin").where("user_id = :uid AND board_id = :bid").bind("uid", performed_by).bind("bid", taskboard_id).execute();
+
+        if (res.count() == 0) {
             return USER_ACCESS_DENINED;
         }
+
+        if (requireAdmin && !res.fetchOne()[0].get<bool>()) return USER_ACCESS_DENINED;
 
         // we are good now
         return SUCCESS;
@@ -499,6 +454,66 @@ DatabaseResult deleteTaskBoard(unsigned int board_id, unsigned int performed_by)
 
         // bye bye
         taskboardTable->remove().where("board_id = :bid").bind("bid", board_id).execute();
+
+        return SUCCESS;
+    }catch (const mysqlx::Error& err) {
+        std::cerr << "Error: " << err.what() << std::endl;
+		return SQL_ERROR;
+    }
+}
+
+// invite a user to join the taskboard
+DatabaseResult inviteUser(unsigned int fromUser, unsigned int toUser, unsigned int taskBoard_id){
+    try{
+        DatabaseResult isValid = userPrivilegeCheck(fromUser, taskBoard_id);
+        if (isValid != SUCCESS) return isValid;
+
+         // test if user with that userid actually exist
+        if (userTable->select("*").where("user_id = :uid").bind("uid", user_id).execute().count() == 0) {
+            return DOES_NOT_EXIST;
+        }
+
+        invitationTable->insert("board_id", "host", "guest").values(taskBoard_id, fromUser, toUser).execute();
+
+        return SUCCESS;
+    }catch (const mysqlx::Error& err) {
+        std::cerr << "Error: " << err.what() << std::endl;
+		return SQL_ERROR;
+    }
+} 
+
+// returns all invitations the user "whom" has received
+// the key of the dictionary is "who invits you", and the value of the dictionary is "to what taskboard"
+// there is no "accept invitation" thing, you just directly updtae the taskboard, thats enough
+DatabaseResult getAllInvitation(unsigned int user_id, std::unordered_multimap<User, TaskBoard> &returnedInvitations){
+    try{
+        mysqlx::Result result = invitationTable->select("*").where("guest = :uid").bind("uid", user_id).execute();
+        
+        returnedInvitations = std::unordered_multimap<User, TaskBoard>();
+        for (mysqlx::Row row : result.fetchAll()){
+            User usr;
+            TaskBoard board;
+            getUser(row[1].get<unsigned int>(), usr);
+            getTaskBoardByID(row[0].get<unsigned int>(), board);
+
+            returnedInvitations[usr] = board;
+        }
+
+        return SUCCESS;
+    }catch (const mysqlx::Error& err) {
+        std::cerr << "Error: " << err.what() << std::endl;
+		return SQL_ERROR;
+    }
+}
+
+DatabaseResult getTaskBoardByID(unsigned int board_id, TaskBoard& returnedTaskBoard){
+    try{
+        mysqlx::Result res = taskboardTable->select("*").where("board_id = :bid").bind("bid", board_id).execute();
+        if (res.count() != 1) return DOES_NOT_EXIST;
+
+        mysqlx::Row board = res.fetchOne();
+
+        returnedTaskBoard = TaskBoard(board);
 
         return SUCCESS;
     }catch (const mysqlx::Error& err) {

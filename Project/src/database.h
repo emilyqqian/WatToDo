@@ -35,7 +35,7 @@ DatabaseResult updateUserInfo(User user);
 // functions about user inviting other users to join taskboard
 
 // invite a user to join the taskboard
-DatabaseResult inviteUser(User fromUser, unsigned int toUser, unsigned int taskBoard_id); 
+DatabaseResult inviteUser(unsigned int fromUser, unsigned int toUser, unsigned int taskBoard_id); 
 // returns all invitations the user "whom" has received
 // the key of the dictionary is "who invits you", and the value of the dictionary is "to what taskboard"
 // there is no "accept invitation" thing, you just directly updtae the taskboard, thats enough
@@ -50,7 +50,7 @@ DatabaseResult getAllInvitation(unsigned int user_id, std::unordered_multimap<Us
 // lastly, you may notice that the task is passed by reference.
 // after executing this task, I will fill the `task_id` field of the task, 
 // so you can do more things using ths id. 
-DatabaseResult addTask(unsigned int taskboard_id, Task &task);
+DatabaseResult addTask(unsigned int taskboard_id, Task &task, unsigned int performed_by);
 
 DatabaseResult deleteTask(unsigned int task_id, unsigned int performed_by);
 DatabaseResult updateTask(Task task, unsigned int performed_by);
@@ -59,6 +59,7 @@ DatabaseResult getAssignedTaskForUser(unsigned int user_id, std::vector<Task> &r
 
 // functions about taskBoard
 
+DatabaseResult getTaskBoardByID(unsigned int board_id, TaskBoard& returnedTaskBoard);
 // question:
 // @yash, when user_id does not exist, do I return an empty list or do i report error?
 // rn im being lazy, which means I would return an empty list
@@ -75,7 +76,7 @@ DatabaseResult deleteTaskBoard(unsigned int board_id, unsigned int performed_by)
 // this function checks if a user has the privilege to modify the taskboard
 // if any error occurs, for example, if a user does not exist or the taskboard does not exist
 // it will also report
-DatabaseResult userPrivilegeCheck(unsigned int performed_by, unsigned int taskboard_id);
+DatabaseResult userPrivilegeCheck(unsigned int performed_by, unsigned int taskboard_id, bool requireAdmin = true);
 // this function does not check any pre-conditions, and does not have any error handling
 // However, it is much more efficient
 // use this only after you have checked that the request is valid
