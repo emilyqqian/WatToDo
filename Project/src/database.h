@@ -65,6 +65,7 @@ DatabaseResult getTaskBoardByID(unsigned int board_id, TaskBoard& returnedTaskBo
 // rn im being lazy, which means I would return an empty list
 DatabaseResult getTaskBoardByUser(unsigned int user_id, std::vector<TaskBoard> &returnedTaskList);
 DatabaseResult createTaskBoard(unsigned int owner_id, std::string name, TaskBoard &createdTaskBoard);
+DatabaseResult renameTaskBoard(unsigned int board_id, std::string name, unsigned int performed_by);
 DatabaseResult updateUserStatus(unsigned int user_id, unsigned int taskboard_id, bool isAdmin, unsigned int performed_by);
 DatabaseResult addUserToTaskboard(unsigned int user_id, unsigned int taskboard_id, unsigned int performed_by);
 DatabaseResult kickOutUserFromTaskboard(unsigned int user_id, unsigned int taskboard_id, unsigned int performed_by);

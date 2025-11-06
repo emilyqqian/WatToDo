@@ -10,6 +10,8 @@ mysqlx::Schema *db;
 std::unique_ptr<mysqlx::Table> userTable, taskTable, taskboardTable, taskboardUserTable, invitationTable;
 
 bool debug;
+// if adding user requires invitation;
+bool requireInvitation = true;
 
 Task::Task(const mysqlx::Row row){
     this->taskID = row[0].get<unsigned int>();
@@ -423,6 +425,22 @@ DatabaseResult userPrivilegeCheck(unsigned int performed_by, unsigned int taskbo
     }
 }
 
+DatabaseResult renameTaskBoard(unsigned int board_id, std::string name, unsigned int performed_by){
+    try{
+        if (name.length() > 100) return NAME_OVERFLOW;
+
+        DatabaseResult isValid = userPrivilegeCheck(performed_by, board_id);
+        if (isValid != SUCCESS) return isValid;
+        
+        taskboardTable->update().set("name", name).where("board_id = :bid").bind("bid", board_id).execute();
+
+        return SUCCESS;
+    }catch (const mysqlx::Error& err) {
+        std::cerr << "Error: " << err.what() << std::endl;
+		return SQL_ERROR;
+    }
+}
+
 DatabaseResult updateUserStatus(unsigned int user_id, unsigned int taskboard_id, bool isAdmin, unsigned int performed_by){
     try{
         // test if user with that userid actually exist
@@ -435,12 +453,17 @@ DatabaseResult updateUserStatus(unsigned int user_id, unsigned int taskboard_id,
 
         // test if that user is in the task board
         if (taskboardUserTable->select("*").where("user_id = :uid AND board_id = :bid").bind("uid", user_id).bind("bid", taskboard_id).execute().count() == 0) {
+            // make sure the user is invited
+            if (requireInvitation && invitationTable->select("*").where("guest = :uid").bind("uid", user_id).execute().count() == 0){
+                return USER_ACCESS_DENINED;
+            
+            }
             internal_addUserToTBoard(user_id, taskboard_id, isAdmin);
             return SUCCESS;
         }
 
         // make sure there is at least one admin
-        if (!isAdmin && taskboardUserTable->select("*").where("board_id = :bid AND isAdmin = true").bind("bid", taskboard_id).execute().count()){
+        if (!isAdmin && taskboardUserTable->select("*").where("board_id = :bid AND isAdmin = true").bind("bid", taskboard_id).execute().count() == 1){
             return USER_CONFLICT;
         }   
 
@@ -461,6 +484,11 @@ DatabaseResult addUserToTaskboard(unsigned int user_id, unsigned int taskboard_i
             return DOES_NOT_EXIST;
         }
 
+        // make sure the user is invited
+        if (requireInvitation && invitationTable->select("*").where("guest = :uid").bind("uid", user_id).execute().count() == 0){
+            return USER_ACCESS_DENINED;
+        }
+
         DatabaseResult isValid = userPrivilegeCheck(performed_by, taskboard_id);
         if (isValid != SUCCESS) return isValid;
 
@@ -468,6 +496,9 @@ DatabaseResult addUserToTaskboard(unsigned int user_id, unsigned int taskboard_i
         if (taskboardUserTable->select("*").where("user_id = :uid AND board_id = :bid").bind("uid", user_id).bind("bid", taskboard_id).execute().count() != 0) {
             return ALREADY_EXIST;
         }
+
+        // adding that user means he accepted the invitation
+        invitationTable->remove().where("guest = :uid").bind("uid", user_id).execute();
 
         internal_addUserToTBoard(user_id, taskboard_id);
         return SUCCESS;
@@ -490,6 +521,12 @@ DatabaseResult kickOutUserFromTaskboard(unsigned int user_id, unsigned int taskb
 
         DatabaseResult isValid = userPrivilegeCheck(performed_by, taskboard_id);
         if (isValid != SUCCESS) return isValid;
+
+        // make sure the database has at least one member
+        // make sure there is at least one admin
+        if (taskboardUserTable->select("*").where("board_id = :bid").bind("bid", taskboard_id).execute().count() == 1){
+            return USER_CONFLICT;
+        }   
 
         taskboardUserTable->remove().where("user_id = :uid AND board_id = :bid").bind("uid", user_id).bind("bid", taskboard_id).execute();
 
@@ -524,6 +561,11 @@ DatabaseResult inviteUser(unsigned int fromUser, unsigned int toUser, unsigned i
          // test if user with that userid actually exist
         if (userTable->select("*").where("user_id = :uid").bind("uid", toUser).execute().count() == 0) {
             return DOES_NOT_EXIST;
+        }
+
+        // test if that user is already in
+        if (taskboardUserTable->select("*").where("user_id = :uid AND board_id = :bid").bind("uid", toUser).bind("bid", taskBoard_id).execute().count() != 0){
+            return ALREADY_EXIST;
         }
 
         invitationTable->insert("board_id", "host", "guest").values(taskBoard_id, fromUser, toUser).execute();
