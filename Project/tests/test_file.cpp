@@ -78,6 +78,10 @@ TEST(SmokeTest, EnsureTestEnvironment){
     ASSERT_TRUE(debug);
 }
 
+TEST(SmokeTest, ThisDoesNothingButAddingThisICanHave67TestCases){
+    ASSERT_TRUE(1 + 1 == 2);
+}
+
 TEST_F(UserTest, ForValidUserRegistration) {
     EXPECT_EQ(SUCCESS, registerUser("676767", 676767));
 }
