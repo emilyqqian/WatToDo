@@ -1,33 +1,92 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import React, { useState } from 'react'
 import './App.css'
 
+function TaskboardDialog({ isOpen, onClose, onSave }) {
+  const [boardName, setBoardName] = useState('')
+  const [boardType, setBoardType] = useState('personal')
+
+  if (!isOpen) return null
+
+  const handleSave = () => {
+    if (boardName.trim() === '') return
+    onSave({ name: boardName.trim(), type: boardType })
+    setBoardName('')
+    setBoardType('personal')
+  }
+
+  return (
+    <div className="dialog-backdrop" onClick={onClose}>
+      <div className="dialog" onClick={e => e.stopPropagation()}>
+        <h3>New Board</h3>
+        <label>
+          Board Name:
+          <input
+            type="text"
+            value={boardName}
+            onChange={e => setBoardName(e.target.value)}
+          />
+        </label>
+        <label>
+          Board Type:
+          <select
+            value={boardType}
+            onChange={e => setBoardType(e.target.value)}
+          >
+            <option value="personal">Personal</option>
+            <option value="shared">Shared</option>
+          </select>
+        </label>
+        <div className="dialog-buttons">
+          <button onClick={handleSave}>Save</button>
+          <button onClick={onClose}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [personalBoards, setPersonalBoards] = useState([
+    'Personal Board 1',
+    'Personal Board 2',
+    'Personal Board 3',
+  ])
+  const [sharedBoards, setSharedBoards] = useState([
+    'Shared Board A',
+    'Shared Board B',
+    'Shared Board C',
+  ])
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  const openDialog = () => setIsDialogOpen(true)
+  const closeDialog = () => setIsDialogOpen(false)
+
+  const handleSaveBoard = ({ name, type }) => {
+    if (type === 'personal') {
+      setPersonalBoards(prev => [...prev, name])
+    } else {
+      setSharedBoards(prev => [...prev, name])
+    }
+    closeDialog()
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <h1>Wat To Do</h1>
+      <button className="new-board-button" onClick={openDialog}>+ New Board</button>
+      <div className="board-container">
+        <h2>Personal Task Boards</h2>
+        {personalBoards.map((board, i) => (
+          <button key={i} className="board-button">{board}</button>
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      <div className="board-container">
+        <h2>Shared Task Boards</h2>
+        {sharedBoards.map((board, i) => (
+          <button key={i} className="board-button">{board}</button>
+        ))}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <TaskboardDialog isOpen={isDialogOpen} onClose={closeDialog} onSave={handleSaveBoard} />
     </>
   )
 }
