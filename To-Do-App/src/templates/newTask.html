@@ -1,0 +1,38 @@
+{% extends 'header.html' %}
+
+{% block body %}
+    <h1>New Task:</h1>
+
+    <form id="myForm">
+        <p>Title:</p>
+        <p><input type = "text" name = "title" /></p>
+        <p>Type:</p>
+        <p><input type = "text" name = "type" /></p>
+        <p>Start Date:</p>
+        <p><input type = "datetime-local" name = "start" /></p>
+        <p>Due Date</p>
+        <p><input type = "datetime-local" name = "due" /></p>
+        <p><button type="submit">Submit</button></p>
+    </form>
+
+<script>
+document.querySelector('#myForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  
+  const response = await fetch('/api/add/{{ user }}', {
+    method: 'POST',
+    body: formData
+  });
+
+  const data = await response.json();
+  if (data.success) {
+    // Redirect using JS
+    window.location.href = data.redirect_url;
+  } else {
+    alert(data.message);
+  }
+});
+</script>
+   
+{% endblock %}

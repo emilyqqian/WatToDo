@@ -1,6 +1,5 @@
 import mysql.connector
 from datetime import datetime, timedelta
-import getpass
 import argparse
 import os
 from dotenv import load_dotenv
@@ -8,7 +7,22 @@ from dotenv import load_dotenv
 # the table we are currently using
 # when query, remember to choose the correct table
 # because sometimes the table is "Data", sometims it is "TestTable"
-TABLE = "Data"
+TABLE = "Todo"
+
+class Task:
+    def __init__(self, user:int, item:str, type:str, started:datetime, due:datetime, done:datetime=None):
+        self.item = item
+        self.user = user
+        self.type = type
+        self.started = started
+        self.due = due
+        self.done = done
+
+    def toTuple(self, includeDone) -> tuple:
+        if (includeDone):
+            return self.user, self.item, self.type, self.started, self.due, self.done
+        else:
+            return self.user, self.item, self.type, self.started, self.due
 
 ########## Logging In Functions - These are functions that handles database connections ##########
 
@@ -36,22 +50,18 @@ def init():
     parser.add_argument('-u', '--username', default=None, help="Username")
     parser.add_argument('-p', '--password', default=None, help="Password")
     args = parser.parse_args()
-    username = args.username;
-    password = args.password;
-    
-    # I think i was wrong, this should be in the front-end, as the connection is specific to each user
-    # However, im not sure, so I would just write down more options
-    # We have the following options: 
-    # 1), We can put this in front-end, and we will have a two-end system. The client will communicate with the database directly
-    # 2), We can put this in the back-end, and the client will just be a GUI and will send all requests to this code, and this code will communicate with the database, so a three-end system
-    # Im assuming 1) because it seems easier, so that means the log in system must be more robost enough to handle all kinds of edge cases
-    
-    # Because assume in front-end, we can access env file
+    username = args.username
+    password = args.password
+
+    refreshEnv = False
+
     load_dotenv()
     if not password:
         password = os.getenv("DB_PASSWORD")
+        refreshEnv = True
     if not username:
         username = os.getenv("DB_USERNAME")
+        refreshEnv = True
     
     if not username or not password:
         # I think ValueError is too harsh, maybe?
@@ -69,38 +79,62 @@ def init():
     global cursor
     (database, cursor) = temp_connection
     print("Connection Established")
-    
-    # If we sucessfully loged in, write passwords and usernames to a .env file as buffer
-    # so user don't need to enter username and passwords again next time
-    with open('.env', 'a') as env_file:  # Use 'a' mode to append or 'w' to overwrite
-        env_file.write(f'DB_PASSWORD={password}\n')
-        env_file.write(f'DB_USERNAME={username}\n')
+
+    if refreshEnv:
+        with open('.env', 'a') as env_file:  # Use 'a' mode to append or 'w' to overwrite
+            env_file.write(f'DB_PASSWORD={password}\n')
+            env_file.write(f'DB_USERNAME={username}\n')
     
 ########## Helper Functions - These are functions that might be useful for the six functions or testcases ##########
     
 # this is a helper function that checks if a task is valid
 # for the six functions, consider calling this to check if the input is valid
-def assertTaskValid(task, allowNullDoneDate = False):
-    # check if input is valid
-    if not(len(task) == 5 or (allowNullDoneDate and len(task) == 4)):
-        raise ValueError(f"Incorrect number of variables: 5{(' or 4' if allowNullDoneDate else '')} required, found {len(task)}")
+def assertTaskValid(task:Task) -> str:
+    if not task.item:
+        return "Empty title!"
+    if not task.type:
+        return "Empty type!"
+    if not task.due:
+        return "Empty due date!"
+    if not task.started:
+        return "Empty start date!"
+    if task.due < task.started:
+        return "Due date must be later than start date"
+    if task.due < datetime.now():
+        return "Due date must be before the start date"
+    if len(task.item) > 255:
+        return "Title too long"
+    if len(task.type) > 255:
+        return "Type too long"
+    return ""
 
-    if type(task[0]) != str:
-        raise ValueError(f"'Item' must be a string!")
+def reset():
+    sql = f"DELETE FROM {TABLE}"
+    cursor.execute(sql)
+    database.commit()
 
-    if type(task[1]) != str:
-        raise ValueError(f"'Type' must be a string!")
+def getUser(username:str) -> int:
+    sql = f"SELECT * FROM User WHERE username = %s"
+    cursor.execute(sql, [username])
+    result = cursor.fetchall()
+    if len(result) == 0:
+        print("User Not Found")
+        return None
+    else:
+        return result[0][0]
 
-    if type(task[2]) != datetime:
-        raise ValueError(f"'started' must be a valid datetime!")
+def add(task:Task) -> str:
+    res = assertTaskValid(task)
+    if res != "":
+        return res
 
-    if type(task[3]) != datetime:
-        raise ValueError(f"'due' must be a valid datetime!")
-    elif task[3] < task[2]:
-        raise ValueError(f"'due' must be later than 'started'!")
-    elif task[3] < datetime.now():
-        raise ValueError(f"'due' must be later than current time!")
-    
-if __name__ == "__main__":
-    init()
-    
+    # add item
+    sql = f"INSERT INTO {TABLE} (userid, item, type, start, due) VALUES (%s, %s, %s, %s, %s)"
+    cursor.execute(sql, task.toTuple(False))
+    database.commit()
+    return ""
+
+def getTasks(userid:int):
+    sql = f"SELECT * FROM {TABLE} WHERE userid = %s"
+    cursor.execute(sql, [userid])
+    return cursor.fetchall()
