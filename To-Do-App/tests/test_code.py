@@ -1,4 +1,4 @@
-from src.db import add, init, reset, getTasks, Task
+from src.db import add, update, init, reset, getTasks, Task
 import src.db
 from datetime import datetime
 import pytest
@@ -31,3 +31,31 @@ def test_add_2():
 def test_add_3():
     reset()
     assert "" != add(Task(1, None, None, None, None))
+
+# update valid task
+def test_update_1():
+    reset()
+    assert "" == add(Task(1, "test", "test", datetime(2025, 9, 23), datetime(2026, 9, 23), None))
+    db = getTasks(1)
+    t = Task(1, "abab", "test", datetime(2025, 9, 23), datetime(2026, 9, 23), None)
+    t.id = db[0][0]
+    assert "" == update(t)
+    db = getTasks(1)
+    assert len(db) == 1
+    assert db[0][2] == "abab"
+
+# update nonexisting task
+def test_update_2():
+    reset()
+    t = Task(1, "abab", "test", datetime(2025, 9, 23), datetime(2026, 9, 23), None)
+    t.id = 114514
+    assert "" != update(t)
+
+# update invalid task
+def test_update_3():
+    reset()
+    assert "" == add(Task(1, "test", "test", datetime(2025, 9, 23), datetime(2026, 9, 23), None))
+    db = getTasks(1)
+    t = Task(1, None, None, datetime(2025, 9, 23), datetime(2026, 9, 23), None)
+    t.id = db[0][0]
+    assert "" != update(t)
