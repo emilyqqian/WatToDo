@@ -1,17 +1,31 @@
 {% extends 'header.html' %}
 
 {% block body %}
+  <button type="button", id="home", style="padding: 20px 50px 20px 50px;background-color: #FAE100;border-radius: 5px;">Back</button>
+
     <h1>New Task:</h1>
 
     <form id="myForm">
         <p>Title:</p>
-        <p><input type = "text" name = "title" /></p>
+        <p><input type = "text" name = "title" value = "{{title}}"/></p>
         <p>Type:</p>
-        <p><input type = "text" name = "type" /></p>
+        <p><input type = "text" name = "type" value = "{{type}}"/></p>
         <p>Start Date:</p>
-        <p><input type = "datetime-local" name = "start" /></p>
+        <p><input type = "datetime-local" name = "start" value = "{{start}}"/></p>
         <p>Due Date</p>
-        <p><input type = "datetime-local" name = "due" /></p>
+        <p><input type = "datetime-local" name = "due" value = "{{due}}"/></p>
+
+        {% if api == "update" %}
+        <p>Finished Date:</p>
+
+        {%if finished == "None" %}
+        <p><input type = "datetime-local" name = "finished"/></p>
+        {% else %}
+        <p><input type = "datetime-local" name = "finished" value = "{{finished}}"/></p>
+        {% endif %}
+
+        {% endif %}
+
         <p><button type="submit">Submit</button></p>
     </form>
 
@@ -19,8 +33,13 @@
 document.querySelector('#myForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
+  var url = '/api/{{ api }}/{{ user }}'
+
+  if ('{{ api }}' == 'update'){
+    url += '/{{ taskid }}'
+  }
   
-  const response = await fetch('/api/add/{{ user }}', {
+  const response = await fetch(url, {
     method: 'POST',
     body: formData
   });
@@ -32,6 +51,10 @@ document.querySelector('#myForm').addEventListener('submit', async (e) => {
   } else {
     alert(data.message);
   }
+});
+
+document.querySelector('#home').addEventListener('click', async (e) => {
+    window.location.href = 'http://127.0.0.1:5000/dashboard/{{user}}';
 });
 </script>
    

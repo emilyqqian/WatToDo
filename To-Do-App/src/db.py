@@ -17,10 +17,11 @@ class Task:
         self.started = started
         self.due = due
         self.done = done
+        self.id = 0
 
     def toTuple(self, includeDone) -> tuple:
         if (includeDone):
-            return self.user, self.item, self.type, self.started, self.due, self.done
+            return self.item, self.type, self.started, self.due, self.done, self.id
         else:
             return self.user, self.item, self.type, self.started, self.due
 
@@ -106,6 +107,11 @@ def assertTaskValid(task:Task) -> str:
         return "Title too long"
     if len(task.type) > 255:
         return "Type too long"
+    if task.id != 0:
+        sql = f"SELECT * FROM {TABLE} WHERE taskid = %s"
+        cursor.execute(sql, [task.id])
+        if len(cursor.fetchall()) != 1:
+            return f"Task with id {task.id} not found"
     return ""
 
 def reset():
@@ -133,6 +139,26 @@ def add(task:Task) -> str:
     cursor.execute(sql, task.toTuple(False))
     database.commit()
     return ""
+
+def update(task:Task)-> str:
+    res = assertTaskValid(task)
+    if res != "":
+        return res
+
+    # update item
+    sql = f"UPDATE {TABLE} SET item = %s, type = %s, start = %s, due = %s, done = %s WHERE taskid = %s"
+    cursor.execute(sql, task.toTuple(True))
+    database.commit()
+    return ""
+
+def getTask(taskid:int):
+    sql = f"SELECT * FROM {TABLE} WHERE taskid = %s"
+    cursor.execute(sql, [taskid])
+    res = cursor.fetchall()
+    if (len(res) == 1):
+        return res[0]
+    print(f"Task with id {taskid} not found!")
+    return None
 
 def getTasks(userid:int):
     sql = f"SELECT * FROM {TABLE} WHERE userid = %s"
