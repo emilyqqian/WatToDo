@@ -1,94 +1,33 @@
-import React, { useState } from 'react'
-import './App.css'
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import './App.css';
+import Home from './Pages/Home.jsx';
+import Profile from './Pages/Profile.jsx';
+import NavBar from './Components/NavBar.jsx';
 
-function TaskboardDialog({ isOpen, onClose, onSave }) {
-  const [boardName, setBoardName] = useState('')
-  const [boardType, setBoardType] = useState('personal')
-
-  if (!isOpen) return null
-
-  const handleSave = () => {
-    if (boardName.trim() === '') return
-    onSave({ name: boardName.trim(), type: boardType })
-    setBoardName('')
-    setBoardType('personal')
-  }
-
-  return (
-    <div className="dialog-backdrop" onClick={onClose}>
-      <div className="dialog" onClick={e => e.stopPropagation()}>
-        <h3>New Board</h3>
-        <label>
-          Board Name:
-          <input
-            type="text"
-            value={boardName}
-            onChange={e => setBoardName(e.target.value)}
-          />
-        </label>
-        <label>
-          Board Type:
-          <select
-            value={boardType}
-            onChange={e => setBoardType(e.target.value)}
-          >
-            <option value="personal">Personal</option>
-            <option value="shared">Shared</option>
-          </select>
-        </label>
-        <div className="dialog-buttons">
-          <button onClick={handleSave}>Save</button>
-          <button onClick={onClose}>Cancel</button>
-        </div>
-      </div>
-    </div>
-  )
-}
+const TEST_USER = {
+  username: 's969chen',
+  userId: 1,
+  passwordHash: '676767',
+  xp: 0,
+};
 
 function App() {
-  const [personalBoards, setPersonalBoards] = useState([
-    'Personal Board 1',
-    'Personal Board 2',
-    'Personal Board 3',
-  ])
-  const [sharedBoards, setSharedBoards] = useState([
-    'Shared Board A',
-    'Shared Board B',
-    'Shared Board C',
-  ])
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-
-  const openDialog = () => setIsDialogOpen(true)
-  const closeDialog = () => setIsDialogOpen(false)
-
-  const handleSaveBoard = ({ name, type }) => {
-    if (type === 'personal') {
-      setPersonalBoards(prev => [...prev, name])
-    } else {
-      setSharedBoards(prev => [...prev, name])
-    }
-    closeDialog()
-  }
+  const [user] = useState(TEST_USER);
 
   return (
-    <>
-      <h1>Wat To Do</h1>
-      <button className="new-board-button" onClick={openDialog}>+ New Board</button>
-      <div className="board-container">
-        <h2>Personal Task Boards</h2>
-        {personalBoards.map((board, i) => (
-          <button key={i} className="board-button">{board}</button>
-        ))}
+    <Router>
+      <div className="app-shell">
+        <NavBar />
+        <main className="app-main">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/profile" element={<Profile user={user} />} />
+          </Routes>
+        </main>
       </div>
-      <div className="board-container">
-        <h2>Shared Task Boards</h2>
-        {sharedBoards.map((board, i) => (
-          <button key={i} className="board-button">{board}</button>
-        ))}
-      </div>
-      <TaskboardDialog isOpen={isDialogOpen} onClose={closeDialog} onSave={handleSaveBoard} />
-    </>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;
