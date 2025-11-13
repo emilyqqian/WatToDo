@@ -181,3 +181,9 @@ def getTasks(userid:int):
     sql = f"SELECT * FROM {TABLE} WHERE userid = %s"
     cursor.execute(sql, [userid])
     return cursor.fetchall()
+
+def getNextTask(userid:int):
+    sql = f"SELECT * FROM {TABLE} WHERE userid = %s ORDER BY due ASC, start ASC LIMIT 1"
+    cursor.execute(sql, [userid])
+    res = cursor.fetchall()
+    return None if len(res) == 0 else res[0]
