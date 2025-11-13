@@ -151,6 +151,23 @@ def update(task:Task)-> str:
     database.commit()
     return ""
 
+def delete(taskid:int)->str:
+    print("selecting")
+    sql = f"SELECT * FROM {TABLE} WHERE taskid = %s"
+    cursor.execute(sql, [taskid])
+    print("selected")
+    if len(cursor.fetchall()) != 1:
+        print("task not found")
+        return f"Task with id {taskid} not found"
+    
+    # update item
+    print("task found")
+    sql = f"DELETE FROM {TABLE} WHERE taskid = %s"
+    cursor.execute(sql, [taskid])
+    database.commit()
+    print("task deleted")
+    return ""
+
 def getTask(taskid:int):
     sql = f"SELECT * FROM {TABLE} WHERE taskid = %s"
     cursor.execute(sql, [taskid])

@@ -44,6 +44,14 @@ def update(name, id):
         return flask.jsonify(success=False, message=res), 400
     return flask.jsonify(success=True, redirect_url=flask.url_for('dashboard', name=name))
 
+@app.route('/api/delete/<id>', methods=['GET'])
+def delete(id):
+    res = db.delete(id)
+    if res != '':
+        return flask.jsonify(success=False, message=res), 400
+    return flask.jsonify(success=True, message=""), 200
+
+
 @app.route('/newTask/<name>')
 def newTask(name):
     return flask.render_template('newTask.html', user=name, api="add")
