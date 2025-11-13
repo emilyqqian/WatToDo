@@ -196,3 +196,9 @@ def getTodayTask(userid:int):
     cursor.execute(sql, [userid])
     res = cursor.fetchall()
     return None if len(res) == 0 else res
+
+def getTomorrowTask(userid:int):
+    sql = f"SELECT * FROM {TABLE} WHERE userid = %s and done IS NULL and DATE(due) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)"
+    cursor.execute(sql, [userid])
+    res = cursor.fetchall()
+    return None if len(res) == 0 else res

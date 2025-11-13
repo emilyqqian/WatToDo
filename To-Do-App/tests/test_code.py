@@ -1,4 +1,4 @@
-from src.db import add, update, delete, init, reset, getNextTask, getTodayTask, getTasks, Task
+from src.db import add, update, delete, init, reset, getNextTask, getTodayTask, getTomorrowTask, getTasks, Task
 import src.db
 from datetime import datetime, timedelta
 import pytest
@@ -99,3 +99,17 @@ def test_today_1():
 def test_today_2():
     reset()
     assert None == getTodayTask(1)
+
+# check tomorrow
+def test_tomorrow_1():
+    reset()
+    assert "" == add(Task(1, "a", "test", datetime(2025, 9, 23), datetime.now(), None))
+    assert "" == add(Task(1, "b", "test", datetime(2015, 9, 23), datetime.now() + timedelta(days=1), None))
+    res = getTomorrowTask(1)
+    assert len(res) == 1
+    assert res[0][2] == "b"
+
+# not task tomorrow
+def test_tomorrow_2():
+    reset()
+    assert None == getTomorrowTask(1)

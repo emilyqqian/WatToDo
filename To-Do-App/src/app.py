@@ -79,7 +79,7 @@ def updateTask(name, id):
 def dashboard(name):
     return flask.render_template('dashboard.html', user=name, 
                                  tasks=db.getTasks(int(name)), next=db.getNextTask(int(name)),
-                                 today=db.getTodayTask(int(name)))
+                                 today=db.getTodayTask(int(name)), tomorrow=db.getTomorrowTask(int(name)))
 
 
 @app.route('/login', methods=['POST'])
