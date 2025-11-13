@@ -5,6 +5,37 @@
 <button type="button", id="newtask", style="padding: 20px 50px 20px 50px;background-color: #FAE100;border-radius: 5px;">Add New Task</button>
 
 <h1>Next Task:</h1>
+
+{% if next == None %}
+
+<h2>You have no upcomming tasks! Enjoy your day~</h2>
+
+{% else %}
+
+<div style="background-color: #FAE100; border-color: black; border-width: 3px; border-style: solid; border-radius: 5px; margin: 10px; padding: 10px">
+    <div class="item", id="A{{next[0]}}">
+        <h2 style="margin: 0">{{next[2]}}</h2>
+        <p style="margin: 0">Type: {{next[3]}}</p>
+        <p style="margin: 0">Start Time: {{next[4]}}</p>
+        <p style="margin: 0">Due: {{next[5]}}</p>
+
+        {% if next[6] == None %}
+        <p style="margin: 0">Not Finished</p>
+        {% else %}
+        <p style="margin: 0">Finished at: {{next[6]}}</p>
+        {% endif %}
+    </div>
+    <button type="button", class="delete", id="B{{next[0]}}", style="padding: 10px 30px 10px 30px;background-color: #FAE100;border-radius: 5px;">Delete</button>
+
+    {% if next[6] == None %}
+    <button type="button", class="markdone", id="C{{next[0]}}", style="padding: 10px 30px 10px 30px;background-color: #FAE100;border-radius: 5px;">Mark Done</button>
+    {% else %}
+    <button type="button", class="undodone", id="D{{next[0]}}", style="padding: 10px 30px 10px 30px;background-color: #FAE100;border-radius: 5px;">Redo</button>
+    {% endif %}
+</div>
+
+{% endif %}
+
 <h1>Tasks Due Today:</h1>
 <h1>Tasks Due Tomorrow:</h1>
 <h1>All Tasks:</h1>
@@ -25,6 +56,12 @@
         {% endif %}
     </div>
     <button type="button", class="delete", id="B{{task[0]}}", style="padding: 10px 30px 10px 30px;background-color: #FAE100;border-radius: 5px;">Delete</button>
+
+    {% if next[6] == None %}
+    <button type="button", class="markdone", id="C{{task[0]}}", style="padding: 10px 30px 10px 30px;background-color: #FAE100;border-radius: 5px;">Mark Done</button>
+    {% else %}
+    <button type="button", class="redo", id="D{{task[0]}}", style="padding: 10px 30px 10px 30px;background-color: #FAE100;border-radius: 5px;">Redo</button>
+    {% endif %}
 </div>
 
 {% endfor %}
@@ -48,6 +85,46 @@ document.querySelectorAll('.delete').forEach(item => {
         if (userResponse) {
             let tid = item.id.substring(1);
             const response = await fetch('/api/delete/' + tid, {
+                method: 'GET',
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                window.location.reload(true);
+            } else {
+                alert(data.message);
+            }
+        }
+    });
+});
+
+document.querySelectorAll('.markdone').forEach(item => {
+    item.addEventListener('click', async (e) => {
+        let userResponse = confirm("Mark Done?");
+
+        if (userResponse) {
+            let tid = item.id.substring(1);
+            const response = await fetch('/api/markdone/' + tid, {
+                method: 'GET',
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                window.location.reload(true);
+            } else {
+                alert(data.message);
+            }
+        }
+    });
+});
+
+document.querySelectorAll('.redo').forEach(item => {
+    item.addEventListener('click', async (e) => {
+        let userResponse = confirm("Redo Task?");
+
+        if (userResponse) {
+            let tid = item.id.substring(1);
+            const response = await fetch('/api/redo/' + tid, {
                 method: 'GET',
             });
 
