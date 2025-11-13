@@ -25,6 +25,16 @@ def add(name):
         return flask.jsonify(success=False, message=res), 400
     return flask.jsonify(success=True, redirect_url=flask.url_for('dashboard', name=name))
 
+@app.route('/api/markdone/<id>', methods=['GET'])
+def markdone(id):
+    db.setDone(id, datetime.datetime.now())
+    return flask.jsonify(success=True, message=""), 200
+
+@app.route('/api/redo/<id>', methods=['GET'])
+def redo(id):
+    db.setDone(id, None)
+    return flask.jsonify(success=True, message=""), 200
+
 @app.route('/api/update/<name>/<id>', methods=['POST'])
 def update(name, id):
     form = flask.request.form

@@ -151,6 +151,11 @@ def update(task:Task)-> str:
     database.commit()
     return ""
 
+def setDone(taskid:int, day:datetime):
+    sql = f"UPDATE {TABLE} SET done = %s WHERE taskid = %s"
+    cursor.execute(sql, [day, taskid])
+    database.commit()
+
 def delete(taskid:int)->str:
     print("selecting")
     sql = f"SELECT * FROM {TABLE} WHERE taskid = %s"
@@ -183,7 +188,7 @@ def getTasks(userid:int):
     return cursor.fetchall()
 
 def getNextTask(userid:int):
-    sql = f"SELECT * FROM {TABLE} WHERE userid = %s ORDER BY due ASC, start ASC LIMIT 1"
+    sql = f"SELECT * FROM {TABLE} WHERE userid = %s and done IS NULL ORDER BY due ASC, start ASC LIMIT 1"
     cursor.execute(sql, [userid])
     res = cursor.fetchall()
     return None if len(res) == 0 else res[0]
