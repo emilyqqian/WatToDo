@@ -1,16 +1,67 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react'
+import { Link as RouterLink } from 'react-router-dom'
+import {
+  AppBar,
+  Button,
+  Container,
+  Divider,
+  Stack,
+  Toolbar,
+  Typography,
+} from '@mui/material'
 
 function NavBar() {
   return (
-    <nav className="top-nav">
-      <h1 className="app-title">Wat To Do</h1>
-      <div className="nav-links">
-        <Link to="/">Home</Link>
-        <Link to="/profile">Profile</Link>
-      </div>
-    </nav>
-  );
+    <AppBar
+      position="sticky"
+      elevation={8}
+      sx={{
+        background: 'linear-gradient(120deg, #1d3557 0%, #457b9d 50%, #a8dadc 100%)',
+        color: 'common.white',
+      }}
+    >
+      <Container maxWidth="lg">
+        <Toolbar disableGutters sx={{ py: 1.5, minHeight: '88px' }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ width: '100%' }}
+          >
+            <Typography
+              variant="h4"
+              fontWeight={700}
+              sx={{
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+              }}
+            >
+              Wat To Do
+            </Typography>
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Button
+                component={RouterLink}
+                to="/"
+                color="inherit"
+                sx={{ textTransform: 'none', fontWeight: 600, fontSize: '1rem' }}
+              >
+                Home
+              </Button>
+              <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.3)' }} />
+              <Button
+                component={RouterLink}
+                to="/profile"
+                color="inherit"
+                sx={{ textTransform: 'none', fontWeight: 600, fontSize: '1rem' }}
+              >
+                Profile
+              </Button>
+            </Stack>
+          </Stack>
+        </Toolbar>
+      </Container>
+    </AppBar>
+  )
 }
 
-export default NavBar;
+export default NavBar
