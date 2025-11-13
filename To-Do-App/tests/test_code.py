@@ -1,6 +1,6 @@
-from src.db import add, update, delete, init, reset, getNextTask, getTasks, Task
+from src.db import add, update, delete, init, reset, getNextTask, getTodayTask, getTasks, Task
 import src.db
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytest
 
 @pytest.fixture(scope="session", autouse=True)
@@ -79,10 +79,23 @@ def test_next_1():
     reset()
     assert "" == add(Task(1, "a", "test", datetime(2025, 9, 23), datetime(2026, 9, 23), None))
     assert "" == add(Task(1, "b", "test", datetime(2015, 9, 23), datetime(2026, 9, 23), None))
-    db = getTasks(1)
     assert "b" == getNextTask(1)[2]
 
 # no next task
 def test_next_2():
     reset()
     assert None == getNextTask(1)
+
+# check today
+def test_today_1():
+    reset()
+    assert "" == add(Task(1, "a", "test", datetime(2025, 9, 23), datetime.now(), None))
+    assert "" == add(Task(1, "b", "test", datetime(2015, 9, 23), datetime.now() + timedelta(days=1), None))
+    res = getTodayTask(1)
+    assert len(res) == 1
+    assert res[0][2] == "a"
+
+# not task today
+def test_today_2():
+    reset()
+    assert None == getTodayTask(1)

@@ -101,8 +101,6 @@ def assertTaskValid(task:Task) -> str:
         return "Empty start date!"
     if task.due < task.started:
         return "Due date must be later than start date"
-    if task.due < datetime.now():
-        return "Due date must be before the start date"
     if len(task.item) > 255:
         return "Title too long"
     if len(task.type) > 255:
@@ -192,3 +190,9 @@ def getNextTask(userid:int):
     cursor.execute(sql, [userid])
     res = cursor.fetchall()
     return None if len(res) == 0 else res[0]
+
+def getTodayTask(userid:int):
+    sql = f"SELECT * FROM {TABLE} WHERE userid = %s and done IS NULL and DATE(due) = CURDATE()"
+    cursor.execute(sql, [userid])
+    res = cursor.fetchall()
+    return None if len(res) == 0 else res

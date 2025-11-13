@@ -37,6 +37,41 @@
 {% endif %}
 
 <h1>Tasks Due Today:</h1>
+
+{% if today == None %}
+
+<h2>You have tasks due today! Enjoy your day~</h2>
+
+{% else %}
+
+{% for task in today %}
+
+<div style="background-color: #FAE100; border-color: black; border-width: 3px; border-style: solid; border-radius: 5px; margin: 10px; padding: 10px">
+    <div class="item", id="A{{task[0]}}">
+        <h2 style="margin: 0">{{task[2]}}</h2>
+        <p style="margin: 0">Type: {{task[3]}}</p>
+        <p style="margin: 0">Start Time: {{task[4]}}</p>
+        <p style="margin: 0">Due: {{task[5]}}</p>
+
+        {% if task[6] == None %}
+        <p style="margin: 0">Not Finished</p>
+        {% else %}
+        <p style="margin: 0">Finished at: {{task[6]}}</p>
+        {% endif %}
+    </div>
+    <button type="button", class="delete", id="B{{task[0]}}", style="padding: 10px 30px 10px 30px;background-color: #FAE100;border-radius: 5px;">Delete</button>
+
+    {% if next[6] == None %}
+    <button type="button", class="markdone", id="C{{task[0]}}", style="padding: 10px 30px 10px 30px;background-color: #FAE100;border-radius: 5px;">Mark Done</button>
+    {% else %}
+    <button type="button", class="redo", id="D{{task[0]}}", style="padding: 10px 30px 10px 30px;background-color: #FAE100;border-radius: 5px;">Redo</button>
+    {% endif %}
+</div>
+
+{% endfor %}
+
+{% endif %}
+
 <h1>Tasks Due Tomorrow:</h1>
 <h1>All Tasks:</h1>
 
