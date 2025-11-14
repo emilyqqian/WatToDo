@@ -34,6 +34,7 @@ const SAMPLE_TASKS = [
   'Sync with marketing team',
 ]
 
+
 const getRandomDueDateLabel = () => {
   const daysFromNow = Math.floor(Math.random() * 10) + 1
   const dueDate = new Date()

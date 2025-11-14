@@ -2,6 +2,7 @@ import React from 'react';
 
 function Profile({ user }) {
   return (
+    
     <div className="profile-page">
       <h2>Profile</h2>
       <p>

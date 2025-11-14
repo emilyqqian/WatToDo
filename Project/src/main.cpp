@@ -92,9 +92,10 @@ int main() {
 
              if (result == SUCCESS) {
                  crow::json::wvalue response;
-                 response["user_id"] = user.userid;
+                 response["userId"] = user.userid;
                  response["username"] = user.username;
-                 response["xp_points"] = user.points;
+                 response["password"] = user.password;
+                 response["xp"] = user.points;
                  return crow::response(200, response);
              } else {
                  return crow::response(404, "User not found");
