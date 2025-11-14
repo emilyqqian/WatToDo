@@ -632,7 +632,6 @@ std::unordered_map<std::string, unsigned int> getLeaderboard() {
 
 #ifndef TEST_ENV
 #ifdef DATABASE_TEST
-
 int main() {
 	initDatabase();
     std::cout << "result: " << registerUser("long password", 2147483699) << std::endl;

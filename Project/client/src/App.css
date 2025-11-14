@@ -1,0 +1,55 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1rem 0;
+  background-color: #938f8f;
+  color: black;
+  z-index: 100;
+}
+.app-title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-links a {
+  text-decoration: none;
+  font-size: 0.95rem;
+  color: inherit;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+.app-main {
+  flex: 1;
+  justify-content: center;
+}
+
+.profile-page {
+  padding: 1rem 0;
+  justify-content: center;
+}
+
+.profile-page p {
+  margin: 0.25rem 0;
+  
+}
