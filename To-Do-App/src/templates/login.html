@@ -1,0 +1,31 @@
+{% extends 'header.html' %}
+
+{% block body %}
+
+   <form id="myForm">
+      <p>Username:</p>
+      <p><input type = "text" name = "userid" /></p>
+      <p><button type="submit">Login</button></p>
+   </form>
+
+<script>
+document.querySelector('#myForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  
+  const response = await fetch('/login', {
+    method: 'POST',
+    body: formData
+  });
+
+  const data = await response.json();
+  if (data.success) {
+    // Redirect using JS
+    window.location.href = data.redirect_url;
+  } else {
+    alert(data.message);
+  }
+});
+</script>
+   
+{% endblock %}

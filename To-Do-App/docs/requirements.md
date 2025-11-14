@@ -1,0 +1,4 @@
+- Development of a local-only web-based To-Do application using Flask and MySQL. 
+- Implementation of core CRUD operations (`add`, `update`, `delete`) and task retrieval functions (`next`, `today`, `tomorrow`).  
+- User-specific task retrieval based on `userid`.  
+- Comprehensive test plan and test cases for all functions.

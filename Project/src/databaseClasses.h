@@ -124,12 +124,16 @@ public:
 		return *this;
 	}
 
-    bool operator <(const User& other) const {
+    bool operator<(const User& other) const {
         return this->username < other.username;
     }
 
-    bool operator >(const User& other) const {
+    bool operator>(const User& other) const {
         return other < *this;
+    }
+
+    bool operator==(const User& other) const {
+        return this->userid == other.userid;
     }
 };
 
@@ -213,12 +217,23 @@ public:
     std::set<User> users;
     std::set<User> admins;
 
+    TaskBoard(){}
+
+    TaskBoard(mysqlx::Row board);
+
     TaskBoard& operator=(const TaskBoard& other){
         this->name = other.name;
+        this->taskboard_id = other.taskboard_id;
         this->tasklist = other.tasklist;
         this->users = other.users;
         this->admins = other.admins;
         return *this;
+    }
+};
+
+struct UserHasher {
+    std::size_t operator()(const User& key) const {
+        return key.userid;
     }
 };
 

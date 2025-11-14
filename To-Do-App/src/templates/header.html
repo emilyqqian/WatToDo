@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>WatToDo</title>
+    </head>
+
+    <body style="margin: 0">
+        <div class="header">
+            <div style="background-color: black; padding: 5px 15px 5px 15px">
+                <h1 style="color: azure">WatToDo</h1>
+            </div>
+            <div style="display:flex; flex-direction: row;">
+                <div style="background-color: #F2EDA8; flex:1; height: 10px"></div>
+                <div style="background-color: #FAE100; flex:1; height: 10px"></div>
+                <div style="background-color: #FED34C; flex:1; height: 10px"></div>
+                <div style="background-color: #EAAB00; flex:1; height: 10px"></div>
+            </div>
+        </div>
+        <div style="margin: 50px; padding: 10px">
+            {% block body %}
+        
+            {% endblock %}
+        </div>
+    </body>
+</html>

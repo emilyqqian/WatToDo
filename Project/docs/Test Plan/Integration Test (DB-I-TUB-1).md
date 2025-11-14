@@ -1,26 +1,27 @@
-# Test Plan #1: System Test
+# Test Plan #4: Integration Test
 - Author: s969chen
-- Date: Nov 13 2025
-- ID: T-1
+- Date: Nov 6 2025
+- ID: DB-I-TUD-1
 - Type: Dynamic
-- Level: System
+- Level: Integration
 
 ## Description:
-- System test about the entire database connection level
+- Integration test about all database functions
 
 ## Coverage and Omissions:
 
 ### Coverage: 
-- All CRUD operations about tasks
+- CRUD about taskboard and tasks with or without appropriate permission
+- invite, add, and kick-out users
 
 ### Omissions:
-- API
+- Everything except for the coverage
 
 ## Entry and Exit Criteria:
 
 ### Entry criteria:
-- Database connection successful
-- Test tables are enabled
+- The Smoke Test is passed
+- All Unit Tests are passed
 
 ### Exit criteria:
 - Abort if any exceptions occured
@@ -35,6 +36,7 @@
 - The database reflects the changes as expected
 - Values obtained from the database is correct and up-to-date
 - Errors are reported
+- Each operation takes less than 300 ms
 
 ### Fail:
 - The database does not reflect the changes as expected

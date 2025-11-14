@@ -1,0 +1,303 @@
+Start testing: Nov 06 13:09 EST
+----------------------------------------------------------
+1/6 Testing: SmokeTest
+1/6 Test: SmokeTest
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=SmokeTest.*"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"SmokeTest" start time: Nov 06 13:09 EST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = SmokeTest.*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 2 tests from SmokeTest
+[ RUN      ] SmokeTest.EnsureConnection
+[       OK ] SmokeTest.EnsureConnection (0 ms)
+[ RUN      ] SmokeTest.EnsureTestEnvironment
+[       OK ] SmokeTest.EnsureTestEnvironment (0 ms)
+[----------] 2 tests from SmokeTest (0 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 2 tests from 1 test suite ran. (68 ms total)
+[  PASSED  ] 2 tests.
+<end of output>
+Test time =   0.22 sec
+----------------------------------------------------------
+Test Passed.
+"SmokeTest" end time: Nov 06 13:09 EST
+"SmokeTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/6 Testing: UserTest
+2/6 Test: UserTest
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=UserTest.*"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"UserTest" start time: Nov 06 13:09 EST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = UserTest.*
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 10 tests from UserTest
+[ RUN      ] UserTest.ForValidUserRegistration
+[       OK ] UserTest.ForValidUserRegistration (14 ms)
+[ RUN      ] UserTest.ForDuplicateUserRegistration
+[       OK ] UserTest.ForDuplicateUserRegistration (18 ms)
+[ RUN      ] UserTest.ForInvalidNameUser
+[       OK ] UserTest.ForInvalidNameUser (4 ms)
+[ RUN      ] UserTest.ForGetValidUserByName
+[       OK ] UserTest.ForGetValidUserByName (19 ms)
+[ RUN      ] UserTest.ForGetValidUserByID
+[       OK ] UserTest.ForGetValidUserByID (24 ms)
+[ RUN      ] UserTest.ForGetNonExistUser
+[       OK ] UserTest.ForGetNonExistUser (9 ms)
+[ RUN      ] UserTest.ForUpdateValidUser
+[       OK ] UserTest.ForUpdateValidUser (37 ms)
+[ RUN      ] UserTest.ForUpdateInvalidNameUser
+[       OK ] UserTest.ForUpdateInvalidNameUser (19 ms)
+[ RUN      ] UserTest.ForUpdateNonExistingUser
+[       OK ] UserTest.ForUpdateNonExistingUser (28 ms)
+[ RUN      ] UserTest.ForLeaderboard
+[       OK ] UserTest.ForLeaderboard (47 ms)
+[----------] 10 tests from UserTest (225 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 10 tests from 1 test suite ran. (278 ms total)
+[  PASSED  ] 10 tests.
+<end of output>
+Test time =   0.29 sec
+----------------------------------------------------------
+Test Passed.
+"UserTest" end time: Nov 06 13:09 EST
+"UserTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/6 Testing: TaskTest
+3/6 Test: TaskTest
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=TaskTest.*"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"TaskTest" start time: Nov 06 13:09 EST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = TaskTest.*
+[==========] Running 14 tests from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 14 tests from TaskTest
+[ RUN      ] TaskTest.ForAddingValidTask
+[       OK ] TaskTest.ForAddingValidTask (23 ms)
+[ RUN      ] TaskTest.ForAddingInvalidTaskName
+[       OK ] TaskTest.ForAddingInvalidTaskName (23 ms)
+[ RUN      ] TaskTest.ForAddingTaskToNonExisitingTaskBoard
+[       OK ] TaskTest.ForAddingTaskToNonExisitingTaskBoard (8 ms)
+[ RUN      ] TaskTest.ForAddingTaskWithIncorrectDates
+[       OK ] TaskTest.ForAddingTaskWithIncorrectDates (24 ms)
+[ RUN      ] TaskTest.ForAddingRepetitiveTasks
+[       OK ] TaskTest.ForAddingRepetitiveTasks (40 ms)
+[ RUN      ] TaskTest.ForDeletingValidTask
+[       OK ] TaskTest.ForDeletingValidTask (45 ms)
+[ RUN      ] TaskTest.ForDeletingNonExistingTask
+[       OK ] TaskTest.ForDeletingNonExistingTask (8 ms)
+[ RUN      ] TaskTest.ForGettingValidTask
+[       OK ] TaskTest.ForGettingValidTask (34 ms)
+[ RUN      ] TaskTest.ForGettingNonExistingTask
+[       OK ] TaskTest.ForGettingNonExistingTask (9 ms)
+[ RUN      ] TaskTest.ForUpdatingValidTask
+[       OK ] TaskTest.ForUpdatingValidTask (57 ms)
+[ RUN      ] TaskTest.ForUpdatingNonExistingTask
+[       OK ] TaskTest.ForUpdatingNonExistingTask (20 ms)
+[ RUN      ] TaskTest.ForUpdaingTaskWithInvalidTaskBoard
+[       OK ] TaskTest.ForUpdaingTaskWithInvalidTaskBoard (29 ms)
+[ RUN      ] TaskTest.ForUpdatingConflictedTask
+[       OK ] TaskTest.ForUpdatingConflictedTask (66 ms)
+[ RUN      ] TaskTest.ForUpdatingTaskWithInvalidName
+[       OK ] TaskTest.ForUpdatingTaskWithInvalidName (52 ms)
+[----------] 14 tests from TaskTest (444 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 14 tests from 1 test suite ran. (502 ms total)
+[  PASSED  ] 14 tests.
+<end of output>
+Test time =   0.52 sec
+----------------------------------------------------------
+Test Passed.
+"TaskTest" end time: Nov 06 13:09 EST
+"TaskTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/6 Testing: TaskUserInteg
+4/6 Test: TaskUserInteg
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=TaskUserInteg.*"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"TaskUserInteg" start time: Nov 06 13:09 EST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = TaskUserInteg.*
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 6 tests from TaskUserInteg
+[ RUN      ] TaskUserInteg.ForGettingAssignedUser
+[       OK ] TaskUserInteg.ForGettingAssignedUser (71 ms)
+[ RUN      ] TaskUserInteg.ForAssigningInvalidUser
+[       OK ] TaskUserInteg.ForAssigningInvalidUser (48 ms)
+[ RUN      ] TaskUserInteg.ForGettingTaskByAssignedUser
+[       OK ] TaskUserInteg.ForGettingTaskByAssignedUser (90 ms)
+[ RUN      ] TaskUserInteg.ForGettingTaskFromNonExistingUser
+[       OK ] TaskUserInteg.ForGettingTaskFromNonExistingUser (14 ms)
+[ RUN      ] TaskUserInteg.ForAddingTaskWithoutPermission
+[       OK ] TaskUserInteg.ForAddingTaskWithoutPermission (17 ms)
+[ RUN      ] TaskUserInteg.ForDeletingTaskWithoutPermission
+[       OK ] TaskUserInteg.ForDeletingTaskWithoutPermission (42 ms)
+[----------] 6 tests from TaskUserInteg (283 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 6 tests from 1 test suite ran. (339 ms total)
+[  PASSED  ] 6 tests.
+<end of output>
+Test time =   0.35 sec
+----------------------------------------------------------
+Test Passed.
+"TaskUserInteg" end time: Nov 06 13:09 EST
+"TaskUserInteg" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/6 Testing: TaskBoardTest
+5/6 Test: TaskBoardTest
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=TaskBoardTest.*"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"TaskBoardTest" start time: Nov 06 13:09 EST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = TaskBoardTest.*
+[==========] Running 21 tests from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 21 tests from TaskBoardTest
+[ RUN      ] TaskBoardTest.ForCreatingTaskBoard
+[       OK ] TaskBoardTest.ForCreatingTaskBoard (21 ms)
+[ RUN      ] TaskBoardTest.ForCreatingTaskBoardWithInvalidName
+[       OK ] TaskBoardTest.ForCreatingTaskBoardWithInvalidName (5 ms)
+[ RUN      ] TaskBoardTest.ForCreatingTaskBoardWithInvalidOwner
+[       OK ] TaskBoardTest.ForCreatingTaskBoardWithInvalidOwner (9 ms)
+[ RUN      ] TaskBoardTest.ForGettingTaskBoardByID
+[       OK ] TaskBoardTest.ForGettingTaskBoardByID (22 ms)
+[ RUN      ] TaskBoardTest.ForGettingTaskBoardByInvalidID
+[       OK ] TaskBoardTest.ForGettingTaskBoardByInvalidID (9 ms)
+[ RUN      ] TaskBoardTest.ForGettingTaskBoardByUser
+[       OK ] TaskBoardTest.ForGettingTaskBoardByUser (33 ms)
+[ RUN      ] TaskBoardTest.ForRenamingTaskBoard
+[       OK ] TaskBoardTest.ForRenamingTaskBoard (51 ms)
+[ RUN      ] TaskBoardTest.ForRenamingTaskBoardWithInvalidName
+[       OK ] TaskBoardTest.ForRenamingTaskBoardWithInvalidName (20 ms)
+[ RUN      ] TaskBoardTest.ForUpdateUserStatus
+[       OK ] TaskBoardTest.ForUpdateUserStatus (97 ms)
+[ RUN      ] TaskBoardTest.ForUpdateUserStatusWithNonExistingUser
+[       OK ] TaskBoardTest.ForUpdateUserStatusWithNonExistingUser (24 ms)
+[ RUN      ] TaskBoardTest.ForUpdateUserStatusWithNonExistingBoard
+[       OK ] TaskBoardTest.ForUpdateUserStatusWithNonExistingBoard (10 ms)
+[ RUN      ] TaskBoardTest.ForAddingUser
+[       OK ] TaskBoardTest.ForAddingUser (71 ms)
+[ RUN      ] TaskBoardTest.ForAddinguSERWithNonExistingUser
+[       OK ] TaskBoardTest.ForAddinguSERWithNonExistingUser (24 ms)
+[ RUN      ] TaskBoardTest.ForAddingUserWithNonExistingBoard
+[       OK ] TaskBoardTest.ForAddingUserWithNonExistingBoard (10 ms)
+[ RUN      ] TaskBoardTest.ForAddingExistingUser
+[       OK ] TaskBoardTest.ForAddingExistingUser (39 ms)
+[ RUN      ] TaskBoardTest.ForKickingOutUser
+[       OK ] TaskBoardTest.ForKickingOutUser (94 ms)
+[ RUN      ] TaskBoardTest.ForKickingOutNonExistingUser
+[       OK ] TaskBoardTest.ForKickingOutNonExistingUser (25 ms)
+[ RUN      ] TaskBoardTest.ForKickingOutUserWithNonExistingBoard
+[       OK ] TaskBoardTest.ForKickingOutUserWithNonExistingBoard (9 ms)
+[ RUN      ] TaskBoardTest.ForDeletingBoard
+[       OK ] TaskBoardTest.ForDeletingBoard (34 ms)
+[ RUN      ] TaskBoardTest.ForDeletingBoardWithNonExistingUser
+[       OK ] TaskBoardTest.ForDeletingBoardWithNonExistingUser (28 ms)
+[ RUN      ] TaskBoardTest.ForDeletingBoardWithNonExistingBoard
+[       OK ] TaskBoardTest.ForDeletingBoardWithNonExistingBoard (9 ms)
+[----------] 21 tests from TaskBoardTest (654 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 21 tests from 1 test suite ran. (716 ms total)
+[  PASSED  ] 21 tests.
+<end of output>
+Test time =   0.74 sec
+----------------------------------------------------------
+Test Passed.
+"TaskBoardTest" end time: Nov 06 13:09 EST
+"TaskBoardTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/6 Testing: TaskUserBoardInteg
+6/6 Test: TaskUserBoardInteg
+Command: "/Users/qianmuchen/Desktop/project_team_17/Project/tests/build/bin/test_file" "--gtest_filter=TaskUserBoardInteg.*"
+Directory: /Users/qianmuchen/Desktop/project_team_17/Project/tests/build
+"TaskUserBoardInteg" start time: Nov 06 13:09 EST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = TaskUserBoardInteg.*
+[==========] Running 13 tests from 1 test suite.
+[----------] Global test environment set-up.
+Global setup before all tests.
+Connected to MySQL Server!
+Database Initialized Successfully
+[----------] 13 tests from TaskUserBoardInteg
+[ RUN      ] TaskUserBoardInteg.ForRenamingTaskboardWithoutpermission
+[       OK ] TaskUserBoardInteg.ForRenamingTaskboardWithoutpermission (43 ms)
+[ RUN      ] TaskUserBoardInteg.ForUpdateUserStatusWithoutpermission
+[       OK ] TaskUserBoardInteg.ForUpdateUserStatusWithoutpermission (91 ms)
+[ RUN      ] TaskUserBoardInteg.ForUpdateUserStatusCausingHangingBoard
+[       OK ] TaskUserBoardInteg.ForUpdateUserStatusCausingHangingBoard (51 ms)
+[ RUN      ] TaskUserBoardInteg.ForAddingUserWithoutpermission
+[       OK ] TaskUserBoardInteg.ForAddingUserWithoutpermission (67 ms)
+[ RUN      ] TaskUserBoardInteg.ForAddingUserWithoutInvitation
+[       OK ] TaskUserBoardInteg.ForAddingUserWithoutInvitation (37 ms)
+[ RUN      ] TaskUserBoardInteg.ForKickingOutUserWithoutpermission
+[       OK ] TaskUserBoardInteg.ForKickingOutUserWithoutpermission (68 ms)
+[ RUN      ] TaskUserBoardInteg.ForDeletingUserStatusCausingHangingBoard
+[       OK ] TaskUserBoardInteg.ForDeletingUserStatusCausingHangingBoard (47 ms)
+[ RUN      ] TaskUserBoardInteg.ForDeletingBoardWithoutpermission
+[       OK ] TaskUserBoardInteg.ForDeletingBoardWithoutpermission (39 ms)
+[ RUN      ] TaskUserBoardInteg.ForInviting
+[       OK ] TaskUserBoardInteg.ForInviting (82 ms)
+[ RUN      ] TaskUserBoardInteg.ForInvitingNonExistingUser
+[       OK ] TaskUserBoardInteg.ForInvitingNonExistingUser (41 ms)
+[ RUN      ] TaskUserBoardInteg.ForInvitingUserToNonExistingBoard
+[       OK ] TaskUserBoardInteg.ForInvitingUserToNonExistingBoard (18 ms)
+[ RUN      ] TaskUserBoardInteg.ForInvitingUserWithoutpermission
+[       OK ] TaskUserBoardInteg.ForInvitingUserWithoutpermission (64 ms)
+[ RUN      ] TaskUserBoardInteg.ForInvitingExistingUser
+[       OK ] TaskUserBoardInteg.ForInvitingExistingUser (46 ms)
+[----------] 13 tests from TaskUserBoardInteg (701 ms total)
+
+[----------] Global test environment tear-down
+Global teardown after all tests.
+[==========] 13 tests from 1 test suite ran. (760 ms total)
+[  PASSED  ] 13 tests.
+<end of output>
+Test time =   0.78 sec
+----------------------------------------------------------
+Test Passed.
+"TaskUserBoardInteg" end time: Nov 06 13:09 EST
+"TaskUserBoardInteg" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Nov 06 13:09 EST
