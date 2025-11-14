@@ -17,8 +17,7 @@ int main() {
     
     cors
       .global()
-      .origin("http://localhost:3000")  // React dev server
-      .origin("http://127.0.0.1:3000")  // Alternative React URL
+      .origin("http://localhost:5173")  // React dev server
       .methods("GET"_method, "POST"_method, "PUT"_method, "DELETE"_method, "OPTIONS"_method)
       .headers("Content-Type", "Authorization");
 
