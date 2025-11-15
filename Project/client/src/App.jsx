@@ -5,6 +5,7 @@ import './App.css'
 import Home from './Pages/Home.jsx'
 import Profile from './Pages/Profile.jsx'
 import NavBar from './Components/NavBar.jsx'
+import { getLeaderboard, getUserByName } from './APIManager.js'
 
 // optional: default placeholder user while loading
 const DEFAULT_USER = {
@@ -21,17 +22,20 @@ function App() {
   useEffect(() => {
     async function getUser() {
       try {
-        const response = await fetch('http://0.0.0.0:18080/users/s969chen')
-        console.log("a")
-        const data = await response.json()
-        console.log("b")
-        setUser(data)        // 🔥 this tells React to re-render with new user
-        console.log("c")
+        getUserByName("s969chen").then(data => {
+            const loadedUser = {
+              username: data.username,
+              userId: data.user_id,
+              passwordHash: '',
+              xp: data.xp_points
+            }
+
+            setUser(loadedUser)
+        })
       } catch (err) {
         console.error('Failed to fetch user:', err)
       } finally {
         setLoaded(true)
-        console.log("d")
       }
     }
 

@@ -110,20 +110,20 @@ async function updateUser(user, id) {
 /**
 * Get user by name. Returns user object on success, or null on failure
 * @param {string} name the name of the user to retrieve
-* @returns {{
+* @returns {Promise<{
   "user_id": int,
   "username": string,
   "xp_points": int
-}} 
+}>} 
 */
 async function getUserByName(name) {
-    const response = get('/users/' + name);
+    const response = await get('/users/' + name);
 
     if (response === null) return null;
 
     switch (response.status) {
         case 200:
-            return (await response).json();
+            return response.json();
         case 404:
             alert("User Not Found!")
             return null;
@@ -139,20 +139,20 @@ async function getUserByName(name) {
 /**
 * Get user by id. Returns user object on success, or null on failure
 * @param {string} id the id of the user to retrieve
-* @returns {{
+* @returns {Promise<{
   "user_id": int,
   "username": string,
   "xp_points": int
-}} 
+}>} 
 */
 async function getUserByID(id) {
-    const response = get('/users/id/' + id);
+    const response = await get('/users/id/' + id);
 
     if (response === null) return null;
 
     switch (response.status) {
         case 200:
-            return (await response).json();
+            return response.json();
         case 404:
             alert("User Not Found!")
             return null;
@@ -167,25 +167,31 @@ async function getUserByID(id) {
 
 /**
 * Get leaderboard. Returns leaderboard json on success, or null on failure
-* @returns {{
+* @returns {Promise<{
   "leaderboard": [
     { "username": string, "xp": int }
   ]
-}} 
+}>} 
 */
 async function getLeaderboard(){
-    const response = get('/leaderboard');
+    const response = await get('/leaderboard');
 
     if (response === null) return null;
 
+    if (response.ok) return await response.json();
+
     switch (response.status) {
         case 200:
-            return (await response).json();
+            return await response.json();
         case 500:
-            alert("Internal Server Error")
+            console.log("internal server error");
+            //alert("Internal Server Error")
             return null;
         default:
-            alert("An Unexpected Error Occurred: " + response.status)
+            //alert("An Unexpected Error Occurred: " + response.status)
+            console.error("An Unexpected Error Occurred: " + response.status)
             return null;
     }
 }
+
+export {registerUser, updateUser, getUserByID, getUserByName, getLeaderboard};
