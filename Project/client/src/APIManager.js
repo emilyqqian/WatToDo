@@ -45,7 +45,7 @@ async function get(url = '') {
  * Creates a new user in the database. Returns true on success
  * @param {{
  * "username": string,
- * "password": int
+ * "password": number
  * }} user The user object deined as follow: 
  * @returns boolean indicating success
  */
@@ -77,8 +77,8 @@ async function registerUser(user) {
 * Update User Information. Returns true on success
 * @param {{
   "username": string,
-  "password": int,
-  "xp_points": int
+  "password": number,
+  "xp_points": number
 }} user The user information to update
 * @param {string} id The user ID to update
 * @returns bool
@@ -111,9 +111,9 @@ async function updateUser(user, id) {
 * Get user by name. Returns user object on success, or null on failure
 * @param {string} name the name of the user to retrieve
 * @returns {Promise<{
-  "user_id": int,
+  "user_id": number,
   "username": string,
-  "xp_points": int
+  "xp_points": number
 }>} 
 */
 async function getUserByName(name) {
@@ -140,9 +140,9 @@ async function getUserByName(name) {
 * Get user by id. Returns user object on success, or null on failure
 * @param {string} id the id of the user to retrieve
 * @returns {Promise<{
-  "user_id": int,
+  "user_id": number,
   "username": string,
-  "xp_points": int
+  "xp_points": number
 }>} 
 */
 async function getUserByID(id) {
@@ -169,7 +169,7 @@ async function getUserByID(id) {
 * Get leaderboard. Returns leaderboard json on success, or null on failure
 * @returns {Promise<{
   "leaderboard": [
-    { "username": string, "xp": int }
+    { "username": string, "xp": number }
   ]
 }>} 
 */
