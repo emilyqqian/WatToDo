@@ -17,12 +17,10 @@ int main() {
     
     cors
       .global()
-      .origin("http://localhost:5173")  // React dev server
+      .origin("*")//.origin("http://localhost:5173")  // React dev server
       .methods("GET"_method, "POST"_method, "PUT"_method, "DELETE"_method, "OPTIONS"_method)
       .headers("Content-Type", "Authorization");
 
-    // Your existing endpoints remain exactly the same:
-    crow::SimpleApp app;
     // Complete Update user info endpoint with proper error handling
     CROW_ROUTE(app, "/users/<int>").methods("PUT"_method)
         ([](const crow::request& req, int user_id){
