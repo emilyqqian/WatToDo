@@ -43,14 +43,12 @@ async function get(url = '') {
 
 /**
  * Creates a new user in the database. Returns true on success
- * @param {{
- * "username": string,
- * "password": number
- * }} user The user object deined as follow: 
+ * @param {string} username username
+ * @param {string} password password (unhashed)
  * @returns boolean indicating success
  */
-async function registerUser(user) {
-    const response = post('/register', user);
+async function registerUser(username, password) {
+    const response = await post('/register', {username: username, password: getStringHashCode(password)});
 
     if (response === null) return null;
 
@@ -73,6 +71,52 @@ async function registerUser(user) {
     }
 }
 
+function getStringHashCode(s) {
+  let hash = 0;
+  if (s.length === 0) {
+    return hash;
+  }
+  for (let i = 0; i < s.length; i++) {
+    const char = s.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0; // Ensure the hash remains a 32-bit integer
+  }
+  return hash;
+}
+
+/**
+ * Creates a new user in the database. Returns true on success
+ * @param {string} username username
+ * @param {string} password password (unhashed)
+ * @returns {Promise<{
+  "username": string,
+  "password": number,
+  "xp_points": number
+}>} indicating success
+ */
+async function loginUser(username, password) {
+    const response = await post('/login', {
+        username: username,
+        password: getStringHashCode(password)
+    });
+
+    if (response === null) return null;
+
+    switch (response.status) {
+        case 200:
+            return response.json();
+        case 409:
+            alert("Wrong Username or Password!")
+            return null
+        case 500:
+            alert("Internal Server Error")
+            return null;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return null;
+    }
+}
+
 /**
 * Update User Information. Returns true on success
 * @param {{
@@ -84,7 +128,7 @@ async function registerUser(user) {
 * @returns bool
 */
 async function updateUser(user, id) {
-    const response = post('/users/' + id, user, method = 'PUT');
+    const response = await post('/users/' + id, user, method = 'PUT');
 
     if (response === null) return null;
 
@@ -194,4 +238,4 @@ async function getLeaderboard(){
     }
 }
 
-export {registerUser, updateUser, getUserByID, getUserByName, getLeaderboard};
+export {registerUser, loginUser, updateUser, getUserByID, getUserByName, getLeaderboard};

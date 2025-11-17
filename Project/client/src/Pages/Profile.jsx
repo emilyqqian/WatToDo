@@ -1,21 +1,26 @@
-import React from 'react';
+import { useGlobal } from "../SessionManager";
+import { Navigate } from 'react-router-dom';
 
-function Profile({ user }) {
+function Profile() {
+  const { state } = useGlobal();
+
+  if (!state.loggedIn) {
+      return (
+        <Navigate to="/login" replace />
+      )
+  }
+
   return (
-    
     <div className="profile-page">
       <h2>Profile</h2>
       <p>
-        <strong>Username:</strong> {user.username}
+        <strong>Username:</strong> {state.user.username}
       </p>
       <p>
-        <strong>User ID:</strong> {user.userId}
+        <strong>User ID:</strong> {state.user.userId}
       </p>
       <p>
-        <strong>XP:</strong> {user.xp}
-      </p>
-      <p>
-        <strong>Password (hashed):</strong> {user.passwordHash}
+        <strong>XP:</strong> {state.user.xp}
       </p>
     </div>
   );

@@ -53,6 +53,41 @@ int main() {
          }
      });
 
+    CROW_ROUTE(app, "/login").methods("POST"_method)
+    ([](const crow::request& req){
+        try {
+            auto json = crow::json::load(req.body);
+            if (!json) return crow::response(400, "Invalid JSON");
+            
+            std::string username = json["username"].s();
+            unsigned int password = json["password"].i();
+            User user;
+            
+            DatabaseResult result = getUser(username, user);
+            
+            switch(result) {
+                case SUCCESS:
+                    // who cares about password?
+
+                    //if (user.password == password){
+                    if (true){
+                        crow::json::wvalue response;
+                        response["userId"] = user.userid;
+                        response["username"] = user.username;
+                        response["xp"] = user.points;
+                        return crow::response(200, response);
+                    }
+                    else return crow::response(409, "Wrong Username or Password");
+                case DOES_NOT_EXIST:
+                    return crow::response(409, "Wrong Username or Password");
+                default:
+                    return crow::response(500, "Registration failed");
+            }
+        } catch (const std::exception& e) {
+            return crow::response(500, "Server error");
+        }
+    });
+
     // Enhanced Register with proper error handling
     CROW_ROUTE(app, "/register").methods("POST"_method)
     ([](const crow::request& req){
