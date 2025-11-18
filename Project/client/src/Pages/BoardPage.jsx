@@ -11,25 +11,39 @@ import {
   Divider,
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { useGlobal } from '../SessionManager'
 
 export default function BoardPage() {
   const navigate = useNavigate()
+  const { state } = useGlobal()
+  const board = state.currentTaskBoard
 
-  // Hard-coded board & tasks for now
-  const board = {
-    id: 'demo-board-1',
-    name: 'Personal Board 1',
-    type: 'personal', // or 'shared'
-    description:
-      'Organize your personal focus and collaborate on shared priorities.',
-    tasks: [
-      { id: 't1', title: 'Sync with marketing team', due: 'Nov 20' },
-      { id: 't2', title: 'Prep status meeting', due: 'Nov 23' },
-      { id: 't3', title: 'Clean up legacy tags', due: 'Nov 26' },
-    ],
+  if (!board) {
+    return (
+      <Box className="board-page-root">
+        <Container maxWidth="lg" className="board-page-container">
+          <Box className="board-hero">
+            <Typography variant="h4" className="board-title">
+              No board selected
+            </Typography>
+            <Typography variant="body1" className="board-description">
+              Please go back to the dashboard and choose a task board.
+            </Typography>
+            <Box sx={{ mt: 3 }}>
+              <Button variant="contained" onClick={() => navigate('/')}>
+                Back to dashboard
+              </Button>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
+    )
   }
 
   const isPersonal = board.type === 'personal'
+  const boardDescription =
+    board.description ??
+    'Organize your personal focus and collaborate on shared priorities.'
 
   return (
     <Box className="board-page-root">
@@ -40,7 +54,7 @@ export default function BoardPage() {
             {board.name}
           </Typography>
           <Typography variant="body1" className="board-description">
-            {board.description}
+            {boardDescription}
           </Typography>
         </Box>
 
@@ -152,7 +166,7 @@ export default function BoardPage() {
                       variant="body1"
                       className="board-task-title"
                     >
-                      {task.title}
+                      {task.name}
                     </Typography>
                     <Typography
                       variant="caption"
@@ -169,7 +183,7 @@ export default function BoardPage() {
                     className="board-task-meta"
                   >
                     <Chip
-                      label={`Due ${task.due}`}
+                      label={`Due ${task.dueDate}`}
                       size="small"
                       className="board-chip-due"
                     />

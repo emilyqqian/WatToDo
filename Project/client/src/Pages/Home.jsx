@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom'
 import {
   Box,
   Button,
@@ -21,7 +21,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { useGlobal } from '../SessionManager';
+import { useGlobal } from '../SessionManager'
 
 const SAMPLE_TASKS = [
   'Draft sprint goals',
@@ -35,7 +35,6 @@ const SAMPLE_TASKS = [
   'Clean up legacy tags',
   'Sync with marketing team',
 ]
-
 
 const getRandomDueDateLabel = () => {
   const daysFromNow = Math.floor(Math.random() * 10) + 1
@@ -171,7 +170,8 @@ function BoardSection({ title, boards, onBoardClick }) {
                         sx={{
                           borderRadius: 2,
                           p: 2,
-                          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                          transition:
+                            'transform 0.2s ease, box-shadow 0.2s ease',
                           '&:hover': {
                             transform: 'translateY(-2px)',
                             boxShadow: 6,
@@ -203,15 +203,15 @@ function BoardSection({ title, boards, onBoardClick }) {
 }
 
 function Home() {
-  const { state } = useGlobal()
+  const { state, updateState } = useGlobal()
   const navigate = useNavigate()
+
   if (!state.loggedIn) {
-    return (
-        <Navigate to="/login" replace />
-      )
+    return <Navigate to="/login" replace />
   }
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+
   const initialPersonalBoards = useMemo(
     () => [
       createBoard('Personal Board 1', 'personal'),
@@ -220,6 +220,7 @@ function Home() {
     ],
     []
   )
+
   const initialSharedBoards = useMemo(
     () => [
       createBoard('Shared Board A', 'shared'),
@@ -228,6 +229,7 @@ function Home() {
     ],
     []
   )
+
   const [personalBoards, setPersonalBoards] = useState(initialPersonalBoards)
   const [sharedBoards, setSharedBoards] = useState(initialSharedBoards)
 
@@ -241,6 +243,11 @@ function Home() {
     } else {
       setSharedBoards((prev) => [...prev, board])
     }
+  }
+
+  const handleBoardClick = (board) => {
+    updateState({ currentTaskBoard: board })
+    navigate('/board')
   }
 
   return (
@@ -276,12 +283,12 @@ function Home() {
         <BoardSection
           title="Personal Task Boards"
           boards={personalBoards}
-          onBoardClick={() => navigate('/board')}
+          onBoardClick={handleBoardClick}
         />
         <BoardSection
           title="Shared Task Boards"
           boards={sharedBoards}
-          onBoardClick={() => navigate('/board')}
+          onBoardClick={handleBoardClick}
         />
       </Stack>
 
