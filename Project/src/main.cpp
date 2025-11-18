@@ -3,6 +3,44 @@
 #include <iostream>
 #include "database.h"
 
+
+crow::json::wvalue getTaskBoardJSON(TaskBoard taskboard){
+    crow::json::wvalue response;
+    response["taskboard_id"] = taskboard.taskboard_id;
+    response["name"] = taskboard.name;
+                
+    // Add users
+    int user_index = 0;
+    for (const auto& user : taskboard.users) {
+        response["users"][user_index]["userId"] = user.userid;
+        response["users"][user_index]["username"] = user.username;
+        response["users"][user_index]["isAdmin"] = (taskboard.admins.find(user) != taskboard.admins.end());
+        user_index++;
+    }
+                
+    // Add tasks
+    int task_index = 0;
+    for (const auto& task : taskboard.tasklist) {
+        response["tasks"][task_index]["task_id"] = task.taskID;
+        response["tasks"][task_index]["title"] = task.title;
+        response["tasks"][task_index]["type"] = task.type;
+        response["tasks"][task_index]["start_date"] = task.startDate.toString();
+        response["tasks"][task_index]["due_date"] = task.duedate.toString();
+        response["tasks"][task_index]["pinned"] = task.pinned;
+        if (task.finished) response["tasks"][task_index]["finished"] = task.finishedOn.toString();
+                    
+        if (task.assigned) {
+            response["tasks"][task_index]["assigned_user"]["userId"] = task.assignedUser.userid;
+            response["tasks"][task_index]["assigned_user"]["username"] = task.assignedUser.username;
+        } else {
+            response["tasks"][task_index]["assigned_user"] = nullptr;
+        }
+                    
+        task_index++;
+    }
+    return response;
+}
+
 int main() {
     std::cout << "Compiled with:" << std::endl;
     std::cout << "MYSQL_USER: " << MYSQL_USER << std::endl;
@@ -79,7 +117,7 @@ int main() {
                     response["userId"] = user.userid;
                     response["username"] = user.username;
                     response["password"] = user.password;
-                    response["xp"] = user.points;
+                    response["xp_points"] = user.points;
                     return crow::response(200, response);
                 }
                 else return crow::response(409, "Wrong Username or Password");
@@ -132,7 +170,7 @@ int main() {
                  response["userId"] = user.userid;
                  response["username"] = user.username;
                  response["password"] = user.password;
-                 response["xp"] = user.points;
+                 response["xp_points"] = user.points;
                  return crow::response(200, response);
              } else {
                  return crow::response(404, "User not found");
@@ -173,7 +211,7 @@ int main() {
              int i = 0;
              for (const auto& [username, xp] : leaderboard) {
                  response["leaderboard"][i]["username"] = username;
-                 response["leaderboard"][i]["xp"] = xp;
+                 response["leaderboard"][i]["xp_points"] = xp;
                  i++;
              }
              return crow::response(200, response);
@@ -495,41 +533,7 @@ int main() {
             DatabaseResult result = getTaskBoardByID(taskboard_id, taskboard);
 
             if (result == SUCCESS) {
-                crow::json::wvalue response;
-                response["taskboard_id"] = taskboard.taskboard_id;
-                response["name"] = taskboard.name;
-                
-                // Add users
-                int user_index = 0;
-                for (const auto& user : taskboard.users) {
-                    response["users"][user_index]["user_id"] = user.userid;
-                    response["users"][user_index]["username"] = user.username;
-                    response["users"][user_index]["is_admin"] = (taskboard.admins.find(user) != taskboard.admins.end());
-                    user_index++;
-                }
-                
-                // Add tasks
-                int task_index = 0;
-                for (const auto& task : taskboard.tasklist) {
-                    response["tasks"][task_index]["task_id"] = task.taskID;
-                    response["tasks"][task_index]["title"] = task.title;
-                    response["tasks"][task_index]["type"] = task.type;
-                    response["tasks"][task_index]["start_date"] = task.startDate.toString();
-                    response["tasks"][task_index]["due_date"] = task.duedate.toString();
-                    response["tasks"][task_index]["pinned"] = task.pinned;
-                    response["tasks"][task_index]["finished"] = task.finished;
-                    
-                    if (task.assigned) {
-                        response["tasks"][task_index]["assigned_user"]["user_id"] = task.assignedUser.userid;
-                        response["tasks"][task_index]["assigned_user"]["username"] = task.assignedUser.username;
-                    } else {
-                        response["tasks"][task_index]["assigned_user"] = nullptr;
-                    }
-                    
-                    task_index++;
-                }
-                
-                return crow::response(200, response);
+                return crow::response(200, getTaskBoardJSON(taskboard));
             } else {
                 crow::json::wvalue error;
                 error["error"] = "Taskboard not found"; // user does not have a taskboard 
@@ -551,14 +555,17 @@ int main() {
             
             if (result == SUCCESS) {
                 crow::json::wvalue response;
-                int i = 0;
+                for (int i = 0; i < taskboards.size(); i++){
+                    response["taskboards"][i] = getTaskBoardJSON(taskboards[i]);
+                }
+                /*int i = 0;
                 for (const auto& taskboard : taskboards) {
                     response["taskboards"][i]["taskboard_id"] = taskboard.taskboard_id;
                     response["taskboards"][i]["name"] = taskboard.name;
-                    response["taskboards"][i]["user_count"] = taskboard.users.size();
-                    response["taskboards"][i]["task_count"] = taskboard.tasklist.size();
+                    //response["taskboards"][i]["user_count"] = taskboard.users.size();
+                    //response["taskboards"][i]["task_count"] = taskboard.tasklist.size();
                     i++;
-                }
+                }*/
                 return crow::response(200, response);
             } else {
                 crow::json::wvalue error;

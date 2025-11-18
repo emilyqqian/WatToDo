@@ -7,6 +7,8 @@ export function GlobalProvider({ children }) {
   const [state, setState] = useState({
     user: null,
     loggedIn: false,
+    privateTaskboardList: [],
+    sharedTaskboardList: [],
     currentTaskBoard: null
   });
 

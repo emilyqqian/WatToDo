@@ -16,7 +16,11 @@ import { useGlobal } from '../SessionManager'
 export default function BoardPage() {
   const navigate = useNavigate()
   const { state } = useGlobal()
-  const board = state.currentTaskBoard
+  const board = state.currentTaskBoard;
+
+  if (!state.loggedIn) {
+    return <Navigate to="/login" replace />
+  }
 
   if (!board) {
     return (

@@ -91,7 +91,8 @@ export function getStringHashCode(s) {
  * @returns {Promise<{
   "username": string,
   "password": number,
-  "xp_points": number
+  "xp": number,
+  "userId": number
 }>} indicating success
  */
 async function loginUser(username, password) {
@@ -215,7 +216,7 @@ async function getUserByID(id) {
 * Get leaderboard. Returns leaderboard json on success, or null on failure
 * @returns {Promise<{
   "leaderboard": [
-    { "username": string, "xp": number }
+    { "username": string, "xp_points": number }
   ]
 }>} 
 */
@@ -236,6 +237,63 @@ async function getLeaderboard(){
         default:
             //alert("An Unexpected Error Occurred: " + response.status)
             console.error("An Unexpected Error Occurred: " + response.status)
+            return null;
+    }
+}
+
+/**
+ * return all taskboards for user
+ * @param {number} user userid
+ * @returns {Promise<{
+ *  taskboards:[
+ *      {
+ *          taskboard_id: number,
+ *          name: string,
+ *          tasks: [
+ *              {
+ *                  task_id: number,
+ *                  title: string,
+ *                  type: string,
+ *                  start_date: string,
+ *                  due_date: string,
+ *                  finished: string,
+ *                  pinned: boolean,
+ *                  assignedUser: {
+ *                      userId: number,
+ *                      username: string
+ *                  }
+ *              }
+ *          ]
+ *          users: [
+ *              {
+ *                  userId: number,
+ *                  username: string,
+ *                  isAdmin: boolean
+ *              }
+ *          ]
+ *      }   
+ *  ]
+ * }>}
+ */
+export async function getTaskboards(user){
+    const response = await get('/users/'+ user +'/taskboards');
+
+    if (response === null) return null;
+
+    if (response.ok) return await response.json();
+
+    switch (response.status) {
+        case 200:
+            return await response.json();
+        case 404:
+            alert("user not found")
+        case 500:
+            //console.log("internal server error");
+            alert("Internal Server Error")
+            return null;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            //console.error("An Unexpected Error Occurred: " + response.status)
             return null;
     }
 }
