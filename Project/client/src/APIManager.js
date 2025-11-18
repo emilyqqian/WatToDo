@@ -71,7 +71,7 @@ async function registerUser(username, password) {
     }
 }
 
-function getStringHashCode(s) {
+export function getStringHashCode(s) {
   let hash = 0;
   if (s.length === 0) {
     return hash;
@@ -124,11 +124,13 @@ async function loginUser(username, password) {
   "password": number,
   "xp_points": number
 }} user The user information to update
-* @param {string} id The user ID to update
+* @param {number} id The user ID to update
 * @returns bool
 */
 async function updateUser(user, id) {
-    const response = await post('/users/' + id, user, method = 'PUT');
+    console.log(user.xp_points)
+
+    const response = await post('/updateuser/' + id, user, 'PUT');
 
     if (response === null) return null;
 

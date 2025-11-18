@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { loginUser } from '../APIManager'
+import { loginUser,getStringHashCode } from '../APIManager'
 import { useNavigate } from 'react-router-dom';
 import {
-  Box,
   Container,
   Typography,
   TextField,
@@ -16,13 +15,14 @@ function Login(){
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
-    const { updateState } = useGlobal();
+    const { state, updateState } = useGlobal();
 
     const navigator = useNavigate();
 
     function handleLogin(){
         loginUser(username, password).then(data=>{
             if (data != null){
+                data.password = getStringHashCode(password)
                 updateState({ user: data, loggedIn: true})
                 navigator('/')
             }

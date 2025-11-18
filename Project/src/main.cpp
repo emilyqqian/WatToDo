@@ -22,17 +22,19 @@ int main() {
       .headers("Content-Type", "Authorization");
 
     // Complete Update user info endpoint with proper error handling
-    CROW_ROUTE(app, "/users/<int>").methods("PUT"_method)
+    CROW_ROUTE(app, "/updateuser/<int>").methods("PUT"_method)
         ([](const crow::request& req, int user_id){
          try {
              auto json = crow::json::load(req.body);
              if (!json) return crow::response(400, "Invalid JSON");
-             
+
              User user;
              user.userid = user_id;
              user.username = json["username"].s();
-             user.password = json["password"].i();
+             user.password = json["password"].i();//this
              user.points = json["xp_points"].i();
+
+             std::cout << "Request: " << user.username << " " << user.password << "\n";
 
              DatabaseResult result = updateUserInfo(user);
 
@@ -46,9 +48,11 @@ int main() {
                  case NAME_OVERFLOW:
                      return crow::response(400, "Username too long");
                  default:
+                    std::cout << "Error Code: " << result << "\n";
                      return crow::response(500, "Update failed");
              }
          } catch (const std::exception& e) {
+            std::cout<< "exception: \n" << e.what() << std::endl; 
              return crow::response(500, "Server error");
          }
      });
@@ -74,6 +78,7 @@ int main() {
                         crow::json::wvalue response;
                         response["userId"] = user.userid;
                         response["username"] = user.username;
+                        response["password"] = user.password;
                         response["xp"] = user.points;
                         return crow::response(200, response);
                     }

@@ -6,7 +6,8 @@ const GlobalContext = createContext();
 export function GlobalProvider({ children }) {
   const [state, setState] = useState({
     user: null,
-    loggedIn: false
+    loggedIn: false,
+    currentTaskBoard: null
   });
 
   const updateState = (partial) =>
