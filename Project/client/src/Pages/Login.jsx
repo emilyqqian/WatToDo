@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { loginUser,getStringHashCode } from '../APIManager'
+import { loginUser,getStringHashCode, getLeaderboard, getTaskboards } from '../APIManager'
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -15,7 +15,7 @@ function Login(){
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
-    const { state, updateState } = useGlobal();
+    const { updateState } = useGlobal();
 
     const navigator = useNavigate();
 
@@ -24,9 +24,32 @@ function Login(){
             if (data != null){
                 data.password = getStringHashCode(password)
                 updateState({ user: data, loggedIn: true})
+                getTaskboards(data.userId).then(addTaskboards);
                 navigator('/')
             }
         });
+    }
+
+    function addTaskboards(data){
+        data = data.taskboards;
+        let privateBoards = []
+        let sharedBoards = []
+
+        console.dir(data, {depth: null})
+
+        for (let i = 0; i < data.length; i++){
+            if (data[i].users.length === 1){
+                data[i].isShared = false;
+                privateBoards.push(data[i])
+            } else{
+                data[i].isShared = true;
+                sharedBoards.push(data[i])
+            }
+        }
+
+        console.dir(privateBoards, {depth:null})
+
+        updateState({privateTaskboardList: privateBoards, sharedTaskboardList: sharedBoards})
     }
 
     return (
