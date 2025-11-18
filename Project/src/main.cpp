@@ -324,7 +324,7 @@ int main() {
             
             // Handle assignment
             if (json.has("assigned_user_id")) {
-                if (json["assigned_user_id"].isNull()) {
+                if (json["assigned_user_id"] == 0) {
                     existingTask.assigned = false;
                 } else {
                     existingTask.assigned = true;
@@ -439,7 +439,7 @@ int main() {
                 return crow::response(404, error);
             }
         } catch (const std::exception& e) {
-            crow::json::wvalueß error;
+            crow::json::wvalue error;
             error["error"] = "Server error";
             return crow::response(500, error);
         }
