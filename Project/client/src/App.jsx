@@ -6,7 +6,9 @@ import Profile from './Pages/Profile.jsx'
 import NavBar from './Components/NavBar.jsx'
 import Login from './Pages/Login.jsx'
 import Register from './Pages/Register.jsx'
+import BoardPage from './Pages/BoardPage.jsx'
 import { GlobalProvider } from './SessionManager.jsx'
+
 
 function App() {
   return (
@@ -34,6 +36,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/board" element={<BoardPage />} />
           </Routes>
         </Box>
       </Box>

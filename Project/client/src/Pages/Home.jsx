@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -118,7 +118,7 @@ function TaskboardDialog({ open, onClose, onSave }) {
   )
 }
 
-function BoardSection({ title, boards }) {
+function BoardSection({ title, boards, onBoardClick }) {
   return (
     <Box>
       <Typography variant="h5" fontWeight={600} sx={{ mb: 2 }}>
@@ -127,42 +127,46 @@ function BoardSection({ title, boards }) {
       <Grid container spacing={3}>
         {boards.map((board) => (
           <Grid item xs={12} md={6} key={board.id}>
-            <Card
-              elevation={3}
-              sx={{
-                borderRadius: 3,
-                height: '100%',
-                background:
-                  'linear-gradient(135deg, rgba(25, 118, 210, 0.08), rgba(255, 112, 67, 0.08))',
-              }}
+            <CardActionArea
+              onClick={() => onBoardClick && onBoardClick(board)}
+              sx={{ height: '100%' }}
             >
-              <CardContent sx={{ p: 3 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 1,
-                    mb: 2,
-                  }}
-                >
-                  <Typography variant="subtitle1" fontWeight={600}>
-                    {board.name}
-                  </Typography>
-                  <Chip
-                    label={
-                      board.type === 'personal'
-                        ? 'Personal Board'
-                        : 'Shared Board'
-                    }
-                    color={board.type === 'personal' ? 'primary' : 'secondary'}
-                    size="small"
-                    sx={{ alignSelf: 'flex-start' }}
-                  />
-                </Box>
-                <Stack spacing={2}>
-                  {board.tasks.map((task) => (
-                    <CardActionArea key={task.id} disableRipple>
+              <Card
+                elevation={3}
+                sx={{
+                  borderRadius: 3,
+                  height: '100%',
+                  background:
+                    'linear-gradient(135deg, rgba(25, 118, 210, 0.08), rgba(255, 112, 67, 0.08))',
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 1,
+                      mb: 2,
+                    }}
+                  >
+                    <Typography variant="subtitle1" fontWeight={600}>
+                      {board.name}
+                    </Typography>
+                    <Chip
+                      label={
+                        board.type === 'personal'
+                          ? 'Personal Board'
+                          : 'Shared Board'
+                      }
+                      color={board.type === 'personal' ? 'primary' : 'secondary'}
+                      size="small"
+                      sx={{ alignSelf: 'flex-start' }}
+                    />
+                  </Box>
+                  <Stack spacing={2}>
+                    {board.tasks.map((task) => (
                       <Card
+                        key={task.id}
                         variant="outlined"
                         sx={{
                           borderRadius: 2,
@@ -186,11 +190,11 @@ function BoardSection({ title, boards }) {
                           Due {task.dueDate}
                         </Typography>
                       </Card>
-                    </CardActionArea>
-                  ))}
-                </Stack>
-              </CardContent>
-            </Card>
+                    ))}
+                  </Stack>
+                </CardContent>
+              </Card>
+            </CardActionArea>
           </Grid>
         ))}
       </Grid>
@@ -200,6 +204,7 @@ function BoardSection({ title, boards }) {
 
 function Home() {
   const { state } = useGlobal()
+  const navigate = useNavigate()
   if (!state.loggedIn) {
     return (
         <Navigate to="/login" replace />
@@ -268,8 +273,16 @@ function Home() {
           </Button>
         </Box>
 
-        <BoardSection title="Personal Task Boards" boards={personalBoards} />
-        <BoardSection title="Shared Task Boards" boards={sharedBoards} />
+        <BoardSection
+          title="Personal Task Boards"
+          boards={personalBoards}
+          onBoardClick={() => navigate('/board')}
+        />
+        <BoardSection
+          title="Shared Task Boards"
+          boards={sharedBoards}
+          onBoardClick={() => navigate('/board')}
+        />
       </Stack>
 
       <TaskboardDialog
