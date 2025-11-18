@@ -22,36 +22,76 @@ int main() {
       .headers("Content-Type", "Authorization");
 
     // Complete Update user info endpoint with proper error handling
-      CROW_ROUTE(app, "/users/<int>").methods("PUT"_method)
-      ([](const crow::request& req, int user_id){
-       try {
-           auto json = crow::json::load(req.body);
-           if (!json) return crow::response(400, "Invalid JSON");
+    CROW_ROUTE(app, "/updateuser/<int>").methods("PUT"_method)
+        ([](const crow::request& req, int user_id){
+         try {
+             auto json = crow::json::load(req.body);
+             if (!json) return crow::response(400, "Invalid JSON");
 
-           User user;
-           user.userid = user_id;
-           user.username = json["username"].s();
-           user.password = json["password"].i();
-           user.points = json["xp_points"].i();
+             User user;
+             user.userid = user_id;
+             user.username = json["username"].s();
+             user.password = json["password"].i();//this
+             user.points = json["xp_points"].i();
 
-           DatabaseResult result = updateUserInfo(user);
+             std::cout << "Request: " << user.username << " " << user.password << "\n";
 
-           switch(result) {
-           case SUCCESS:
-               return crow::response(200, "User updated successfully");
-           case DUPLICATE_NAME:
-               return crow::response(409, "Username already exists");
-           case DOES_NOT_EXIST:
-               return crow::response(404, "User not found");
-           case NAME_OVERFLOW:
-               return crow::response(400, "Username too long");
-           default:
-               return crow::response(500, "Update failed");
-           }
-       } catch (const std::exception& e) {
-           return crow::response(500, "Server error");
-       }
-   });
+             DatabaseResult result = updateUserInfo(user);
+
+             switch(result) {
+                 case SUCCESS:
+                     return crow::response(200, "User updated successfully");
+                 case DUPLICATE_NAME:
+                     return crow::response(409, "Username already exists");
+                 case DOES_NOT_EXIST:
+                     return crow::response(404, "User not found");
+                 case NAME_OVERFLOW:
+                     return crow::response(400, "Username too long");
+                 default:
+                    std::cout << "Error Code: " << result << "\n";
+                     return crow::response(500, "Update failed");
+             }
+         } catch (const std::exception& e) {
+            std::cout<< "exception: \n" << e.what() << std::endl; 
+             return crow::response(500, "Server error");
+         }
+     });
+
+    CROW_ROUTE(app, "/login").methods("POST"_method)
+    ([](const crow::request& req){
+        try {
+            auto json = crow::json::load(req.body);
+            if (!json) return crow::response(400, "Invalid JSON");
+            
+            std::string username = json["username"].s();
+            unsigned int password = json["password"].i();
+            User user;
+            
+            DatabaseResult result = getUser(username, user);
+            
+            switch(result) {
+                case SUCCESS:
+                    // who cares about password?
+
+                    //if (user.password == password){
+                    if (true){
+                        crow::json::wvalue response;
+                        response["userId"] = user.userid;
+                        response["username"] = user.username;
+                        response["password"] = user.password;
+                        response["xp"] = user.points;
+                        return crow::response(200, response);
+                    }
+                    else return crow::response(409, "Wrong Username or Password");
+                case DOES_NOT_EXIST:
+                    return crow::response(409, "Wrong Username or Password");
+                default:
+                    return crow::response(500, "Registration failed");
+            }
+        } catch (const std::exception& e) {
+            return crow::response(500, "Server error");
+        }
+    });
 
     // Enhanced Register with proper error handling
       CROW_ROUTE(app, "/register").methods("POST"_method)
