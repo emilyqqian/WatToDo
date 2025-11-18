@@ -22,15 +22,15 @@ int main() {
       .headers("Content-Type", "Authorization");
 
     // Complete Update user info endpoint with proper error handling
-    CROW_ROUTE(app, "/updateuser/<int>").methods("PUT"_method)
-        ([](const crow::request& req, int user_id){
-         try {
-             auto json = crow::json::load(req.body);
-             if (!json) return crow::response(400, "Invalid JSON");
+      CROW_ROUTE(app, "/updateuser/<int>").methods("PUT"_method)
+      ([](const crow::request& req, int user_id){
+       try {
+           auto json = crow::json::load(req.body);
+           if (!json) return crow::response(400, "Invalid JSON");
 
-             User user;
-             user.userid = user_id;
-             user.username = json["username"].s();
+           User user;
+           user.userid = user_id;
+           user.username = json["username"].s();
              user.password = json["password"].i();//this
              user.points = json["xp_points"].i();
 
@@ -39,26 +39,26 @@ int main() {
              DatabaseResult result = updateUserInfo(user);
 
              switch(result) {
-                 case SUCCESS:
-                     return crow::response(200, "User updated successfully");
-                 case DUPLICATE_NAME:
-                     return crow::response(409, "Username already exists");
-                 case DOES_NOT_EXIST:
-                     return crow::response(404, "User not found");
-                 case NAME_OVERFLOW:
-                     return crow::response(400, "Username too long");
-                 default:
-                    std::cout << "Error Code: " << result << "\n";
-                     return crow::response(500, "Update failed");
-             }
-         } catch (const std::exception& e) {
-            std::cout<< "exception: \n" << e.what() << std::endl; 
-             return crow::response(500, "Server error");
-         }
-     });
+             case SUCCESS:
+               return crow::response(200, "User updated successfully");
+           case DUPLICATE_NAME:
+               return crow::response(409, "Username already exists");
+           case DOES_NOT_EXIST:
+               return crow::response(404, "User not found");
+           case NAME_OVERFLOW:
+               return crow::response(400, "Username too long");
+           default:
+            std::cout << "Error Code: " << result << "\n";
+            return crow::response(500, "Update failed");
+        }
+    } catch (const std::exception& e) {
+        std::cout<< "exception: \n" << e.what() << std::endl; 
+        return crow::response(500, "Server error");
+    }
+});
 
-    CROW_ROUTE(app, "/login").methods("POST"_method)
-    ([](const crow::request& req){
+      CROW_ROUTE(app, "/login").methods("POST"_method)
+      ([](const crow::request& req){
         try {
             auto json = crow::json::load(req.body);
             if (!json) return crow::response(400, "Invalid JSON");
@@ -70,23 +70,23 @@ int main() {
             DatabaseResult result = getUser(username, user);
             
             switch(result) {
-                case SUCCESS:
+            case SUCCESS:
                     // who cares about password?
 
                     //if (user.password == password){
-                    if (true){
-                        crow::json::wvalue response;
-                        response["userId"] = user.userid;
-                        response["username"] = user.username;
-                        response["password"] = user.password;
-                        response["xp"] = user.points;
-                        return crow::response(200, response);
-                    }
-                    else return crow::response(409, "Wrong Username or Password");
-                case DOES_NOT_EXIST:
-                    return crow::response(409, "Wrong Username or Password");
-                default:
-                    return crow::response(500, "Registration failed");
+                if (true){
+                    crow::json::wvalue response;
+                    response["userId"] = user.userid;
+                    response["username"] = user.username;
+                    response["password"] = user.password;
+                    response["xp"] = user.points;
+                    return crow::response(200, response);
+                }
+                else return crow::response(409, "Wrong Username or Password");
+            case DOES_NOT_EXIST:
+                return crow::response(409, "Wrong Username or Password");
+            default:
+                return crow::response(500, "Registration failed");
             }
         } catch (const std::exception& e) {
             return crow::response(500, "Server error");
@@ -123,64 +123,64 @@ int main() {
     // Get user by username with proper error handling
       CROW_ROUTE(app, "/users/<string>")
       ([](const std::string& username){
-       try {
-           User user;
-           DatabaseResult result = getUser(username, user);
+         try {
+             User user;
+             DatabaseResult result = getUser(username, user);
 
-           if (result == SUCCESS) {
-               crow::json::wvalue response;
-               response["userId"] = user.userid;
-               response["username"] = user.username;
-               response["password"] = user.password;
-               response["xp"] = user.points;
-               return crow::response(200, response);
-           } else {
-               return crow::response(404, "User not found");
-           }
-       } catch (const std::exception& e) {
-           return crow::response(500, "Server error");
-       }
-   });
+             if (result == SUCCESS) {
+                 crow::json::wvalue response;
+                 response["userId"] = user.userid;
+                 response["username"] = user.username;
+                 response["password"] = user.password;
+                 response["xp"] = user.points;
+                 return crow::response(200, response);
+             } else {
+                 return crow::response(404, "User not found");
+             }
+         } catch (const std::exception& e) {
+             return crow::response(500, "Server error");
+         }
+     });
 
     // Get user by ID with proper error handling
       CROW_ROUTE(app, "/users/id/<int>")
       ([](int user_id){
-       try {
-           User user;
-           DatabaseResult result = getUser(user_id, user);
+         try {
+             User user;
+             DatabaseResult result = getUser(user_id, user);
 
-           if (result == SUCCESS) {
-               crow::json::wvalue response;
-               response["user_id"] = user.userid;
-               response["username"] = user.username;
-               response["xp_points"] = user.points;
-               return crow::response(200, response);
-           } else {
-               return crow::response(404, "User not found");
-           }
-       } catch (const std::exception& e) {
-           return crow::response(500, "Server error");
-       }
-   });
+             if (result == SUCCESS) {
+                 crow::json::wvalue response;
+                 response["user_id"] = user.userid;
+                 response["username"] = user.username;
+                 response["xp_points"] = user.points;
+                 return crow::response(200, response);
+             } else {
+                 return crow::response(404, "User not found");
+             }
+         } catch (const std::exception& e) {
+             return crow::response(500, "Server error");
+         }
+     });
 
     // Leaderboard endpoint
       CROW_ROUTE(app, "/leaderboard")
       ([](){
-       try {
-           auto leaderboard = getLeaderboard();
+         try {
+             auto leaderboard = getLeaderboard();
 
-           crow::json::wvalue response;
-           int i = 0;
-           for (const auto& [username, xp] : leaderboard) {
-               response["leaderboard"][i]["username"] = username;
-               response["leaderboard"][i]["xp"] = xp;
-               i++;
-           }
-           return crow::response(200, response);
-       } catch (const std::exception& e) {
-           return crow::response(500, "Server error");
-       }
-   });
+             crow::json::wvalue response;
+             int i = 0;
+             for (const auto& [username, xp] : leaderboard) {
+                 response["leaderboard"][i]["username"] = username;
+                 response["leaderboard"][i]["xp"] = xp;
+                 i++;
+             }
+             return crow::response(200, response);
+         } catch (const std::exception& e) {
+             return crow::response(500, "Server error");
+         }
+     });
 
     // Add Task to Taskboard
       CROW_ROUTE(app, "/taskboards/<int>/tasks").methods("POST"_method)
@@ -440,6 +440,207 @@ int main() {
             }
         } catch (const std::exception& e) {
             crow::json::wvalueß error;
+            error["error"] = "Server error";
+            return crow::response(500, error);
+        }
+    });
+    // Create Taskboard
+      CROW_ROUTE(app, "/taskboards").methods("POST"_method)
+      ([](const crow::request& req){
+        try {
+            auto json = crow::json::load(req.body);
+            if (!json) {
+                crow::json::wvalue error;
+                error["error"] = "Invalid JSON";
+                return crow::response(400, error); // invalid json
+            }
+            
+            std::string name = json["name"].s();
+            
+            // For now, use a default user ID - you'll want to get this from authentication
+            unsigned int owner_id = 1; // TODO: Replace with actual user ID from auth
+
+            TaskBoard createdTaskboard;
+            DatabaseResult result = createTaskBoard(owner_id, name, createdTaskboard);
+            
+            crow::json::wvalue response;
+            switch(result) {
+            case SUCCESS:
+                response["message"] = "Taskboard created successfully";
+                response["taskboard_id"] = createdTaskboard.taskboard_id;
+                response["name"] = createdTaskboard.name;
+                return crow::response(201, response);
+            case NAME_OVERFLOW:
+                response["error"] = "Taskboard name too long";
+                return crow::response(400, response);
+            case DOES_NOT_EXIST:
+                response["error"] = "Owner user not found";
+                return crow::response(404, response);
+            default:
+                response["error"] = "Failed to create taskboard";
+                return crow::response(500, response);
+            }
+        } catch (const std::exception& e) {
+            crow::json::wvalue error;
+            error["error"] = "Server error";
+            return crow::response(500, error);
+        }
+    });
+
+// Get Taskboard by ID
+      CROW_ROUTE(app, "/taskboards/<int>")
+      ([](int taskboard_id){
+        try {
+            TaskBoard taskboard;
+            DatabaseResult result = getTaskBoardByID(taskboard_id, taskboard);
+
+            if (result == SUCCESS) {
+                crow::json::wvalue response;
+                response["taskboard_id"] = taskboard.taskboard_id;
+                response["name"] = taskboard.name;
+                
+                // Add users
+                int user_index = 0;
+                for (const auto& user : taskboard.users) {
+                    response["users"][user_index]["user_id"] = user.userid;
+                    response["users"][user_index]["username"] = user.username;
+                    response["users"][user_index]["is_admin"] = (taskboard.admins.find(user) != taskboard.admins.end());
+                    user_index++;
+                }
+                
+                // Add tasks
+                int task_index = 0;
+                for (const auto& task : taskboard.tasklist) {
+                    response["tasks"][task_index]["task_id"] = task.taskID;
+                    response["tasks"][task_index]["title"] = task.title;
+                    response["tasks"][task_index]["type"] = task.type;
+                    response["tasks"][task_index]["start_date"] = task.startDate.toString();
+                    response["tasks"][task_index]["due_date"] = task.duedate.toString();
+                    response["tasks"][task_index]["pinned"] = task.pinned;
+                    response["tasks"][task_index]["finished"] = task.finished;
+                    
+                    if (task.assigned) {
+                        response["tasks"][task_index]["assigned_user"]["user_id"] = task.assignedUser.userid;
+                        response["tasks"][task_index]["assigned_user"]["username"] = task.assignedUser.username;
+                    } else {
+                        response["tasks"][task_index]["assigned_user"] = nullptr;
+                    }
+                    
+                    task_index++;
+                }
+                
+                return crow::response(200, response);
+            } else {
+                crow::json::wvalue error;
+                error["error"] = "Taskboard not found"; // user does not have a taskboard 
+                return crow::response(404, error);
+            }
+        } catch (const std::exception& e) {
+            crow::json::wvalue error;
+            error["error"] = "Server error";
+            return crow::response(500, error);
+        }
+    });
+
+// Get Taskboards for User
+      CROW_ROUTE(app, "/users/<int>/taskboards")
+      ([](int user_id){
+        try {
+            std::vector<TaskBoard> taskboards;
+            DatabaseResult result = getTaskBoardByUser(user_id, taskboards);
+            
+            if (result == SUCCESS) {
+                crow::json::wvalue response;
+                int i = 0;
+                for (const auto& taskboard : taskboards) {
+                    response["taskboards"][i]["taskboard_id"] = taskboard.taskboard_id;
+                    response["taskboards"][i]["name"] = taskboard.name;
+                    response["taskboards"][i]["user_count"] = taskboard.users.size();
+                    response["taskboards"][i]["task_count"] = taskboard.tasklist.size();
+                    i++;
+                }
+                return crow::response(200, response);
+            } else {
+                crow::json::wvalue error;
+                error["error"] = "User not found";
+                return crow::response(404, error);
+            }
+        } catch (const std::exception& e) {
+            crow::json::wvalue error;
+            error["error"] = "Server error";
+            return crow::response(500, error);
+        }
+    });
+
+// Rename Taskboard
+      CROW_ROUTE(app, "/taskboards/<int>/rename").methods("PUT"_method)
+      ([](const crow::request& req, int taskboard_id){
+        try {
+            auto json = crow::json::load(req.body);
+            if (!json) {
+                crow::json::wvalue error;
+                error["error"] = "Invalid JSON";
+                return crow::response(400, error);
+            }
+            
+            std::string new_name = json["name"].s();
+            
+            // For now, use a default user ID
+            unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
+
+            DatabaseResult result = renameTaskBoard(taskboard_id, new_name, performed_by);
+            
+            crow::json::wvalue response;
+            switch(result) {
+            case SUCCESS:
+                response["message"] = "Taskboard renamed successfully";
+                return crow::response(200, response);
+            case USER_ACCESS_DENINED:
+                response["error"] = "Access denied to taskboard";
+                return crow::response(403, response);
+            case NAME_OVERFLOW:
+                response["error"] = "Taskboard name too long";
+                return crow::response(400, response);
+            case DOES_NOT_EXIST:
+                response["error"] = "Taskboard not found";
+                return crow::response(404, response);
+            default:
+                response["error"] = "Failed to rename taskboard";
+                return crow::response(500, response);
+            }
+        } catch (const std::exception& e) {
+            crow::json::wvalue error;
+            error["error"] = "Server error";
+            return crow::response(500, error);
+        }
+    });
+
+// Delete Taskboard
+      CROW_ROUTE(app, "/taskboards/<int>").methods("DELETE"_method)
+      ([](const crow::request& req, int taskboard_id){
+        try {
+            // For now, use a default user ID
+            unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
+
+            DatabaseResult result = deleteTaskBoard(taskboard_id, performed_by);
+            
+            crow::json::wvalue response;
+            switch(result) {
+            case SUCCESS:
+                response["message"] = "Taskboard deleted successfully";
+                return crow::response(200, response);
+            case USER_ACCESS_DENINED:
+                response["error"] = "Access denied to taskboard";
+                return crow::response(403, response);
+            case DOES_NOT_EXIST:
+                response["error"] = "Taskboard not found";
+                return crow::response(404, response);
+            default:
+                response["error"] = "Failed to delete taskboard";
+                return crow::response(500, response);
+            }
+        } catch (const std::exception& e) {
+            crow::json::wvalue error;
             error["error"] = "Server error";
             return crow::response(500, error);
         }
