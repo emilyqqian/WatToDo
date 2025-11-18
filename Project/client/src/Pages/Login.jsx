@@ -30,19 +30,34 @@ function Login(){
         });
     }
 
+    function sort(a, b){
+        if (a.pinned === b.pinned){
+            if (a.due_date < b.due_date) return -1;
+            else if (a.due_date > b.due_date) return 1;
+            if (a.start_date < b.start_date) return -1;
+            else if (a.start_date > b.start_date)return 1;
+
+            return 0;
+        }
+        return a.pinned ? -1 : 1; 
+    }
+
     function addTaskboards(data){
         data = data.taskboards;
         let privateBoards = []
         let sharedBoards = []
 
-        for (let i = 0; i < data.length; i++){
+        for (let i = 0; i < data.length; i++){            
+            if (data[i].tasks === undefined) data[i].tasks = []
+            data[i].tasks.sort(sort)
+
+            console.dir(data[i].tasks, {depth:null})
+
             if (data[i].users.length === 1){
                 data[i].isShared = false;
-                if (data[i].tasks === undefined) data[i].tasks = []
                 privateBoards.push(data[i])
             } else{
                 data[i].isShared = true;
-                if (data[i].tasks === undefined) data[i].tasks = []
                 sharedBoards.push(data[i])
             }
         }

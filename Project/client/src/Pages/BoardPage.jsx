@@ -125,12 +125,6 @@ export default function BoardPage() {
                 >
                   Task queue
                 </Typography>
-                <Typography
-                  variant="body2"
-                  className="board-task-header-subtitle"
-                >
-                  Drag and drop coming soon
-                </Typography>
               </Stack>
 
               <Stack
@@ -168,7 +162,7 @@ export default function BoardPage() {
                       variant="body1"
                       className="board-task-title"
                     >
-                      {task.name}
+                      {task.title}
                     </Typography>
                     <Typography
                       variant="caption"
@@ -185,7 +179,7 @@ export default function BoardPage() {
                     className="board-task-meta"
                   >
                     <Chip
-                      label={`Due ${task.dueDate}`}
+                      label={`Due ${task.due_date}`}
                       size="small"
                       className="board-chip-due"
                     />
