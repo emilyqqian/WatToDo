@@ -577,6 +577,18 @@ DatabaseResult inviteUser(unsigned int fromUser, unsigned int toUser, unsigned i
     }
 } 
 
+// reject all invitations to that board
+DatabaseResult rejectInvitation(unsigned int user_id, unsigned int board_id){
+    try{
+        invitationTable->remove().where("board_id = :bid and guest = :usr").bind("usr", user_id).bind("bid", "board_id").execute();
+
+        return SUCCESS;
+    }catch (const mysqlx::Error& err) {
+        std::cerr << "Error: " << err.what() << std::endl;
+		return SQL_ERROR;
+    }
+}
+
 // returns all invitations the user "whom" has received
 // the key of the dictionary is "who invits you", and the value of the dictionary is "to what taskboard"
 // there is no "accept invitation" thing, you just directly updtae the taskboard, thats enough
