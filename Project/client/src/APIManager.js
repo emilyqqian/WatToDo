@@ -249,6 +249,7 @@ async function getLeaderboard(){
  *      {
  *          taskboard_id: number,
  *          name: string,
+ *          isShared: boolean, // will need to be added manually
  *          tasks: [
  *              {
  *                  task_id: number,

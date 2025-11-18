@@ -11,6 +11,7 @@ import {
   Divider,
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { useGlobal } from '../SessionManager'
 
 export default function BoardPage() {
@@ -57,9 +58,6 @@ export default function BoardPage() {
           <Typography variant="h3" className="board-title">
             {board.name}
           </Typography>
-          <Typography variant="body1" className="board-description">
-            {boardDescription}
-          </Typography>
         </Box>
 
         {/* Main content layout: left panel + right panel */}
@@ -68,12 +66,12 @@ export default function BoardPage() {
           <Paper elevation={0} className="board-side-panel">
             <Stack className="board-side-chip-row">
               <Chip
-                label={isPersonal ? 'Personal Board' : 'Shared Board'}
+                label={board.isShared ? 'Shared Board' : 'Personal Board'}
                 size="small"
                 className={`board-type-chip ${
-                  isPersonal
-                    ? 'board-type-chip--personal'
-                    : 'board-type-chip--shared'
+                  board.isShared
+                    ? 'board-type-chip--shared'
+                    : 'board-type-chip--personal'
                 }`}
               />
               <Typography className="board-side-tasks-meta">

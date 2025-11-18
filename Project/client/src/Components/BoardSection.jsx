@@ -10,7 +10,7 @@ import {
 } from '@mui/material'
 
 export default function BoardSection({ title, boards, onBoardClick }) {
-
+  console.dir(boards, {depth:null})
   return (
     <Box>
       <Typography variant="h5" fontWeight={600} sx={{ mb: 2 }}>

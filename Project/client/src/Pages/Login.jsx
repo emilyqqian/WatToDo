@@ -35,19 +35,17 @@ function Login(){
         let privateBoards = []
         let sharedBoards = []
 
-        console.dir(data, {depth: null})
-
         for (let i = 0; i < data.length; i++){
             if (data[i].users.length === 1){
                 data[i].isShared = false;
+                if (data[i].tasks === undefined) data[i].tasks = []
                 privateBoards.push(data[i])
             } else{
                 data[i].isShared = true;
+                if (data[i].tasks === undefined) data[i].tasks = []
                 sharedBoards.push(data[i])
             }
         }
-
-        console.dir(privateBoards, {depth:null})
 
         updateState({privateTaskboardList: privateBoards, sharedTaskboardList: sharedBoards})
     }
