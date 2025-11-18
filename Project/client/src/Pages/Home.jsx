@@ -10,6 +10,7 @@ import {
 import { useGlobal } from '../SessionManager'
 import BoardSection from '../Components/BoardSection'
 import TaskboardDialog from '../Components/NewBoardDialogue'
+import { addTaskboard } from '../APIManager'
 
 function Home() {
   const { state, updateState } = useGlobal()
@@ -24,16 +25,25 @@ function Home() {
   const openDialog = () => setIsDialogOpen(true)
   const closeDialog = () => setIsDialogOpen(false)
 
-  const handleSaveBoard = ({ name, type }) => {
-    const board = createBoard(name, type)
-    if (type === 'personal') {
+  const handleSaveBoard = ({ name }) => {
+    addTaskboard(name, state.user.userId).then(data => {
+      if (data == null) return;
+
       let tmp = state.privateTaskboardList;
-      //tmp.push({})
-      //updateState({privateTaskboardList: })
-      //setPersonalBoards((prev) => [...prev, board])
-    } else {
-      //setSharedBoards((prev) => [...prev, board])
-    }
+      tmp.push({
+        taskboard_id: data.taskboard_id,
+        name: name,
+        tasks: [],
+        users: [
+          {
+            userId: state.user.userId,
+            username: state.user.username,
+            isAdmin: true
+          }
+        ]
+      })
+      updateState({privateTaskboardList: tmp})
+    })
   }
 
   const handleBoardClick = (board) => {

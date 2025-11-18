@@ -302,7 +302,9 @@ export async function getTaskboards(user){
  * Add taskboard to database
  * @param {string} name name of the taskboard
  * @param {number} owner id of owner
- * @returns {number} id of the taskboard
+ * @returns {Promise<{
+ * taskboard_id: number,
+ * }>} 
  */
 export async function addTaskboard(name, owner){
     const response = await post("/taskboards", {name:name, owner:owner});
