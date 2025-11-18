@@ -42,7 +42,7 @@ function Profile() {
         <strong>User ID:</strong> {state.user.userId}
       </p>
       <p>
-        <strong>XP:</strong> {state.user.xp}
+        <strong>XP:</strong> {state.user.xp_points}
       </p>
 
       <Button
