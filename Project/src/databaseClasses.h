@@ -8,36 +8,7 @@
 
 #ifndef _DATABASE_CLASSES_H
 #define _DATABASE_CLASSES_H
-/*
-std::vector<uint64_t> mysqlx_raw_as_u64_vector(const mysqlx::Value& in_value){
-  std::vector<uint64_t> out;
 
-  const auto bytes = in_value.getRawBytes();
-  auto ptr = reinterpret_cast<const std::byte*>(bytes.first);
-  auto end = reinterpret_cast<const std::byte*>(bytes.first) + bytes.second;
-
-  while (ptr != end) {
-    static constexpr std::byte carry_flag{0b1000'0000};
-    static constexpr std::byte value_mask{0b0111'1111};
-
-    uint64_t v = 0;
-    uint64_t shift = 0;
-    bool is_carry;
-    do {
-      auto byte = *ptr;
-      is_carry = (byte & carry_flag) == carry_flag;
-      v |= std::to_integer<uint64_t>(byte & value_mask) << shift;
-
-      ++ptr;
-      shift += 7;
-    } while (is_carry && ptr != end && shift <= 63);
-
-    out.push_back(v);
-  }
-
-  return out;
-}
-*/
 class date {
 public:
 
@@ -68,7 +39,12 @@ public:
         year = static_cast<int>(vector.at(0));
         month = static_cast<int>(vector.at(1));
         day = static_cast<int>(vector.at(2));
-        //return std::chrono::year{static_cast<int>(vector.at(0))} / static_cast<int>(vector.at(1)) / static_cast<int>(vector.at(2));
+    }
+
+    date(const std::string str){
+        year = std::stoi(str.substr(0, 4));
+        month = std::stoi(str.substr(5, 2));
+        day = std::stoi(str.substr(8, 2));
     }
 
     int operator <(const date& other) const {
