@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { Navigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -20,6 +21,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { useGlobal } from '../SessionManager';
 
 const SAMPLE_TASKS = [
   'Draft sprint goals',
@@ -183,13 +185,6 @@ function BoardSection({ title, boards }) {
                         >
                           Due {task.dueDate}
                         </Typography>
-                        <Chip
-                          label={`${task.xp} XP Points`}
-                          color="primary"
-                          variant="outlined"
-                          size="small"
-                          sx={{ mt: 1 }}
-                        />
                       </Card>
                     </CardActionArea>
                   ))}
@@ -204,6 +199,13 @@ function BoardSection({ title, boards }) {
 }
 
 function Home() {
+  const { state } = useGlobal()
+  if (!state.loggedIn) {
+    return (
+        <Navigate to="/login" replace />
+      )
+  }
+
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const initialPersonalBoards = useMemo(
     () => [
