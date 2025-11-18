@@ -298,4 +298,36 @@ export async function getTaskboards(user){
     }
 }
 
+/**
+ * Add taskboard to database
+ * @param {string} name name of the taskboard
+ * @param {number} owner id of owner
+ * @returns {number} id of the taskboard
+ */
+export async function addTaskboard(name, owner){
+    const response = await post("/taskboards", {name:name, owner:owner});
+    if (response === null) return null;
+
+    if (response.ok) return await response.json();
+
+    switch (response.status) {
+        case 201:
+            return await response.json();
+        case 400:
+            alert("Invalid Taskboard Name")
+            return null;
+        case 404:
+            alert("user not found")
+            return null;
+        case 500:
+            //console.log("internal server error");
+            alert("Internal Server Error")
+            return null;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            //console.error("An Unexpected Error Occurred: " + response.status)
+            return null;
+    }
+}
+
 export {registerUser, loginUser, updateUser, getUserByID, getUserByName, getLeaderboard};

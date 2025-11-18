@@ -28,8 +28,8 @@ function Home() {
     const board = createBoard(name, type)
     if (type === 'personal') {
       let tmp = state.privateTaskboardList;
-      tmp.push({})
-      updateState({privateTaskboardList: })
+      //tmp.push({})
+      //updateState({privateTaskboardList: })
       //setPersonalBoards((prev) => [...prev, board])
     } else {
       //setSharedBoards((prev) => [...prev, board])
