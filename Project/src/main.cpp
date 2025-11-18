@@ -118,6 +118,7 @@ int main() {
                     response["username"] = user.username;
                     response["password"] = user.password;
                     response["xp_points"] = user.points;
+                    response["xp"] = user.points;
                     return crow::response(200, response);
                 }
                 else return crow::response(409, "Wrong Username or Password");
@@ -555,17 +556,14 @@ int main() {
             
             if (result == SUCCESS) {
                 crow::json::wvalue response;
-                for (int i = 0; i < taskboards.size(); i++){
-                    response["taskboards"][i] = getTaskBoardJSON(taskboards[i]);
-                }
-                /*int i = 0;
+                int i = 0;
                 for (const auto& taskboard : taskboards) {
                     response["taskboards"][i]["taskboard_id"] = taskboard.taskboard_id;
                     response["taskboards"][i]["name"] = taskboard.name;
-                    //response["taskboards"][i]["user_count"] = taskboard.users.size();
-                    //response["taskboards"][i]["task_count"] = taskboard.tasklist.size();
+                    response["taskboards"][i]["user_count"] = taskboard.users.size();
+                    response["taskboards"][i]["task_count"] = taskboard.tasklist.size();
                     i++;
-                }*/
+                }
                 return crow::response(200, response);
             } else {
                 crow::json::wvalue error;
