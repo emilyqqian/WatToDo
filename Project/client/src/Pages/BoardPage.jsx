@@ -25,6 +25,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import PushPinIcon from '@mui/icons-material/PushPin'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import { useNavigate } from 'react-router-dom'
 import { Navigate } from 'react-router-dom'
   import { useGlobal } from '../SessionManager'
@@ -350,6 +351,9 @@ import dayjs from "dayjs";
                           <span className="svgIcon"><DeleteIcon fontSize="small" /></span>
                         </button>
                         }
+                        <button className="button green" data-label="Complete" onClick={() => console.log('complete task', task.id)}>
+                          <span className="svgIcon"><AssignmentTurnedInIcon fontSize="small" /></span>
+                        </button>
                       </Stack>
                     </Stack>
                   </Paper>
@@ -390,6 +394,9 @@ import dayjs from "dayjs";
                           <span className="svgIcon"><DeleteIcon fontSize="small" /></span>
                         </button>
                         }
+                        <button className="button green" data-label="Complete" onClick={() => console.log('complete task', task.id)}>
+                          <span className="svgIcon"><AssignmentTurnedInIcon fontSize="small" /></span>
+                        </button>
                       </Stack>
                     </Stack>
                   </Paper>

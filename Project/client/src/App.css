@@ -730,9 +730,11 @@
 .button.cyan { color: #19e6ff; box-shadow: 0px 0px 0px 4px rgb(1, 213, 255);}
 .button.red { color: #ff5c6c; box-shadow: 0px 0px 0px 4px rgb(253, 64, 64);}
 .button.yellow { color: #ffc947; box-shadow: 0px 0px 0px 4px rgb(255, 213, 1);}
+.button.green { color: #4caf50; box-shadow: 0px 0px 0px 4px rgb(76, 175, 80);}
 .button.cyan:hover { background-color: rgb(25, 228, 255); color: #001f25; }
 .button.red:hover { background-color: rgb(255, 92, 108); color: #3b0005; }
 .button.yellow:hover { background-color: rgb(255, 200, 71); color: #241200; }
+.button.green:hover { background-color: rgb(76, 175, 80); color: #0b2a0d; }
 
 /* smaller pill alignment inside cards */
 .task-action-row { display: flex; gap: 8px; align-items: center; }
