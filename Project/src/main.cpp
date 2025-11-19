@@ -30,10 +30,10 @@ crow::json::wvalue getTaskBoardJSON(TaskBoard taskboard){
         if (task.finished) response["tasks"][task_index]["finished"] = task.finishedOn.toString();
                     
         if (task.assigned) {
-            response["tasks"][task_index]["assigned_user"]["userId"] = task.assignedUser.userid;
-            response["tasks"][task_index]["assigned_user"]["username"] = task.assignedUser.username;
+            response["tasks"][task_index]["assignedUser"]["userId"] = task.assignedUser.userid;
+            response["tasks"][task_index]["assignedUser"]["username"] = task.assignedUser.username;
         } else {
-            response["tasks"][task_index]["assigned_user"] = nullptr;
+            response["tasks"][task_index]["assignedUser"] = nullptr;
         }
                     
         task_index++;

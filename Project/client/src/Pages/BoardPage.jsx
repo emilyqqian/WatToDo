@@ -151,8 +151,6 @@ import dayjs from "dayjs";
 
       let nTask = task
       nTask.pinned = !nTask.pinned;
-      console.log("pin: ");
-      console.dir(nTask, {depth:null})
 
       updateTask(nTask, state.user.userId).then(data=>updateTaskCallBack(nTask, data))
     }
@@ -223,9 +221,17 @@ import dayjs from "dayjs";
     const boardDescription = board.description ?? 'Level up your programming skills'
 
     // Assigned tasks: prefer task.assignedToMe if present, else first two
-    const assigned = board.tasks.filter(t => t.assignedUser?.userId === state.user.userId ?? false)
-      //? board.tasks.filter(t => t.assignedToMe)
-      //: board.tasks.slice(0, 2)
+    const assigned = board.tasks.filter(t => t.assignedUser?.userId ?? -1 === state.user.userId)
+     
+    let isAdmin = false;
+    for (let i = 0; i < board.users.length; i++){
+      if (board.users[i].userId === state.user.userId){
+        isAdmin = board.users[i].isAdmin
+        break;
+      }
+    }
+
+    const currentDate = new Date().toISOString().split('T')[0]
 
     return (
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -257,39 +263,44 @@ import dayjs from "dayjs";
                 </Typography>
 
                 {/* board-level controls moved to header - use fancy 3D markup */}
-                <div className="fancy-btn blue" role="button" onClick={() => console.log('manage users', board.id)}>
+ { isAdmin &&                
+                <div className="fancy-btn blue" role="button" onClick={() => console.log('manage users', board.taskboard_id)}>
                   <div className="shadow" />
                   <div className="edge" />
                   <div className="front">MANAGE USERS</div>
                 </div>
-
-                <div className="fancy-btn red" role="button" onClick={() => console.log('delete board', board.id)}>
+  }
+{ isAdmin && 
+                <div className="fancy-btn red" role="button" onClick={() => console.log('delete board', board.taskboard_id)}>
                   <div className="shadow" />
                   <div className="edge" />
                   <div className="front">DELETE BOARD</div>
                 </div>
-
-                <div className="fancy-btn yellow" role="button" onClick={() => console.log('leave board', board.id)}>
+  }
+                <div className="fancy-btn yellow" role="button" onClick={() => console.log('leave board', board.taskboard_id)}>
                   <div className="shadow" />
                   <div className="edge" />
                   <div className="front">LEAVE BOARD</div>
                 </div>
+                { isAdmin && 
                 <div className="fancy-btn green" role="button" onClick={() => openAddTask()}>
                   <div className="shadow" />
                   <div className="edge" />
                   <div className="front">ADD TASK</div>
                 </div>
+  }
               </Stack>
             </Stack>
 
             <Divider sx={{ borderColor: 'rgba(255,255,255,0.04)' }} />
 
             {/* Assigned to You */}
+            {assigned.length !== 0 &&
             <Box sx={{ p: 2 }}>
               <Typography className="section-label">ASSIGNED TO YOU</Typography>
               <Stack spacing={1} sx={{ mt: 1 }}>
                 {assigned.map((task) => (
-                  <Paper key={task.id} className="assigned-card">
+                  <Paper key={task.task_id} className="assigned-card">
                     <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
                       <Stack direction="row" spacing={2} alignItems="center">
                         <Box>
@@ -298,6 +309,7 @@ import dayjs from "dayjs";
                             <Chip label={`${task.reward ?? 20} XP`} size="small" className="chip-reward" style={{ background: '#fff700ff', color: '#000000ff', fontWeight: 700, boxShadow: '0 6px 18px rgba(59,7,16,0.08)' }} />
                             <Chip icon={<CalendarTodayIcon />} label={task.due_date ?? 'TODAY'} size="small" className="chip-date" style={{ background: '#05f2fac1', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(29,78,216,0.08)' }} />
                             {task.pinned && <Chip label="PINNED" size="small" className="chip-pinned" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {task.start_date > currentDate && <Chip label={"Starting At " + task.start_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
                           </Stack>
                         </Box>
                       </Stack>
@@ -309,16 +321,18 @@ import dayjs from "dayjs";
                         <button className="button cyan" data-label="Edit" onClick={() => openEdit(task)}>
                           <span className="svgIcon"><EditIcon fontSize="small" /></span>
                         </button>
+                        { isAdmin && 
                         <button className="button red" data-label="Delete" onClick={() => onDeleteTask(task)}>
                           <span className="svgIcon"><DeleteIcon fontSize="small" /></span>
                         </button>
+                        }
                       </Stack>
                     </Stack>
                   </Paper>
                 ))}
               </Stack>
             </Box>
-
+  }
             <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.04)' }} />
 
             {/* Quest Queue */}
@@ -326,7 +340,7 @@ import dayjs from "dayjs";
               <Typography className="section-label">Task Queue</Typography>
               <Stack spacing={1} sx={{ mt: 1 }}>
                 {board.tasks.map((task, index) => (
-                  <Paper key={task.id} className="assigned-card">
+                  <Paper key={task.task_id} className="assigned-card">
                     <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
                       <Stack direction="row" spacing={2} alignItems="center">
                         <Box>
@@ -335,6 +349,7 @@ import dayjs from "dayjs";
                             <Chip label={`${task.reward ?? 20} XP`} size="small" className="chip-reward" style={{ background: '#fff700ff', color: '#000000ff', fontWeight: 700, boxShadow: '0 6px 18px rgba(59,7,16,0.08)' }} />
                             <Chip icon={<CalendarTodayIcon />} label={task.due_date ?? 'TODAY'} size="small" className="chip-date" style={{ background: '#05f2fac1', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(29,78,216,0.08)' }} />
                             {task.pinned && <Chip label="PINNED" size="small" className="chip-pinned" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {task.start_date > currentDate && <Chip label={"Starting At " + task.start_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
                           </Stack>
                         </Box>
                       </Stack>
@@ -346,9 +361,11 @@ import dayjs from "dayjs";
                         <button className="button cyan" data-label="Edit" onClick={() => openEdit(task)}>
                           <span className="svgIcon"><EditIcon fontSize="small" /></span>
                         </button>
+                        { isAdmin && 
                         <button className="button red" data-label="Delete" onClick={() => onDeleteTask(task)}>
                           <span className="svgIcon"><DeleteIcon fontSize="small" /></span>
                         </button>
+                        }
                       </Stack>
                     </Stack>
                   </Paper>
