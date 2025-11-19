@@ -301,6 +301,7 @@ DatabaseResult updateTask(Task task, unsigned int performed_by) {
 DatabaseResult getTask(unsigned int task_id, Task &returnedTask) {
     try {
         // first check if we actually have that task
+        std::cout << "checking task " << task_id << std::endl;
         if (taskTable->select("*").where("task_id = :task_id").bind("task_id", task_id).execute().count() != 1) return DOES_NOT_EXIST;
 
 		mysqlx::Row row = taskTable->select("*").where("task_id = :task_id").bind("task_id", task_id).execute().fetchOne();

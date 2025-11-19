@@ -333,4 +333,104 @@ export async function addTaskboard(name, owner){
     }
 }
 
+/**
+ * 
+ * @param {number} task taskId
+ * @param {number} operator the user performing this operation
+ * @returns {Promise<boolean>}}
+ */
+export async function deleteTask(task, operator){
+    const response = await post("/tasks/" + task, {operator: operator}, "DELETE")
+
+    if (response === null) {
+        alert("Unknown Error")
+        return false;
+    }
+
+    if (response.ok) return true
+
+    switch (response.status) {
+        case 200:
+            return true;
+        case 403:
+            alert("You do not have the permission to delete this task!")
+            return false;
+        case 404:
+            alert("task not found")
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
+}
+
+/**
+ * 
+ * @param {*} task task to add
+ * @param {*} board board to add
+ * @param {*} operator user who performed this action
+ * @returns {Promise<number>} the id of the new task
+ */
+export async function addTask(task, board, operator){
+    const response = await post('/addTask/' + board + '/' + operator, task)
+
+    if (response === null) {
+        alert("Unknown Error")
+        return -1;
+    }
+
+    switch (response.status) {
+        case 201:
+            return response.json().task_id;
+        case 403:
+            alert("You do not have the permission to add this task!")
+            return -1;
+        case 400:
+            alert(response.json().error)
+            return -1;
+        case 500:
+            alert("Internal Server Error")
+            return -1;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return -1;
+    }
+}
+
+/**
+ * 
+ * @param {*} task task to add
+ * @param {*} operator user who performed this action
+ * @returns {Promise<boolean>} success
+ */
+export async function updateTask(task, operator){
+    const response = await post('/updateTask/' + task.task_id + '/' + operator, task, "PUT")
+
+    if (response === null) {
+        alert("Unknown Error")
+        return false;
+    }
+
+    switch (response.status) {
+        case 200:
+            return true;
+        case 403:
+            alert("You do not have the permission to add this task!")
+            return false;
+        case 404:
+        case 400:
+            alert(response.json().error)
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
+}
+
 export {registerUser, loginUser, updateUser, getUserByID, getUserByName, getLeaderboard};

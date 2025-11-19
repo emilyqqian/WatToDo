@@ -222,10 +222,12 @@ int main() {
      });
 
     // Add Task to Taskboard
-      CROW_ROUTE(app, "/taskboards/<int>/tasks").methods("POST"_method)
-      ([](const crow::request& req, int board_id){
+      CROW_ROUTE(app, "/addTask/<int>/<int>").methods("POST"_method)
+      ([](const crow::request& req, int board_id, int performed_by){
         try {
             auto json = crow::json::load(req.body);
+            crow::json::wvalue response;
+
             if (!json) {
                 crow::json::wvalue error;
                 error["error"] = "Invalid JSON";
@@ -258,11 +260,11 @@ int main() {
             task.finished = false;
 
             // For now, use a default user ID - you'll want to get this from authentication
-            unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
+            // fuck you
+            //unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
 
             DatabaseResult result = addTask(board_id, task, performed_by);
             
-            crow::json::wvalue response;
             switch(result) {
             case SUCCESS:
                 response["message"] = "Task created successfully";
@@ -279,7 +281,7 @@ int main() {
                 return crow::response(400, response);
             case ALREADY_EXIST:
                 response["error"] = "Task with same title and type already exists";
-                return crow::response(409, response);
+                return crow::response(400, response);
             default:
                 response["error"] = "Failed to create task";
                 return crow::response(500, response);
@@ -336,8 +338,8 @@ int main() {
     });
 
 // Update Task
-      CROW_ROUTE(app, "/tasks/<int>").methods("PUT"_method)
-      ([](const crow::request& req, int task_id){
+      CROW_ROUTE(app, "/updateTask/<int>/<int>").methods("PUT"_method)
+      ([](const crow::request& req, int task_id, int performed_by){
         try {
             auto json = crow::json::load(req.body);
             if (!json) {
@@ -387,7 +389,8 @@ int main() {
             }
 
             // For now, use a default user ID
-            unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
+            // Fuck you
+            //unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
 
             DatabaseResult result = updateTask(existingTask, performed_by);
             
@@ -424,7 +427,9 @@ int main() {
       ([](const crow::request& req, int task_id){
         try {
                 // For now, use a default user ID
-                unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
+                //unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
+
+                unsigned int performed_by = crow::json::load(req.body)["operator"].i();
 
                 DatabaseResult result = deleteTask(task_id, performed_by);
                 
