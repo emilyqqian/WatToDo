@@ -59,13 +59,14 @@
   padding: 3rem 0;
   padding-inline: 0.5rem;
   background:
-    radial-gradient(circle at 0% 0%, #e0f2fe 0, transparent 55%),
-    radial-gradient(circle at 100% 0%, #fae8ff 0, transparent 55%),
-    #f3f4f6;
+    radial-gradient(circle at 0% 0%, #35233d 0, transparent 55%),
+    radial-gradient(circle at 100% 0%, #130132 0, transparent 55%),
+    #000000;
 }
 
 .board-page-container {
   /* container-specific tweaks if needed later */
+  box-sizing: border-box;
 }
 
 .board-hero {
@@ -75,11 +76,13 @@
 .board-title {
   letter-spacing: -0.03em;
   margin-bottom: 0.25rem;
+  font-family: "Press Start 2P", system-ui, sans-serif;
   font-weight: 800;
+  color: aliceblue;
 }
 
 .board-description {
-  color: rgba(15, 23, 42, 0.7);
+  color: rgba(0, 76, 255, 0.7);
 }
 
 .board-main {
@@ -291,3 +294,431 @@
   background-color: #dcfce7;
   color: #166534;
 }
+
+/* Added pixel / neon quest styles for BoardPage */
+.pixel-text {
+  font-family: 'Press Start 2P', cursive;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fancy 3D pill button (scoped to .fancy-btn to avoid global button overrides) */
+.fancy-btn {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
+  user-select: none;
+  touch-action: manipulation;
+  display: inline-block;
+}
+
+.fancy-btn .shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: hsl(0deg 0% 0% / 0.25);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.fancy-btn .edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(
+    to left,
+    hsl(340deg 100% 16%) 0%,
+    hsl(340deg 100% 32%) 8%,
+    hsl(340deg 100% 32%) 92%,
+    hsl(340deg 100% 16%) 100%
+  );
+}
+/* default (used if no color class is applied) – can stay red */
+.fancy-btn .edge {
+  background: linear-gradient(
+    to left,
+    hsl(340deg 100% 16%) 0%,
+    hsl(340deg 100% 32%) 8%,
+    hsl(340deg 100% 32%) 92%,
+    hsl(340deg 100% 16%) 100%
+  );
+}
+
+/* cyan / blue button */
+.fancy-btn.blue .edge,
+.fancy-btn.active-indicator .edge {
+  background: linear-gradient(
+    to left,
+    #022c49 0%,
+    #1872a3 8%,
+    #124056 92%,
+    #022c49 100%
+  );
+}
+
+/* red button */
+.fancy-btn.red .edge {
+  background: linear-gradient(
+    to left,
+    #3b0710 0%,
+    #c83232 8%,
+    #922a2a 92%,
+    #3b0710 100%
+  );
+}
+
+/* yellow / orange button */
+.fancy-btn.yellow .edge {
+  background: linear-gradient(
+    to left,
+    #3b2503 0%,
+    #bf9902 8%,
+    #9d690f 92%,
+    #3b2503 100%
+  );
+}
+
+
+.fancy-btn .front {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: white;
+  background: hsl(345deg 100% 47%);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+/* Ensure no text underlines appear on fancy button text or children */
+.fancy-btn .front, .fancy-btn .front * {
+  text-decoration: none !important;
+  text-underline-offset: 0 !important;
+}
+
+/* ensure no underline color shows even if user agent applies it */
+.fancy-btn .front { text-decoration-color: transparent !important; }
+
+.fancy-btn:hover {
+  filter: brightness(110%);
+}
+
+.fancy-btn:hover .front {
+  transform: translateY(-6px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.fancy-btn:active .front {
+  transform: translateY(-2px);
+  transition: transform 34ms;
+}
+
+.fancy-btn:hover .shadow {
+  transform: translateY(4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.fancy-btn:active .shadow {
+  transform: translateY(1px);
+  transition: transform 34ms;
+}
+
+.fancy-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* board name larger and pixel font enforced */
+.board-name.pixel-text {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 18px !important;
+  letter-spacing: 0.6px;
+  color: #dff9ff;
+}
+
+/* small layout tweak: ensure task action row aligns to right for quest queue */
+.task-action-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* color variants */
+.fancy-btn.blue .front { background:#19e6ff}
+.fancy-btn.red .front { background:#ff5c6c }
+.fancy-btn.yellow .front { background:#ffc947}
+
+/* active indicator: non-interactive, neon look and pulse when .pulse is toggled */
+.fancy-btn.active-indicator { pointer-events: none; }
+.fancy-btn.active-indicator .front {
+  background: linear-gradient(90deg,#0affc2,#00b894);
+  box-shadow: 0 6px 20px rgba(16,185,129,0.18), 0 0 12px rgba(0,255,194,0.12) inset;
+}
+.fancy-btn.active-indicator.pulse { animation: pulse-ct 1200ms ease-in-out; }
+
+@keyframes pulse-ct {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* glowing ACTIVE text */
+.active-indicator-text {
+  color: #00ffd1;
+  padding-right: 20px;
+  padding-bottom: 10px;
+  font-weight: 800;
+  text-shadow: 0 4px 14px rgba(0,255,209,0.18), 0 0 8px rgba(0,255,209,0.12);
+  font-size: 0.95rem;
+}
+.active-indicator-text.pulse { animation: pulse-ct 1200ms ease-in-out; }
+
+.board-shell {
+  border-radius: 18px;
+  padding: 1rem;
+  background: linear-gradient(180deg, rgba(5,18,36,0.6), rgba(3,10,20,0.8));
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+/* container to allow absolutely-positioned floating dashboard button */
+.board-shell-container { position: relative; }
+.dashboard-floating {
+  position: relative; /* or remove position entirely */
+  top: 0;
+  left: 0;
+  margin-bottom: 1.5rem;  /* gap between button and board-shell */
+}.dashboard-floating .fancy-btn .front { padding: 6px 10px; font-size: 0.85rem; }
+
+.board-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  background: #041926;
+  color: #19e6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border: 1px solid rgba(25,230,255,0.16);
+}
+
+.board-name { font-size: 18px; color: #bfe9ff; }
+.board-subtitle { font-size: 12px; color: rgba(255,255,255,0.55); }
+
+.section-label { color: rgba(255,255,255,0.55); font-size: 12px; letter-spacing: 1px; }
+
+.pill-button {
+  border-radius: 999px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: transparent;
+  color: #bfe9ff;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.pill-button.small { padding: 6px; min-width: 40px; }
+.pill-button.cyan { color: #19e6ff; border-color: rgba(25,230,255,0.18); }
+.pill-button.red { color: #ff5c6c; border-color: rgba(255,92,108,0.18); }
+.pill-button.yellow { color: #ffc947; border-color: rgba(255,201,71,0.18); }
+.pill-button.active-count { color: #19e6ff; border-color: rgba(25,230,255,0.22); }
+
+.assigned-card {
+  background: #071222;
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.03);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chip-reward { background: #ffc947; color: #111; font-weight: 700; }
+.chip-date { background: #0a3a5e; color: #bfe9ff; }
+.chip-pinned { background: #5243e6; color: #fff; font-weight: 700; box-shadow: 0 6px 18px rgba(82,67,230,0.08); }
+
+.quest-card {
+  background: #071222;
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.quest-card.pinned { border: 2px solid #ffc947; }
+
+.quest-btn { border-radius: 10px; padding: 10px 12px; text-transform: uppercase; font-weight: 800; }
+.quest-btn.left { color: #ffc947; border: 1px solid rgba(255,201,71,0.18); background: transparent; }
+.quest-btn.left.pinned { background: #ffc947; color: #111; }
+.quest-btn.middle { color: #19e6ff; border: 1px solid rgba(25,230,255,0.18); }
+.quest-btn.right { color: #ff5c6c; border: 1px solid rgba(255,92,108,0.18); }
+
+/* smaller responsive tweaks */
+@media (max-width: 800px) {
+  .board-shell { padding: 0.5rem; }
+  .board-avatar { width: 44px; height: 44px; }
+  .quest-btn { font-size: 12px; padding: 8px; }
+}
+
+/* Strong overrides to ensure dark/neon look (higher specificity) */
+.board-shell,
+.board-shell .assigned-card,
+.board-shell .quest-card,
+.board-shell .assigned-card .MuiPaper-root,
+.board-shell .quest-card .MuiPaper-root {
+  background-color: #071222 !important;
+  color: #eafcff !important;
+  border-color: rgba(255,255,255,0.03) !important;
+}
+
+.board-shell {
+  box-shadow: 0 12px 40px rgba(2,6,23,0.7), inset 0 1px 0 rgba(255,255,255,0.02);
+  padding: 18px !important;
+}
+
+.board-shell .assigned-card,
+.board-shell .quest-card {
+  background: linear-gradient(180deg, rgba(2,8,20,0.6), rgba(3,12,24,0.85)) !important;
+  border: 1px solid rgba(255,255,255,0.03) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.01), 0 8px 24px rgba(2,6,23,0.6);
+}
+
+.board-shell .quest-card.pinned {
+  border: 2px solid #ffc947 !important;
+}
+
+/* Make chips pop */
+.board-shell .chip-reward { box-shadow: 0 6px 18px rgba(255,201,71,0.08); color: #ffc947; }
+.board-shell .chip-date { box-shadow: 0 6px 18px rgba(25,230,255,0.04); color: #19e6ff; }
+
+/* Ensure Paper default background doesn't show through */
+.board-shell .MuiPaper-root { background-color: transparent !important; }
+
+/* Improve pill button neon outlines */
+.board-shell .pill-button { background: transparent; }
+.board-shell .pill-button.active-count { box-shadow: 0 6px 18px rgba(25,230,255,0.06); }
+.board-shell .pill-button.cyan, .board-shell .quest-btn.middle { box-shadow: 0 6px 30px rgba(25,230,255,0.06); }
+.board-shell .pill-button.red, .board-shell .quest-btn.right { box-shadow: 0 6px 30px rgba(255,92,108,0.06); }
+.board-shell .pill-button.yellow, .board-shell .quest-btn.left.pinned { box-shadow: 0 6px 30px rgba(255,201,71,0.06); }
+
+/* tiny adjustment: make section labels lighter and pixel-styled */
+.board-shell .section-label { color: rgba(255,255,255,0.65); font-family: "Press Start 2P", system-ui, sans-serif; }
+
+/* Button animation styles adapted from user's snippet (flexible sizing) */
+.btn-small {
+  position: relative;
+  padding: 6px 12px;
+  min-width: 56px;
+  height: auto;
+  border: 2px solid rgba(136,136,136,0.15);
+  outline: none;
+  background-color: transparent;
+  border-radius: 20px;
+  box-shadow:
+    -3px -10px 15px rgba(255,255,255,0.02),
+    -3px -5px 8px rgba(255,255,255,0.02),
+    -10px 0px 15px rgba(255,255,255,0.02),
+    3px 10px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-small:hover {
+  transform: scale(1.06);
+  box-shadow:
+    -3px -15px 20px rgba(255,255,255,0.03),
+    -3px -10px 10px rgba(255,255,255,0.03),
+    -10px 0px 15px rgba(255,255,255,0.03),
+    5px 15px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-small:active {
+  transform: scale(0.98);
+  box-shadow: none;
+}
+
+.btn-small-content { display: inline-grid; padding: 6px; width: 100%; height: 100%; grid-template-columns: 1fr 1fr; grid-auto-rows: auto; border-radius: 12px; }
+.btn-small-icon { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; margin-left: 6px; transition: transform 0.3s ease-in-out; }
+.btn-small:hover .btn-small-icon { transform: translateY(-10px); }
+.btn-small-text { margin: 0; font-size: 12px; font-weight: 700; }
+
+/* User-provided circular-to-pill button styles (task buttons) */
+.button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: rgb(20, 20, 20);
+  border: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 0px 0px 4px rgba(180, 160, 255, 0.253);
+  cursor: pointer;
+  transition-duration: 0.3s;
+  overflow: hidden;
+  position: relative;
+  color: white;
+}
+
+.svgIcon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease;
+  pointer-events: none;
+}
+
+.svgIcon svg, .svgIcon path { fill: currentColor; }
+
+.button:hover {
+  width: 140px;
+  border-radius: 50px;
+  transition-duration: 0.3s;
+  align-items: center;
+}
+
+.button:hover .svgIcon { transition-duration: 0.3s; transform: translateY(-300%); }
+
+.button::before {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  content: attr(data-label);
+  color: white;
+  font-size: 0px;
+  text-align: center;
+  opacity: 0;
+  transition: font-size 0.2s ease, opacity 0.2s ease;
+}
+
+.button:hover::before { font-size: 15px; opacity: 1; font-family: "Press Start 2P", system-ui, sans-serif;}
+
+/* Hover fill for color variants - keep current neon colors */
+.button.cyan { color: #19e6ff; box-shadow: 0px 0px 0px 4px rgb(1, 213, 255);}
+.button.red { color: #ff5c6c; box-shadow: 0px 0px 0px 4px rgb(253, 64, 64);}
+.button.yellow { color: #ffc947; box-shadow: 0px 0px 0px 4px rgb(255, 213, 1);}
+.button.cyan:hover { background-color: rgb(25, 228, 255); color: #001f25; }
+.button.red:hover { background-color: rgb(255, 92, 108); color: #3b0005; }
+.button.yellow:hover { background-color: rgb(255, 200, 71); color: #241200; }
+
+/* smaller pill alignment inside cards */
+.task-action-row { display: flex; gap: 8px; align-items: center; }
