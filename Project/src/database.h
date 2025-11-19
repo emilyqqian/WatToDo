@@ -40,7 +40,7 @@ DatabaseResult inviteUser(unsigned int fromUser, unsigned int toUser, unsigned i
 // the key of the dictionary is "who invits you", and the value of the dictionary is "to what taskboard"
 // there is no "accept invitation" thing, you just directly updtae the taskboard, thats enough
 DatabaseResult getAllInvitation(unsigned int user_id, std::unordered_multimap<User, TaskBoard, UserHasher> &returnedInvitations);
-DatabaseResult rejectInvitation(unsigned int user_id, unsigned int board_id)
+DatabaseResult rejectInvitation(unsigned int user_id, unsigned int board_id);
 
 // functions about task
 

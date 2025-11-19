@@ -46,12 +46,11 @@ function Login(){
         data = data.taskboards;
         let privateBoards = []
         let sharedBoards = []
+        console.dir(data, {depth:null})
 
         for (let i = 0; i < data.length; i++){            
             if (data[i].tasks === undefined) data[i].tasks = []
             data[i].tasks.sort(sort)
-
-            console.dir(data[i].tasks, {depth:null})
 
             if (data[i].users.length === 1){
                 data[i].isShared = false;

@@ -558,10 +558,8 @@ int main() {
                 crow::json::wvalue response;
                 int i = 0;
                 for (const auto& taskboard : taskboards) {
-                    response["taskboards"][i]["taskboard_id"] = taskboard.taskboard_id;
-                    response["taskboards"][i]["name"] = taskboard.name;
-                    response["taskboards"][i]["user_count"] = taskboard.users.size();
-                    response["taskboards"][i]["task_count"] = taskboard.tasklist.size();
+                    // DO NOT CHANGE THIS!!!!! @Yash
+                    response["taskboards"][i] = getTaskBoardJSON(taskboard);
                     i++;
                 }
                 return crow::response(200, response);
