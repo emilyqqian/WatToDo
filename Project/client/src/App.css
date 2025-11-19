@@ -314,6 +314,8 @@
   user-select: none;
   touch-action: manipulation;
   display: inline-block;
+  font-family: "Press Start 2P", cursive;
+  font-size: x-large;
 }
 
 .fancy-btn .shadow {
@@ -461,6 +463,18 @@
 .fancy-btn.blue .front { background:#19e6ff}
 .fancy-btn.red .front { background:#ff5c6c }
 .fancy-btn.yellow .front { background:#ffc947}
+ .fancy-btn.green .front { background: linear-gradient(90deg,#10b981,#047857); }
+
+/* Ensure .fancy-btn.green has an edge gradient suitable for green */
+.fancy-btn.green .edge {
+  background: linear-gradient(
+    to left,
+    #043b2b 0%,
+    #045c3f 8%,
+    #0b6c4e 92%,
+    #043b2b 100%
+  );
+}
 
 /* active indicator: non-interactive, neon look and pulse when .pulse is toggled */
 .fancy-btn.active-indicator { pointer-events: none; }

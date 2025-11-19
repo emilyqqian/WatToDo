@@ -40,6 +40,8 @@ import { Navigate } from 'react-router-dom'
 
     const [editOpen, setEditOpen] = useState(false)
     const [editingTask, setEditingTask] = useState(null)
+    const [addOpen, setAddOpen] = useState(false)
+    const [newTask, setNewTask] = useState({ title: '', due_date: '', assignedTo: '' })
 
     function openEdit(task) {
       setEditingTask({
@@ -65,6 +67,12 @@ import { Navigate } from 'react-router-dom'
         return next
       })
       console.log('toggle pin', id)
+    }
+
+    function addTask() {
+  setNewTask({ title: '', due_date: '', assignedTo: '' })
+  setAddOpen(true)
+  console.log('open add task dialog')
     }
 
     // pulse ACTIVE indicator briefly when task count changes
@@ -153,6 +161,11 @@ import { Navigate } from 'react-router-dom'
                   <div className="shadow" />
                   <div className="edge" />
                   <div className="front">LEAVE BOARD</div>
+                </div>
+                <div className="fancy-btn green" role="button" onClick={() => addTask()}>
+                  <div className="shadow" />
+                  <div className="edge" />
+                  <div className="front">ADD TASK</div>
                 </div>
               </Stack>
             </Stack>
@@ -250,6 +263,27 @@ import { Navigate } from 'react-router-dom'
               <DialogActions>
                 <Button onClick={() => setEditOpen(false)}>Cancel</Button>
                 <Button onClick={saveEdit} variant="contained">Save</Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* Add Task dialog (separate) */}
+            <Dialog open={addOpen} onClose={() => setAddOpen(false)}>
+              <DialogTitle>Add Task</DialogTitle>
+              <DialogContent>
+                <TextField fullWidth label="Title" sx={{ mt: 1 }} value={newTask.title} onChange={(e) => setNewTask({...newTask, title: e.target.value})} />
+                <TextField fullWidth label="Due date" sx={{ mt: 2 }} value={newTask.due_date} onChange={(e) => setNewTask({...newTask, due_date: e.target.value})} />
+                <FormControl fullWidth sx={{ mt: 2 }}>
+                  <InputLabel id="assign-label-add">Assign to</InputLabel>
+                  <Select labelId="assign-label-add" value={newTask.assignedTo} label="Assign to" onChange={(e) => setNewTask({...newTask, assignedTo: e.target.value})}>
+                    <MenuItem value={newTask.assignedTo ?? ''}>{newTask.assignedTo ?? 'Unassigned'}</MenuItem>
+                    <MenuItem value={'me'}>Me</MenuItem>
+                    <MenuItem value={'someone'}>Someone</MenuItem>
+                  </Select>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setAddOpen(false)}>Cancel</Button>
+                <Button onClick={() => { console.log('save add', newTask); setAddOpen(false); }} variant="contained">Create</Button>
               </DialogActions>
             </Dialog>
           </Paper>
