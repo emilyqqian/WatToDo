@@ -9,7 +9,7 @@ import {
   TextField,
 } from '@mui/material'
 
-export default function TaskboardDialog({ open, onClose, onSave }) {
+export default function TaskboardDialog({ open, title, onClose, onSave }) {
   const [boardName, setBoardName] = useState('')
 
   const handleClose = () => {
@@ -25,7 +25,7 @@ export default function TaskboardDialog({ open, onClose, onSave }) {
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>New Task Board</DialogTitle>
+      <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <Stack spacing={3} sx={{ pt: 1 }}>
           <TextField
