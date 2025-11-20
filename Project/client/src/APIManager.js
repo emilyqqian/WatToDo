@@ -433,4 +433,76 @@ export async function updateTask(task, operator){
     }
 }
 
+/**
+ * 
+ * @param {number} user userid who performed this action
+ * @param {number} board the board id to be deleted
+ * @returns {Promise<boolean>} success
+ */
+export async function deleteBoard(user, board){
+    const response = await post('/taskboards/' + user + '/' + board, {}, "DELETE")
+
+    if (response === null) {
+        alert("Unknown Error")
+        return false;
+    }
+
+    switch (response.status) {
+        case 200:
+            return true;
+        case 403:
+            alert("You do not have the permission to delete this board!")
+            return false;
+        case 404:
+        case 400:
+            alert(response.json().error)
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
+}
+
+/**
+ * 
+ * @param {number} user userId of the user to be removed
+ * @param {number} board board id of the target taskboard
+ * @param {number} operator userid of the user who performed this action
+ * @returns {Promise<boolean>} success
+ */
+export async function removeUserFromBoard(user, board, operator){
+    const response = await post('/removeUserFromBoard/' + user + '/' + board + '/' + operator, {}, "DELETE")
+
+    if (response === null) {
+        alert("Unknown Error")
+        return false;
+    }
+
+    switch (response.status) {
+        case 200:
+            return true;
+        case 403:
+            alert("You do not have the permission to leave this board!")
+            return false;
+        case 404:
+        case 400:
+            alert(response.json().error)
+            return false;
+        case 409:
+            if(confirm("If you leave this taskboard, there will be no admins in this taskboard. Do you wish to delete this taskboard?")){
+                return deleteBoard(operator, board)
+            }
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
+}
+
 export {registerUser, loginUser, updateUser, getUserByID, getUserByName, getLeaderboard};

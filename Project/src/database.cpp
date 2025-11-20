@@ -520,7 +520,8 @@ DatabaseResult kickOutUserFromTaskboard(unsigned int user_id, unsigned int taskb
             return DOES_NOT_EXIST;
         }
 
-        DatabaseResult isValid = userPrivilegeCheck(performed_by, taskboard_id);
+        // kinda lazy to create a new function for 'user leaving taskboard'. Therefore, no privilege needed if users remove themselves
+        DatabaseResult isValid = userPrivilegeCheck(performed_by, taskboard_id, user_id != taskboard_id);
         if (isValid != SUCCESS) return isValid;
 
         // make sure the database has at least one member

@@ -624,11 +624,9 @@ int main() {
     });
 
 // Delete Taskboard
-      CROW_ROUTE(app, "/taskboards/<int>").methods("DELETE"_method)
-      ([](const crow::request& req, int taskboard_id){
+      CROW_ROUTE(app, "/taskboards/<int>/<int>").methods("DELETE"_method)
+      ([](const crow::request& req, int taskboard_id, int performed_by){
         try {
-            // For now, use a default user ID
-            unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
 
             DatabaseResult result = deleteTaskBoard(taskboard_id, performed_by);
             
@@ -657,6 +655,37 @@ int main() {
       CROW_ROUTE(app, "/test")([](){
         return "Crow server is running with complete user management!";
     });
+
+    CROW_ROUTE(app, "/removeUserFromBoard/<int>/<int>/<int>").methods("DELETE"_method)
+      ([](const crow::request& req, int user, int taskboard_id, int performer){
+        try {
+
+            DatabaseResult res = kickOutUserFromTaskboard(user, taskboard_id, performer);
+            
+            crow::json::wvalue response;
+            switch(res) {
+            case SUCCESS:
+                response["message"] = "deleted successfully";
+                return crow::response(200, response);
+            case USER_ACCESS_DENINED:
+                response["error"] = "Access denied to taskboard";
+                return crow::response(403, response);
+            case DOES_NOT_EXIST:
+                response["error"] = "User not found";
+                return crow::response(404, response);
+            case USER_CONFLICT:
+                response["error"] = "User Conflict";
+                return crow::response(409, response);
+            default:
+                response["error"] = "Server Error";
+                return crow::response(500, response);
+            }
+        } catch (const std::exception& e) {
+            crow::json::wvalue error;
+            error["error"] = "Server error";
+            return crow::response(500, error);
+        }
+      });
 
       std::cout << "Starting WatToDo backend server on port 18080..." << std::endl;
       std::cout << "CORS enabled for React frontend (localhost:3000)" << std::endl;

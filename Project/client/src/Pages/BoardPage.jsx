@@ -29,7 +29,7 @@ import { useNavigate } from 'react-router-dom'
 import { Navigate } from 'react-router-dom'
   import { useGlobal } from '../SessionManager'
   import '../App.css'
-import { addTask, updateTask, deleteTask } from '../APIManager'
+import { addTask, updateTask, deleteTask, removeUserFromBoard, deleteBoard } from '../APIManager'
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -210,6 +210,30 @@ import dayjs from "dayjs";
       })
     }
 
+    function onDeleteBoard(){
+      if (confirm("Are you sure you want to delete this taskbaord? All tasks will be deleted and all members will be forced to leave!")){
+        deleteBoard(board.taskboard_id, state.user.userId).then(data => {
+          if (data){
+            let newList = board.isShared ? state.sharedTaskboardList : state.privateTaskboardList;
+            newList.splice(boardIndex, 1);
+            if (board.isShared) updateState({sharedTaskboardList: newList})
+            else updateState({privateTaskboardList: newList})
+            navigate('/')
+          }
+        })
+      }
+    }
+
+    function onLeaving(){
+      if (confirm("Are you sure you want to leave this taskbaord?")){
+        removeUserFromBoard(state.users.userId, board.taskboard_id, state.users.userId).then(data => {
+          if (data){
+            navigate('/')
+          }
+        })
+      }
+    }
+
     // pulse ACTIVE indicator briefly when task count changes
     React.useEffect(() => {
       if (!board) return
@@ -271,17 +295,19 @@ import dayjs from "dayjs";
                 </div>
   }
 { isAdmin && 
-                <div className="fancy-btn red" role="button" onClick={() => console.log('delete board', board.taskboard_id)}>
+                <div className="fancy-btn red" role="button" onClick={onDeleteBoard}>
                   <div className="shadow" />
                   <div className="edge" />
                   <div className="front">DELETE BOARD</div>
                 </div>
   }
-                <div className="fancy-btn yellow" role="button" onClick={() => console.log('leave board', board.taskboard_id)}>
+  { board.isShared &&
+                <div className="fancy-btn yellow" role="button" onClick={onLeaving}>
                   <div className="shadow" />
                   <div className="edge" />
                   <div className="front">LEAVE BOARD</div>
                 </div>
+  }
                 { isAdmin && 
                 <div className="fancy-btn green" role="button" onClick={() => openAddTask()}>
                   <div className="shadow" />
