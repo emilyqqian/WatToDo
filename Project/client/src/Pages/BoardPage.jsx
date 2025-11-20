@@ -210,27 +210,25 @@ import dayjs from "dayjs";
       })
     }
 
+    function afterRemoveBoard(data){
+      if (data){
+        let newList = board.isShared ? state.sharedTaskboardList : state.privateTaskboardList;
+        newList.splice(boardIndex, 1);
+        if (board.isShared) updateState({sharedTaskboardList: newList})
+        else updateState({privateTaskboardList: newList})
+        navigate('/')
+      }
+    }
+
     function onDeleteBoard(){
       if (confirm("Are you sure you want to delete this taskbaord? All tasks will be deleted and all members will be forced to leave!")){
-        deleteBoard(board.taskboard_id, state.user.userId).then(data => {
-          if (data){
-            let newList = board.isShared ? state.sharedTaskboardList : state.privateTaskboardList;
-            newList.splice(boardIndex, 1);
-            if (board.isShared) updateState({sharedTaskboardList: newList})
-            else updateState({privateTaskboardList: newList})
-            navigate('/')
-          }
-        })
+        deleteBoard(board.taskboard_id, state.user.userId).then(afterRemoveBoard)
       }
     }
 
     function onLeaving(){
       if (confirm("Are you sure you want to leave this taskbaord?")){
-        removeUserFromBoard(state.users.userId, board.taskboard_id, state.users.userId).then(data => {
-          if (data){
-            navigate('/')
-          }
-        })
+        removeUserFromBoard(state.users.userId, board.taskboard_id, state.users.userId).then(afterRemoveBoard);
       }
     }
 
