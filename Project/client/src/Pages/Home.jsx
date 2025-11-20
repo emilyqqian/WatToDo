@@ -95,6 +95,7 @@ function Home() {
 
       <TaskboardDialog
         open={isDialogOpen}
+        title="New Task Board"
         onClose={closeDialog}
         onSave={handleSaveBoard}
       />

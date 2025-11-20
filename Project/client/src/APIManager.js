@@ -137,7 +137,6 @@ async function updateUser(user, id) {
 
     switch (response.status) {
         case 200:
-            alert("Successfully Update User Information")
             return true;
         case 409:
             alert("Username Already Exist!")
@@ -389,7 +388,8 @@ export async function addTask(task, board, operator){
             alert("You do not have the permission to add this task!")
             return -1;
         case 400:
-            alert(response.json().error)
+            //alert(response.json().error)
+            response.json().then(data => alert(data.error))
             return -1;
         case 500:
             alert("Internal Server Error")
@@ -422,7 +422,7 @@ export async function updateTask(task, operator){
             return false;
         case 404:
         case 400:
-            alert(response.json().error)
+            response.json().then(data => alert(data.error))
             return false;
         case 500:
             alert("Internal Server Error")
@@ -495,6 +495,40 @@ export async function removeUserFromBoard(user, board, operator){
             if(confirm("If you leave this taskboard, there will be no admins in this taskboard. Do you wish to delete this taskboard?")){
                 return deleteBoard(operator, board)
             }
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
+}
+
+/**
+ * 
+ * @param {number} board board id
+ * @param {string} name new name
+ * @param {number} operator user id of the person who renamed the board
+ * @returns {Promise<boolean>} success
+ */
+export async function renameBoard(board, name, operator){
+    const response = await post('/taskboards/' + board + '/rename/' + operator, {name: name}, "PUT")
+
+    if (response === null) {
+        alert("Unknown Error")
+        return false;
+    }
+
+    switch (response.status) {
+        case 200:
+            return true;
+        case 403:
+            alert("You do not have the permission to leave this board!")
+            return false;
+        case 404:
+        case 400:
+            response.json().then(data => alert(data.error))
             return false;
         case 500:
             alert("Internal Server Error")

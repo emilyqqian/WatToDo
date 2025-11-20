@@ -265,8 +265,9 @@ DatabaseResult updateTask(Task task, unsigned int performed_by) {
 
         // check time conflict
         if (task.duedate < task.startDate) return TIME_CONFLICT;
-        if (task.duedate < date()) return TIME_CONFLICT;
-
+        //std::cout << "1\n";
+        //if (task.duedate < date()) return TIME_CONFLICT;
+//std::cout << "2\n";
 		// check if assigned user is valid
         if (task.assigned) {
             if (userTable->select("*").where("user_id = :uid").bind("uid", task.assignedUser.userid).execute().count() != 1) return DOES_NOT_EXIST;
@@ -275,8 +276,11 @@ DatabaseResult updateTask(Task task, unsigned int performed_by) {
         // check if finished date is valid
         if (task.finished) {
             if (task.finishedOn < task.startDate) return TIME_CONFLICT;
+            //std::cout << "3\n";
 			if (task.finishedOn < date()) return TIME_CONFLICT;
+            //std::cout << "4\n";
         }
+        //std::cout << "5\n";
 
 		// ensure that the task remain in the same taskboard
         // we do not support changing taskboard at this stage

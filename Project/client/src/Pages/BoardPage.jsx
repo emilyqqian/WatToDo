@@ -5,6 +5,7 @@ import {
   Container,
   Typography,
   Paper,
+  ButtonBase,
   Stack,
   Chip,
   Button,
@@ -30,11 +31,12 @@ import { useNavigate } from 'react-router-dom'
 import { Navigate } from 'react-router-dom'
   import { useGlobal } from '../SessionManager'
   import '../App.css'
-import { addTask, updateTask, deleteTask, removeUserFromBoard, deleteBoard } from '../APIManager'
+import { addTask, updateTask, deleteTask, removeUserFromBoard, deleteBoard, renameBoard, updateUser } from '../APIManager'
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import TaskboardDialog from '../Components/NewBoardDialogue'
 
   export default function BoardPage() {
     const navigate = useNavigate()
@@ -46,6 +48,7 @@ import dayjs from "dayjs";
 
     const [editOpen, setEditOpen] = useState(false)
     const [editingTask, setEditingTask] = useState(null)
+    const [renameOpen, setRenameOpen] = useState(false)
     const [addOpen, setAddOpen] = useState(false)
     const [newTask, setNewTask] = useState({ title: '', type: '', start_date: '', due_date: '', assignedTo: '' })
 
@@ -157,6 +160,15 @@ import dayjs from "dayjs";
     }
 
     function sort(a, b){
+      // if a task is already finished put it in the back
+        if ("finished_date" in a && "finished_date" in b){
+          return a.finished_date < b.finished_date;
+        }else if ("finished_date" in a){
+          return 1
+        } else if("finished_date" in b){
+          return -1
+        }
+
         if (a.pinned === b.pinned){
             if (a.due_date < b.due_date) return -1;
             else if (a.due_date > b.due_date) return 1;
@@ -182,6 +194,45 @@ import dayjs from "dayjs";
           }
         });
       }
+    }
+
+    const currentDate = new Date().toISOString().split('T')[0]
+
+    function onCompleteTask(task){
+      let nTask = task
+      nTask.finished_date = currentDate
+      nTask.finished = true
+
+      updateTask(nTask, state.user.userId).then(data=>updateTaskCallBack(nTask, data))
+
+      let instance = state.user;
+      instance.xp_points += 20;
+
+      updateUser(instance, state.user.userId).then(data => {
+            if (data) {
+              updateState({ user: instance })
+            }
+       })
+    }
+
+    function openRename(){
+      if (!isAdmin) return
+      setRenameOpen(true)
+    }
+
+    function onRename(name){
+      name = name.name;
+      renameBoard(board.taskboard_id, name, state.user.userId).then(data => {
+        if (data){
+          board.name = name
+          updateState({currentTaskBoard: board})
+          let newList = board.isShared ? state.sharedTaskboardList : state.privateTaskboardList;
+          newList[boardIndex] = board;
+          if (board.isShared) updateState({sharedTaskboardList: newList})
+          else updateState({privateTaskboardList: newList})
+          setRenameOpen(false)
+        }
+      })
     }
 
     function openAddTask(){
@@ -243,8 +294,14 @@ import dayjs from "dayjs";
 
     const boardDescription = board.description ?? 'Level up your programming skills'
 
+    function filterAssignedTask(task){
+      if ("finished_date" in task && task.finished_date !== null && task.finished_date !== "") return false;
+
+      return task.assignedUser?.userId ?? -1 === state.user.userId;
+    }
+
     // Assigned tasks: prefer task.assignedToMe if present, else first two
-    const assigned = board.tasks.filter(t => t.assignedUser?.userId ?? -1 === state.user.userId)
+    const assigned = board.tasks.filter(filterAssignedTask)
      
     let isAdmin = false;
     for (let i = 0; i < board.users.length; i++){
@@ -253,8 +310,6 @@ import dayjs from "dayjs";
         break;
       }
     }
-
-    const currentDate = new Date().toISOString().split('T')[0]
 
     return (
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -273,7 +328,9 @@ import dayjs from "dayjs";
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ p: 2 }}>
               <Stack direction="row" spacing={2} alignItems="center">
                 <Box>
-                  <Typography className="pixel-text board-name">{board.name}</Typography>
+                  <ButtonBase onClick={openRename}>
+                    <Typography className="pixel-text board-name">{board.name}</Typography>
+                  </ButtonBase>
                 </Box>
               </Stack>
 
@@ -334,7 +391,9 @@ import dayjs from "dayjs";
                             <Chip label={`${task.reward ?? 20} XP`} size="small" className="chip-reward" style={{ background: '#fff700ff', color: '#000000ff', fontWeight: 700, boxShadow: '0 6px 18px rgba(59,7,16,0.08)' }} />
                             <Chip icon={<CalendarTodayIcon />} label={task.due_date ?? 'TODAY'} size="small" className="chip-date" style={{ background: '#05f2fac1', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(29,78,216,0.08)' }} />
                             {task.pinned && <Chip label="PINNED" size="small" className="chip-pinned" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
-                            {task.start_date > currentDate && <Chip label={"Starting At " + task.start_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {task.start_date > currentDate && <Chip label={"Starting On " + task.start_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {"finished_date" in task && <Chip label={"Finished On " + task.finished_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {!("finished_date" in task) && task.due_date > currentDate && <Chip label={"OVERDUE"} size="small" style={{ background: '#ff0000ff', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
                           </Stack>
                         </Box>
                       </Stack>
@@ -351,9 +410,11 @@ import dayjs from "dayjs";
                           <span className="svgIcon"><DeleteIcon fontSize="small" /></span>
                         </button>
                         }
-                        <button className="button green" data-label="Complete" onClick={() => console.log('complete task', task.id)}>
+                        { !task.finished &&
+                        <button className="button green" data-label="Complete" onClick={() => onCompleteTask(task)}>
                           <span className="svgIcon"><AssignmentTurnedInIcon fontSize="small" /></span>
                         </button>
+                        }
                       </Stack>
                     </Stack>
                   </Paper>
@@ -377,7 +438,9 @@ import dayjs from "dayjs";
                             <Chip label={`${task.reward ?? 20} XP`} size="small" className="chip-reward" style={{ background: '#fff700ff', color: '#000000ff', fontWeight: 700, boxShadow: '0 6px 18px rgba(59,7,16,0.08)' }} />
                             <Chip icon={<CalendarTodayIcon />} label={task.due_date ?? 'TODAY'} size="small" className="chip-date" style={{ background: '#05f2fac1', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(29,78,216,0.08)' }} />
                             {task.pinned && <Chip label="PINNED" size="small" className="chip-pinned" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
-                            {task.start_date > currentDate && <Chip label={"Starting At " + task.start_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {task.start_date > currentDate && <Chip label={"Starting On " + task.start_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {"finished_date" in task && <Chip label={"Finished On " + task.finished_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {!("finished_date" in task) && task.due_date > currentDate && <Chip label={"OVERDUE"} size="small" style={{ background: '#ff0000ff', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
                           </Stack>
                         </Box>
                       </Stack>
@@ -394,9 +457,11 @@ import dayjs from "dayjs";
                           <span className="svgIcon"><DeleteIcon fontSize="small" /></span>
                         </button>
                         }
-                        <button className="button green" data-label="Complete" onClick={() => console.log('complete task', task.id)}>
+                        { !task.finished &&
+                        <button className="button green" data-label="Complete" onClick={() => onCompleteTask(task)}>
                           <span className="svgIcon"><AssignmentTurnedInIcon fontSize="small" /></span>
                         </button>
+                        }
                       </Stack>
                     </Stack>
                   </Paper>
@@ -452,6 +517,12 @@ import dayjs from "dayjs";
                 <Button onClick={onAddTask} variant="contained">Create</Button>
               </DialogActions>
             </Dialog>
+            <TaskboardDialog
+              open={renameOpen}
+              title="Rename Taskboard"
+              onClose={() => setRenameOpen(false)}
+              onSave={onRename}
+            />
           </Paper>
           </div>
         </Container>

@@ -27,7 +27,8 @@ crow::json::wvalue getTaskBoardJSON(TaskBoard taskboard){
         response["tasks"][task_index]["start_date"] = task.startDate.toString();
         response["tasks"][task_index]["due_date"] = task.duedate.toString();
         response["tasks"][task_index]["pinned"] = task.pinned;
-        if (task.finished) response["tasks"][task_index]["finished"] = task.finishedOn.toString();
+        response["tasks"][task_index]["finished"] = task.finished;
+        if (task.finished) response["tasks"][task_index]["finished_date"] = task.finishedOn.toString();
                     
         if (task.assigned) {
             response["tasks"][task_index]["assignedUser"]["userId"] = task.assignedUser.userid;
@@ -381,7 +382,7 @@ int main() {
             }
             
             // Handle completion
-            if (json.has("finished")) {
+            if (json.has("finished") && !existingTask.finished) {
                 existingTask.finished = json["finished"].b();
                 if (existingTask.finished) {
                     existingTask.finishedOn = date(); // current date
@@ -581,8 +582,8 @@ int main() {
     });
 
 // Rename Taskboard
-      CROW_ROUTE(app, "/taskboards/<int>/rename").methods("PUT"_method)
-      ([](const crow::request& req, int taskboard_id){
+      CROW_ROUTE(app, "/taskboards/<int>/rename/<int>").methods("PUT"_method)
+      ([](const crow::request& req, int taskboard_id, int performed_by){
         try {
             auto json = crow::json::load(req.body);
             if (!json) {
@@ -590,11 +591,11 @@ int main() {
                 error["error"] = "Invalid JSON";
                 return crow::response(400, error);
             }
-            
+
             std::string new_name = json["name"].s();
             
             // For now, use a default user ID
-            unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
+            //unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
 
             DatabaseResult result = renameTaskBoard(taskboard_id, new_name, performed_by);
             
@@ -619,6 +620,7 @@ int main() {
         } catch (const std::exception& e) {
             crow::json::wvalue error;
             error["error"] = "Server error";
+            std::cout << "exception: " << e.what() << "\n";
             return crow::response(500, error);
         }
     });

@@ -31,6 +31,16 @@ function Login(){
     }
 
     function sort(a, b){
+
+        // if a task is already finished put it in the back
+        if ("finished_date" in a && "finished_date" in b){
+          return a.finished_date < b.finished_date;
+        }else if ("finished_date" in a){
+          return 1
+        } else if("finished_date" in b){
+          return -1
+        }
+
         if (a.pinned === b.pinned){
             if (a.due_date < b.due_date) return -1;
             else if (a.due_date > b.due_date) return 1;
