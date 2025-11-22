@@ -708,7 +708,7 @@ int main() {
             }
             
             unsigned int user_id = json["user_id"].i();
-            unsigned int performed_by = json["user_id"].i();
+            unsigned int performed_by = json["host"].i();
 
             DatabaseResult result = addUserToTaskboard(user_id, taskboard_id, performed_by);
             
@@ -748,8 +748,8 @@ int main() {
                 return crow::response(400, error);
             }
             
-            unsigned int to_user_id = json["user_id"].i();
-            unsigned int from_user_id = json["user_id"].i();
+            unsigned int to_user_id = json["to"].i();
+            unsigned int from_user_id = json["from"].i();
 
             DatabaseResult result = inviteUser(from_user_id, to_user_id, taskboard_id);
             

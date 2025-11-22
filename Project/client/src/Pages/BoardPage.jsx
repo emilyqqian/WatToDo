@@ -529,20 +529,20 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
                 {(board.users ?? []).map((m, idx) => (
                   <Paper key={idx} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, mb: 1, background: 'transparent' }}>
                     <Typography className="manage-user-name" sx={{ fontWeight: 700 }}>{m.username}</Typography>
-                    { m.userId != state.user.userId &&
-                      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                        <div className="fancy-btn small" role="button" onClick={() => console.log('promote', m.username)}>
-                          <div className="shadow" />
-                          <div className="edge" />
-                          <div className="front">{ m.isAdmin ? "Demote" : "Promote"}</div>
-                        </div>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                      <div className="fancy-btn small" role="button" onClick={() => console.log('promote', m.username)}>
+                        <div className="shadow" />
+                        <div className="edge" />
+                        <div className="front">{ m.isAdmin ? "Demote" : "Promote"}</div>
+                      </div>
+                      { m.userId != state.user.userId &&
                         <div className="fancy-btn small" role="button" onClick={() => console.log('remove', m.username)}>
                           <div className="shadow" />
                           <div className="edge" />
                           <div className="front">Remove</div>
                         </div>
-                      </Box>
-                    }
+                      }
+                    </Box>
                   </Paper>
                 ))}
               </DialogContent>
