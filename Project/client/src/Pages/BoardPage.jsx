@@ -348,11 +348,58 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
     }
 
     function sendInvitation(e){
-
     }
 
-    function onChangeAdminStatus(e){
+    function onChangeAdminStatus(user){
+      const newState = !user.isAdmin;
 
+      if (!confirm ("Are you sure you want to " + (newState ? "promote " : "demote ") + user.username + "?")) return;
+
+      changeAdminStatus(board.taskboard_id, user.userId, newState, state.user.userId).then(data => {
+        if (data){
+          alert("Successfully " + (newState ? "promoted " : "demoted ") + user.username + "!");
+          let nBoard = board;
+          for (let i = 0; i < nBoard.users.length; i++){
+            if (nBoard.users[i].userId == user.userId){
+              nBoard.users[i].isAdmin = newState;
+              break;
+            }
+          }
+          
+          updateState({currentTaskBoard: nBoard})
+          let newList = board.isShared ? state.sharedTaskboardList : state.privateTaskboardList;
+          newList[boardIndex] = board;
+          if (board.isShared) updateState({sharedTaskboardList: newList})
+          else updateState({privateTaskboardList: newList})
+        }
+      })
+    }
+
+    function onRemoveUser(user){
+      if (confirm("Are you sure you want to remove " + user.username +  "?")){
+        removeUserFromBoard(user.userId, board.taskboard_id, state.user.userId).then(data => {
+          if (data){
+            alert("Successfully removed " + user.username + "!");
+            board.users = board.users.filter(usr => usr.userId !== user.userId);
+
+            if (board.users.length == 1){
+              board.isShared = false;
+
+              let newShared = state.sharedTaskboardList;
+              newShared.splice(boardIndex, 1);
+              let newPrivate = state.privateTaskboardList;
+              newPrivate.push(board);
+              updateState({currentTaskBoard: board, sharedTaskboardList: newShared, privateTaskboardList: newPrivate});
+            } else {
+              updateState({currentTaskBoard: board})
+              let newList = board.isShared ? state.sharedTaskboardList : state.privateTaskboardList;
+              newList[boardIndex] = board;
+              if (board.isShared) updateState({sharedTaskboardList: newList})
+              else updateState({privateTaskboardList: newList})
+            }
+          }
+        });
+      }
     }
 
     // pulse ACTIVE indicator briefly when task count changes
@@ -594,7 +641,6 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
                       {m.isAdmin && <Chip label="Admin" size="small" className="chip-reward" style={{ background: '#bb00ffff', color: '#ffffffff', fontWeight: 700, boxShadow: '0 6px 18px rgba(59,7,16,0.08)' }} />}
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                      
                       <div className="fancy-btn small" role="button" onClick={(e) => onChangeAdminStatus(m)}>
                         <div className="shadow" />
                         <div className="edge" />

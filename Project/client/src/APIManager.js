@@ -155,7 +155,7 @@ async function updateUser(user, id) {
 * Get user by name. Returns user object on success, or null on failure
 * @param {string} name the name of the user to retrieve
 * @returns {Promise<{
-  "user_id": number,
+  "userId": number,
   "username": string,
   "xp_points": number
 }>} 
@@ -541,19 +541,22 @@ export async function renameBoard(board, name, operator){
  * send invitation to guest to join the board
  * 
  * @param {number} board taskboard id
- * @param {number} guest guest id
+ * @param {string} guest guest name
  * @param {number} host id of the person who send the invitation
  * @returns {Promise<boolean>} success
  */
 export async function sendInvitation(board, guest, host){
-    const response = await post('/taskboards/' + board + '/invite', { from: host, to: guest });
+    const guestInfo = await getUserByName(guest);    
+    if (guestInfo == null) return false;
+
+    const response = await post('/taskboards/' + board + '/invite', { from: host, to: guestInfo.userId });
     if (response === null) {
         alert("Unknown Error")
         return false;
     }
 
     switch (response.status) {
-        case 200:
+        case 201:
             return true;
         case 403:
             alert("You do not have the permission to send invitations!")
@@ -584,6 +587,26 @@ export async function sendInvitation(board, guest, host){
  */
 export async function changeAdminStatus(board, target, newState, operator){
     const response = await post('/taskboards/' + board + '/users/' + target + '/status', { is_admin: newState, user_id: operator}, 'PUT');
+
+    switch (response.status) {
+        case 201:
+        case 200:
+            return true;
+        case 403:
+            alert("You do not have the permission to change user statue!")
+            return false;
+        case 404:
+        case 400:
+        case 409:
+            response.json().then(data => alert(data.error))
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
 }
 
 export {registerUser, loginUser, updateUser, getUserByID, getUserByName, getLeaderboard};
