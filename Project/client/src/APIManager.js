@@ -129,8 +129,6 @@ async function loginUser(username, password) {
 * @returns bool
 */
 async function updateUser(user, id) {
-    console.log(user.xp_points)
-
     const response = await post('/updateuser/' + id, user, 'PUT');
 
     if (response === null) return null;
@@ -383,7 +381,7 @@ export async function addTask(task, board, operator){
 
     switch (response.status) {
         case 201:
-            return response.json().task_id;
+            return response.json();
         case 403:
             alert("You do not have the permission to add this task!")
             return -1;

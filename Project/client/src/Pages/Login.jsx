@@ -99,12 +99,12 @@ function Login(){
                 sx={{mb: '5%'}}
             />
             <Grid container justifyContent="space-between">
-                <Grid item>
+                <Grid>
                     <Link href="/register">
                         Register New Account
                     </Link>
                 </Grid>
-                <Grid item>
+                <Grid>
                     <Button variant="contained" onClick={handleLogin}>
                         Login
                     </Button>

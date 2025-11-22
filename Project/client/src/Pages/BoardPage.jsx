@@ -244,8 +244,8 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
       let nTask = reformatTask(newTask)
 
       addTask(nTask, board.taskboard_id, state.user.userId).then(data=>{
-        if (data != -1){
-          nTask.task_id = data;
+        if (data.task_id != -1){
+          nTask.task_id = data.task_id;
           let nBoard = board;
           nBoard.tasks.push(nTask);
           nBoard.tasks.sort(sort)
@@ -392,8 +392,8 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
                             <Chip icon={<CalendarTodayIcon />} label={task.due_date ?? 'TODAY'} size="small" className="chip-date" style={{ background: '#05f2fac1', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(29,78,216,0.08)' }} />
                             {task.pinned && <Chip label="PINNED" size="small" className="chip-pinned" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
                             {task.start_date > currentDate && <Chip label={"Starting On " + task.start_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
-                            {"finished_date" in task && <Chip label={"Finished On " + task.finished_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
-                            {!("finished_date" in task) && task.due_date > currentDate && <Chip label={"OVERDUE"} size="small" style={{ background: '#ff0000ff', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {"finished_date" in task && <Chip label={"Finished On " + task.finished_date} size="small" style={{ background: '#43e69fff', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {!("finished_date" in task) && task.due_date < currentDate && <Chip label={"OVERDUE"} size="small" style={{ background: '#ff0000ff', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
                           </Stack>
                         </Box>
                       </Stack>
@@ -439,8 +439,8 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
                             <Chip icon={<CalendarTodayIcon />} label={task.due_date ?? 'TODAY'} size="small" className="chip-date" style={{ background: '#05f2fac1', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(29,78,216,0.08)' }} />
                             {task.pinned && <Chip label="PINNED" size="small" className="chip-pinned" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
                             {task.start_date > currentDate && <Chip label={"Starting On " + task.start_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
-                            {"finished_date" in task && <Chip label={"Finished On " + task.finished_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
-                            {!("finished_date" in task) && task.due_date > currentDate && <Chip label={"OVERDUE"} size="small" style={{ background: '#ff0000ff', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {"finished_date" in task && <Chip label={"Finished On " + task.finished_date} size="small" style={{ background: '#43e69fff', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {!("finished_date" in task) && task.due_date < currentDate && <Chip label={"OVERDUE"} size="small" style={{ background: '#ff0000ff', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
                           </Stack>
                         </Box>
                       </Stack>
