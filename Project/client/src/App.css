@@ -407,6 +407,106 @@
   transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
 }
 
+/* small variant for dialog row buttons (Add, Promote, Remove) */
+.fancy-btn.small {
+  font-size: 0.8rem;
+}
+.fancy-btn.small .front {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+/* Darken MUI Dialog to match board theme */
+.MuiDialog-paper {
+  background: linear-gradient(180deg, rgba(6, 18, 46, 0.95), rgba(3,8,18,0.95)) !important;
+  color: #eafcff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 12px 40px rgba(2,6,23,0.7) !important;
+}
+
+.MuiDialogTitle-root, .MuiDialogContent-root, .MuiDialogActions-root {
+  color: #eafcff !important;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.MuiDialogContent-root { color: #eafcff !important;}
+.MuiDialogActions-root { color: #eafcff !important;}
+
+/* slightly stronger dialog border and inner glow so it separates from page bg */
+.MuiDialog-paper {
+  border: 1px solid rgba(255,255,255,0.04) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.02) !important;
+}
+
+/* TextField dark variant inside dialogs */
+.MuiDialogContent-root .MuiInputBase-root, .MuiDialogContent-root .MuiOutlinedInput-root {
+  background: rgba(255,255,255,0.035);
+  color: #eafcff;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.02);
+}
+.MuiDialogContent-root .MuiInputBase-input, .MuiDialogContent-root .MuiOutlinedInput-input {
+  color: #eafcff;
+}
+
+/* Force disabled/readonly input states used by DatePicker */
+.MuiDialogContent-root .MuiInputBase-input.Mui-disabled,
+.MuiDialogContent-root .MuiOutlinedInput-input.Mui-disabled,
+.MuiDialogContent-root input[readonly],
+.MuiDialogContent-root input[disabled] {
+  color: rgba(234,252,255,0.92) !important;
+  opacity: 1 !important;
+}
+
+/* Also target nested input inside DatePicker wrappers */
+.MuiDialogContent-root .MuiPickersDay-root,
+.MuiDialogContent-root .MuiDayPicker-root,
+.MuiDialogContent-root .MuiDatePicker-root {
+  color: #eafcff !important;
+}
+
+/* Manage Users username visibility */
+.manage-user-name {
+  color: #ffffff;
+  font-weight: 800;
+  font-family: 'Press Start 2P', monospace;
+  letter-spacing: 0.6px;
+}
+
+/* Date display and small text in dialog should be readable */
+.MuiDialogContent-root .MuiTypography-root, .MuiDialogContent-root .MuiInputBase-root .MuiTypography-root {
+  color: rgba(234,252,255,0.92) !important;
+}
+
+/* DatePicker displayed value color */
+.MuiDialogContent-root .MuiInputBase-root .MuiInputBase-input[readonly],
+.MuiDialogContent-root .MuiOutlinedInput-root .MuiOutlinedInput-input[readonly] {
+  color: rgba(234,252,255,0.92) !important;
+}
+
+/* ensure adornment icons show */
+.MuiDialogContent-root .MuiInputAdornment-root svg { color: #eafcff !important; }
+
+/* placeholder and label readability */
+.MuiDialogContent-root ::placeholder { color: rgba(234,252,255,0.35); }
+.MuiDialogContent-root .MuiInputLabel-root { color: rgba(234,252,255,0.6) !important; font-family: 'Press Start 2P', monospace; }
+
+/* focused state stronger border/glow */
+.MuiDialogContent-root .MuiOutlinedInput-root.Mui-focused { box-shadow: 0 6px 24px rgba(25,230,255,0.06); border-color: rgba(25,230,255,0.22) !important; }
+
+/* DatePicker / adornment icons color */
+.MuiDialogContent-root .MuiInputAdornment-root svg, .MuiDialogContent-root .MuiSvgIcon-root { color: #eafcff !important; }
+
+/* Dialog action button style override for fancy-btn inside dialogs */
+.MuiDialogActions-root .fancy-btn .front { box-shadow: 0 8px 18px rgba(0,0,0,0.6); }
+
+/* ensure Add button (small) aligns properly and doesn't stretch */
+.MuiDialogContent-root .fancy-btn.small { align-self: center; margin-left: 8px; }
+
+
 /* Ensure no text underlines appear on fancy button text or children */
 .fancy-btn .front, .fancy-btn .front * {
   text-decoration: none !important;

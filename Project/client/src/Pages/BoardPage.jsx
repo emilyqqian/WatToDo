@@ -48,6 +48,8 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
 
     const [editOpen, setEditOpen] = useState(false)
     const [editingTask, setEditingTask] = useState(null)
+  const [manageOpen, setManageOpen] = useState(false)
+  const [newUserName, setNewUserName] = useState('')
     const [renameOpen, setRenameOpen] = useState(false)
     const [addOpen, setAddOpen] = useState(false)
     const [newTask, setNewTask] = useState({ title: '', type: '', start_date: '', due_date: '', assignedTo: '' })
@@ -280,7 +282,7 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
 
     function onLeaving(){
       if (confirm("Are you sure you want to leave this taskbaord?")){
-        removeUserFromBoard(state.users.userId, board.taskboard_id, state.users.userId).then(afterRemoveBoard);
+  removeUserFromBoard(state.user.userId, board.taskboard_id, state.user.userId).then(afterRemoveBoard);
       }
     }
 
@@ -344,7 +346,7 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
 
                 {/* board-level controls moved to header - use fancy 3D markup */}
  { isAdmin &&                
-                <div className="fancy-btn blue" role="button" onClick={() => console.log('manage users', board.taskboard_id)}>
+                <div className="fancy-btn blue" role="button" onClick={() => setManageOpen(true)}>
                   <div className="shadow" />
                   <div className="edge" />
                   <div className="front">MANAGE USERS</div>
@@ -474,7 +476,8 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
               <DialogTitle>Edit Task</DialogTitle>
               <DialogContent>
                 <TextField fullWidth label="Title" sx={{ mt: 1 }} value={editingTask?.title ?? ''} onChange={(e) => setEditingTask({...editingTask, title: e.target.value})} />
-                <TextField fullWidth label="Type or description" sx={{ mt: 1 }} value={editingTask?.type ?? ''} onChange={(e) => setEditingTask({...editingTaskTask, type: e.target.value})} />
+                <TextField fullWidth label="Type or description" sx={{ mt: 1 }} value={editingTask?.type ?? ''} onChange={(e) => setEditingTask({...editingTask, type: e.target.value})} />
+                
                 <DatePicker slotProps={{textField: {fullWidth: true}}} label="Start date" sx={{ mt: 2 }} value={dayjs(editingTask?.start_date) ?? null} onChange={(e) => setEditingTask({...editingTask, start_date: e.format("YYYY/MM/DD")})} />
                 <DatePicker slotProps={{textField: {fullWidth: true}}} label="Due date" sx={{ mt: 2 }} value={dayjs(editingTask?.due_date) ?? null} onChange={(e) => setEditingTask({...editingTask, due_date: e.format("YYYY/MM/DD")})} />
                 <FormControl fullWidth sx={{ mt: 2 }}>
@@ -488,8 +491,57 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
                 </FormControl>
               </DialogContent>
               <DialogActions>
-                <Button onClick={() => setEditOpen(false)}>Cancel</Button>
-                <Button onClick={saveEdit} variant="contained">Save</Button>
+                <div className="fancy-btn" role="button" onClick={() => setEditOpen(false)}>
+                  <div className="shadow" />
+                  <div className="edge" />
+                  <div className="front">Cancel</div>
+                </div>
+                <div className="fancy-btn green" role="button" onClick={saveEdit}>
+                  <div className="shadow" />
+                  <div className="edge" />
+                  <div className="front">Save</div>
+                </div>
+              </DialogActions>
+            </Dialog>
+            {/* Manage Users dialog */}
+            <Dialog open={manageOpen} onClose={() => setManageOpen(false)} maxWidth="sm" fullWidth>
+              <DialogTitle>Manage Users</DialogTitle>
+              <DialogContent>
+                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                  <TextField fullWidth label="Add user by username" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div className="fancy-btn small" role="button" onClick={() => { console.log('add user', newUserName); setNewUserName('') }}>
+                      <div className="shadow" />
+                      <div className="edge" />
+                      <div className="front">Add</div>
+                    </div>
+                  </div>
+                </Box>
+
+                {(board.users ?? []).map((m, idx) => (
+                  <Paper key={idx} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, mb: 1, background: 'transparent' }}>
+                    <Typography className="manage-user-name" sx={{ fontWeight: 700 }}>{m.username}</Typography>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                      <div className="fancy-btn small" role="button" onClick={() => console.log('promote', m.username)}>
+                        <div className="shadow" />
+                        <div className="edge" />
+                        <div className="front">Promote</div>
+                      </div>
+                      <div className="fancy-btn small" role="button" onClick={() => console.log('remove', m.username)}>
+                        <div className="shadow" />
+                        <div className="edge" />
+                        <div className="front">Remove</div>
+                      </div>
+                    </Box>
+                  </Paper>
+                ))}
+              </DialogContent>
+              <DialogActions>
+                <div className="fancy-btn" role="button" onClick={() => setManageOpen(false)}>
+                  <div className="shadow" />
+                  <div className="edge" />
+                  <div className="front">Close</div>
+                </div>
               </DialogActions>
             </Dialog>
 
@@ -513,8 +565,16 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
                 </FormControl>
               </DialogContent>
               <DialogActions>
-                <Button onClick={() => setAddOpen(false)}>Cancel</Button>
-                <Button onClick={onAddTask} variant="contained">Create</Button>
+                <div className="fancy-btn" role="button" onClick={() => setAddOpen(false)}>
+                  <div className="shadow" />
+                  <div className="edge" />
+                  <div className="front">Cancel</div>
+                </div>
+                <div className="fancy-btn green" role="button" onClick={onAddTask}>
+                  <div className="shadow" />
+                  <div className="edge" />
+                  <div className="front">Create</div>
+                </div>
               </DialogActions>
             </Dialog>
             <TaskboardDialog
