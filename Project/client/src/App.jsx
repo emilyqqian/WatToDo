@@ -13,34 +13,34 @@ import { GlobalProvider } from './SessionManager.jsx'
 function App() {
   return (
     <GlobalProvider>
-    <Router>
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: 'background.default',
-        }}
-      >
-        <NavBar />
+      <Router>
         <Box
-          component="main"
           sx={{
-            flex: 1,
-            width: '100%',
-            py: 4,
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: 'background.default',
           }}
         >
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/board" element={<BoardPage />} />
-          </Routes>
+          <NavBar />
+          <Box
+            component="main"
+            sx={{
+              flex: 1,
+              width: '100%',
+              py: 0,
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/board" element={<BoardPage />} />
+            </Routes>
+          </Box>
         </Box>
-      </Box>
-    </Router>
+      </Router>
     </GlobalProvider>
   )
 }
