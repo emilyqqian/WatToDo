@@ -347,6 +347,14 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
       }
     }
 
+    function sendInvitation(e){
+
+    }
+
+    function onChangeAdminStatus(e){
+
+    }
+
     // pulse ACTIVE indicator briefly when task count changes
     React.useEffect(() => {
       if (!board) return

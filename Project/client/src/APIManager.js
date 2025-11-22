@@ -537,4 +537,30 @@ export async function renameBoard(board, name, operator){
     }
 }
 
+/**
+ * send invitation to guest to join the board
+ * 
+ * @param {number} board taskboard id
+ * @param {number} guest guest id
+ * @param {number} host id of the person who send the invitation
+ * @returns {Promise<boolean>} success
+ */
+export async function sendInvitation(board, guest, host){
+
+}
+
+
+/**
+ * promote or demote the target user
+ * 
+ * @param {number} board board id
+ * @param {number} target the person who needs to be promoted or demoted
+ * @param {boolean} newState new admin state
+ * @param {number} operator user id of the person who renamed the board
+ * @returns {Promise<boolean>} success
+ */
+export async function changeAdminStatus(board, target, newState, operator){
+
+}
+
 export {registerUser, loginUser, updateUser, getUserByID, getUserByName, getLeaderboard};
