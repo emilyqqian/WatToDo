@@ -31,7 +31,7 @@ import { useNavigate } from 'react-router-dom'
 import { Navigate } from 'react-router-dom'
   import { useGlobal } from '../SessionManager'
   import '../App.css'
-import { addTask, updateTask, deleteTask, removeUserFromBoard, deleteBoard, renameBoard, updateUser } from '../APIManager'
+import { addTask, updateTask, deleteTask, removeUserFromBoard, deleteBoard, renameBoard, updateUser, changeAdminStatus, sendInvitation } from '../APIManager'
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -286,12 +286,65 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
       }
     }
 
-    function sendInvitation(e){
-
+    function onSendInvitation(e){
+        sendInvitation(board.taskboard_id, newUserName, state.user.userId).then(data => {
+          if (data){
+            alert("Successfully invited " + newUserName + "!");
+            setNewUserName("");
+          }
+        })
     }
 
-    function onChangeAdminStatus(e){
+    function onChangeAdminStatus(user){
+      const newState = !user.isAdmin;
 
+      if (!confirm ("Are you sure you want to " + (newState ? "promote " : "demote ") + user.username + "?")) return;
+
+      changeAdminStatus(board.taskboard_id, user.userId, newState, state.user.userId).then(data => {
+        if (data){
+          alert("Successfully " + (newState ? "promoted " : "demoted ") + user.username + "!");
+          let nBoard = board;
+          for (let i = 0; i < nBoard.users.length; i++){
+            if (nBoard.users[i].userId == user.userId){
+              nBoard.users[i].isAdmin = newState;
+              break;
+            }
+          }
+          
+          updateState({currentTaskBoard: nBoard})
+          let newList = board.isShared ? state.sharedTaskboardList : state.privateTaskboardList;
+          newList[boardIndex] = board;
+          if (board.isShared) updateState({sharedTaskboardList: newList})
+          else updateState({privateTaskboardList: newList})
+        }
+      })
+    }
+
+    function onRemoveUser(user){
+      if (confirm("Are you sure you want to remove " + user.username +  "?")){
+        removeUserFromBoard(user.userId, board.taskboard_id, state.user.userId).then(data => {
+          if (data){
+            alert("Successfully removed " + user.username + "!");
+            board.users = board.users.filter(usr => usr.userId !== user.userId);
+
+            if (board.users.length == 1){
+              board.isShared = false;
+
+              let newShared = state.sharedTaskboardList;
+              newShared.splice(boardIndex, 1);
+              let newPrivate = state.privateTaskboardList;
+              newPrivate.push(board);
+              updateState({currentTaskBoard: board, sharedTaskboardList: newShared, privateTaskboardList: newPrivate});
+            } else {
+              updateState({currentTaskBoard: board})
+              let newList = board.isShared ? state.sharedTaskboardList : state.privateTaskboardList;
+              newList[boardIndex] = board;
+              if (board.isShared) updateState({sharedTaskboardList: newList})
+              else updateState({privateTaskboardList: newList})
+            }
+          }
+        });
+      }
     }
 
     // pulse ACTIVE indicator briefly when task count changes
@@ -516,9 +569,9 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
               <DialogTitle>Manage Users</DialogTitle>
               <DialogContent>
                 <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                  <TextField fullWidth label="Add user by username" value={newUserName} onChange={sendInvitation} />
+                  <TextField fullWidth label="Add user by username" value={newUserName} onChange={e => setNewUserName(e.target.value)} />
                   <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className="fancy-btn small" role="button" onClick={() => { console.log('add user', newUserName); setNewUserName('') }}>
+                    <div className="fancy-btn small" role="button" onClick={onSendInvitation}>
                       <div className="shadow" />
                       <div className="edge" />
                       <div className="front">Add</div>
@@ -530,13 +583,13 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
                   <Paper key={idx} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, mb: 1, background: 'transparent' }}>
                     <Typography className="manage-user-name" sx={{ fontWeight: 700 }}>{m.username}</Typography>
                     <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                      <div className="fancy-btn small" role="button" onClick={() => console.log('promote', m.username)}>
+                      <div className="fancy-btn small" role="button" onClick={(e) => onChangeAdminStatus(m)}>
                         <div className="shadow" />
                         <div className="edge" />
                         <div className="front">{ m.isAdmin ? "Demote" : "Promote"}</div>
                       </div>
                       { m.userId != state.user.userId &&
-                        <div className="fancy-btn small" role="button" onClick={() => console.log('remove', m.username)}>
+                        <div className="fancy-btn small" role="button" onClick={(e) => onRemoveUser(m)}>
                           <div className="shadow" />
                           <div className="edge" />
                           <div className="front">Remove</div>

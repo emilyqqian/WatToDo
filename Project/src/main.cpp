@@ -762,7 +762,7 @@ int main() {
                     response["error"] = "Access denied to taskboard";
                     return crow::response(403, response);
                 case ALREADY_EXIST:
-                    response["error"] = "User already invited or in taskboard";
+                    response["error"] = "User already in taskboard or have already been invited by your";
                     return crow::response(409, response);
                 case DOES_NOT_EXIST:
                     response["error"] = "User or taskboard not found";

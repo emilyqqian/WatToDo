@@ -568,6 +568,11 @@ DatabaseResult inviteUser(unsigned int fromUser, unsigned int toUser, unsigned i
             return ALREADY_EXIST;
         }
 
+        // test if that same user is invited by the same host
+        if (invitationTable->select("*").where("board_id = :bid AND host = :hst AND guest = :gst").bind("bid", taskBoard_id).bind("hst", fromUser).bind("gst", toUser).execute().count() != 0){
+            return ALREADY_EXIST;
+        }
+
         invitationTable->insert("board_id", "host", "guest").values(taskBoard_id, fromUser, toUser).execute();
 
         return SUCCESS;

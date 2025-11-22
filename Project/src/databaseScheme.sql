@@ -59,7 +59,6 @@ CREATE TABLE Invitation (
     board_id INT NOT NULL,
     host INT NOT NULL,
     guest INT NOT NULL,
-    PRIMARY KEY (guest),
     FOREIGN KEY (board_id) REFERENCES TaskBoard(board_id)
         ON DELETE CASCADE,
     FOREIGN KEY (host) REFERENCES User(user_id) 
