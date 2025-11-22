@@ -282,8 +282,16 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
 
     function onLeaving(){
       if (confirm("Are you sure you want to leave this taskbaord?")){
-  removeUserFromBoard(state.user.userId, board.taskboard_id, state.user.userId).then(afterRemoveBoard);
+        removeUserFromBoard(state.user.userId, board.taskboard_id, state.user.userId).then(afterRemoveBoard);
       }
+    }
+
+    function sendInvitation(e){
+
+    }
+
+    function onChangeAdminStatus(e){
+
     }
 
     // pulse ACTIVE indicator briefly when task count changes
@@ -508,7 +516,7 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
               <DialogTitle>Manage Users</DialogTitle>
               <DialogContent>
                 <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                  <TextField fullWidth label="Add user by username" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
+                  <TextField fullWidth label="Add user by username" value={newUserName} onChange={sendInvitation} />
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <div className="fancy-btn small" role="button" onClick={() => { console.log('add user', newUserName); setNewUserName('') }}>
                       <div className="shadow" />
@@ -521,18 +529,20 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
                 {(board.users ?? []).map((m, idx) => (
                   <Paper key={idx} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, mb: 1, background: 'transparent' }}>
                     <Typography className="manage-user-name" sx={{ fontWeight: 700 }}>{m.username}</Typography>
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                      <div className="fancy-btn small" role="button" onClick={() => console.log('promote', m.username)}>
-                        <div className="shadow" />
-                        <div className="edge" />
-                        <div className="front">Promote</div>
-                      </div>
-                      <div className="fancy-btn small" role="button" onClick={() => console.log('remove', m.username)}>
-                        <div className="shadow" />
-                        <div className="edge" />
-                        <div className="front">Remove</div>
-                      </div>
-                    </Box>
+                    { m.userId != state.user.userId &&
+                      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <div className="fancy-btn small" role="button" onClick={() => console.log('promote', m.username)}>
+                          <div className="shadow" />
+                          <div className="edge" />
+                          <div className="front">{ m.isAdmin ? "Demote" : "Promote"}</div>
+                        </div>
+                        <div className="fancy-btn small" role="button" onClick={() => console.log('remove', m.username)}>
+                          <div className="shadow" />
+                          <div className="edge" />
+                          <div className="front">Remove</div>
+                        </div>
+                      </Box>
+                    }
                   </Paper>
                 ))}
               </DialogContent>
