@@ -641,6 +641,11 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
                       {m.isAdmin && <Chip label="Admin" size="small" className="chip-reward" style={{ background: '#bb00ffff', color: '#ffffffff', fontWeight: 700, boxShadow: '0 6px 18px rgba(59,7,16,0.08)' }} />}
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                      <Typography className="manage-user-name" sx={{ fontWeight: 700 }}>{m.username}</Typography>
+                      {m.isAdmin && <Chip label="Admin" size="small" className="chip-reward" style={{ background: '#bb00ffff', color: '#ffffffff', fontWeight: 700, boxShadow: '0 6px 18px rgba(59,7,16,0.08)' }} />}
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                      
                       <div className="fancy-btn small" role="button" onClick={(e) => onChangeAdminStatus(m)}>
                         <div className="shadow" />
                         <div className="edge" />
