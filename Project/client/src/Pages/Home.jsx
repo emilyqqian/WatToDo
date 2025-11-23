@@ -3,7 +3,9 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import {
   Box,
   Button,
-  Container,
+  Dialog,
+  DialogTitle,
+  DialogActions,
   Stack,
   Typography,
   Grid,
@@ -11,9 +13,10 @@ import {
 import { useGlobal } from '../SessionManager'
 import BoardSection from '../Components/BoardSection'
 import TaskboardDialog from '../Components/NewBoardDialogue'
-import { addTaskboard } from '../APIManager'
+import { addTaskboard, rejectInvitation, acceptInvitation, getInvitation, getTaskboards } from '../APIManager'
 import UserStats from '../Components/UserStats'
 import LeaderboardSidebar from '../Components/LeaderboardSidebar'
+import Invitation from '../Components/Invitation'
 
 function Home() {
   const { state, updateState } = useGlobal()
@@ -24,6 +27,8 @@ function Home() {
   }
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [invitationOpen, setInvitationOpen] = useState(false)
+  const [currentInvitation, setCurrentInvitation] = useState({taskboard: {name: ""}});
 
   const openDialog = () => setIsDialogOpen(true)
   const closeDialog = () => setIsDialogOpen(false)
@@ -49,9 +54,75 @@ function Home() {
     })
   }
 
+  function onInvitationClicked(invitation){
+    setCurrentInvitation(invitation)
+    setInvitationOpen(true);
+  } 
+
   const handleBoardClick = (board) => {
     updateState({ currentTaskBoard: board })
     navigate('/board')
+  }
+
+  function sort(a, b){
+
+        // if a task is already finished put it in the back
+        if ("finished_date" in a && "finished_date" in b){
+          return a.finished_date < b.finished_date;
+        }else if ("finished_date" in a){
+          return 1
+        } else if("finished_date" in b){
+          return -1
+        }
+
+        if (a.pinned === b.pinned){
+            if (a.due_date < b.due_date) return -1;
+            else if (a.due_date > b.due_date) return 1;
+            if (a.start_date < b.start_date) return -1;
+            else if (a.start_date > b.start_date)return 1;
+
+            return 0;
+        }
+        return a.pinned ? -1 : 1; 
+    }
+
+  function addTaskboards(data){
+    data = data != null && "taskboards" in data ? data.taskboards : [];
+    let privateBoards = []
+    let sharedBoards = []
+    console.dir(data, {depth:null})
+
+    for (let i = 0; i < data.length; i++){            
+      if (data[i].tasks === undefined) data[i].tasks = []
+      data[i].tasks.sort(sort)
+
+      if (data[i].users.length === 1){
+        data[i].isShared = false;
+        privateBoards.push(data[i])
+      } else{
+        data[i].isShared = true;
+        sharedBoards.push(data[i])
+      }
+    }
+
+    updateState({privateTaskboardList: privateBoards, sharedTaskboardList: sharedBoards})
+  }
+
+  function handleInvitationAccept(){
+    acceptInvitation(currentInvitation.inviter.user_id, state.user.userId, currentInvitation.taskboard.taskboard_id).then(data => {
+      if (data){
+        getTaskboards(state.user.userId).then(addTaskboards);
+        getInvitation(state.user.userId).then(data2 => updateState({ invitation: data2 }));
+        setInvitationOpen(false)
+      }
+    });
+  }
+
+  function handleInvitationDeny(){
+    rejectInvitation(state.user.userId, currentInvitation.taskboard.taskboard_id).then(data => {
+      getInvitation(state.user.userId).then(data2 => updateState({ invitation: data2 }));
+      setInvitationOpen(false)
+    })
   }
 
   // Calculate user level based on XP (100 XP per level)
@@ -117,6 +188,8 @@ function Home() {
               {/* User Stats Card at Top */}
               <UserStats user={state.user} userLevel={userLevel} />
 
+              <Invitation onClick={invitation => {onInvitationClicked(invitation)}}/>
+
               {/* Leaderboard */}
               <LeaderboardSidebar userId={state.user?.userId} />
             </Box>
@@ -130,6 +203,19 @@ function Home() {
         onClose={closeDialog}
         onSave={handleSaveBoard}
       />
+
+      <Dialog open={invitationOpen} onClose={() => setInvitationOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Do you want to accept the invitation to join {currentInvitation.taskboard.name} ?</DialogTitle>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+                <Button onClick={() => setInvitationOpen(false)}>Cancel</Button>
+                <Button variant="contained" onClick={handleInvitationAccept}>
+                  Accept
+                </Button>
+                <Button variant="contained" onClick={handleInvitationDeny}>
+                  Deny
+                </Button>
+              </DialogActions>
+      </Dialog>
     </Box>
   )
 }

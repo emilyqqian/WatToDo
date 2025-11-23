@@ -5,7 +5,8 @@ import SetPassword from "../Components/SetPassword";
 
 import {
   Container,
-  Button
+  Button,
+  Box
 } from '@mui/material'
 import SetUsername from "../Components/SetUsername";
 
@@ -22,7 +23,16 @@ function Profile() {
   }
 
   return (
-    <Container spacing={10} sx={{ml: '10%'}}>
+    <Box sx={{
+        minHeight: '100vh',
+        background: `linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)), url('/background.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        py: 0,
+        px: 2,
+        pl: '10%'
+      }}>
       <h1>My Profile: </h1>
       <p>
         <strong>Username:</strong> {state.user.username}
@@ -68,7 +78,7 @@ function Profile() {
         open={isUsernamePanelOpen}
         onClose={() => setUsernamePanelOpen(false)}
       />
-    </Container>
+    </Box>
   )
 }
 

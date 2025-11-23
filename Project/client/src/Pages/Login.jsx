@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { loginUser,getStringHashCode, getLeaderboard, getTaskboards } from '../APIManager'
+import { loginUser,getStringHashCode, getInvitation, getTaskboards } from '../APIManager'
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -7,6 +7,7 @@ import {
   TextField,
   Button,
   Link,
+  Box,
   Grid
 } from '@mui/material'
 import { useGlobal } from '../SessionManager';
@@ -25,6 +26,7 @@ function Login(){
                 data.password = getStringHashCode(password)
                 updateState({ user: data, loggedIn: true})
                 getTaskboards(data.userId).then(addTaskboards);
+                getInvitation(data.userId).then(data => updateState({ invitation: data }));
                 navigator('/')
             }
         });
@@ -53,7 +55,7 @@ function Login(){
     }
 
     function addTaskboards(data){
-        data = data.taskboards;
+        data = data != null && "taskboards" in data ? data.taskboards : [];
         let privateBoards = []
         let sharedBoards = []
         console.dir(data, {depth:null})
@@ -75,6 +77,15 @@ function Login(){
     }
 
     return (
+        <Box sx={{
+        minHeight: '92vh',
+        background: `linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)), url('/background.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        py: 0,
+        px: 2,
+      }}>
         <Container maxWidth="xs" sx={{ py: 6 }}>
         
             <Typography variant="h3" fontWeight={600} sx={{ mb: '10%' }}>
@@ -111,6 +122,7 @@ function Login(){
                 </Grid>
             </Grid>
         </Container>
+        </Box>
     )
 }
 

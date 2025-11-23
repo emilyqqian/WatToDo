@@ -72,6 +72,7 @@ export default function LeaderboardSidebar({ userId }) {
                 height: 'fit-content',
                 position: 'sticky',
                 top: '100px',
+                mb: 3,
                 boxShadow: '4px 4px 0px rgba(0, 0, 0, 0.15)',
             }}
         >

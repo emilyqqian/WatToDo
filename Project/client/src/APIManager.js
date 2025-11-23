@@ -290,7 +290,7 @@ export async function getTaskboards(user){
             alert("Internal Server Error")
             return null;
         default:
-            alert("An Unexpected Error Occurred: " + response.status)
+            alert("An Unexpected Error Occurred when getting taskboard: " + response.status)
             //console.error("An Unexpected Error Occurred: " + response.status)
             return null;
     }
@@ -605,6 +605,88 @@ export async function changeAdminStatus(board, target, newState, operator){
             return false;
         default:
             alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
+}
+
+/**
+ * @param {number} user user id
+ * @returns {Promise<
+ *      [
+ *          inviter : {
+ *              user_id: number,
+ *              username: string
+ *          }
+ *          taskboard: {
+ *              taskboard_id: number,
+ *              name: string
+ *          }
+ *      ]>}
+ */
+export async function getInvitation(user){
+    const response = await get('/users/' + user + '/invitations')
+
+    switch (response.status) {
+        case 201:
+        case 200:
+            const list = await response.json();
+            console.dir(list, {depth: null})
+            return (list != null && 'invitations' in list ? list.invitations : []);
+        case 500:
+            alert("Internal Server Error")
+            return null;
+        default:
+            alert("An Unexpected Error Occurred when getting invitation: " + response.status)
+            return null;
+    }
+}
+
+/**
+ * 
+ * @param {number} user user id
+ * @param {number} board board id
+ * @returns {Promise<boolean>} success
+ */
+export async function rejectInvitation(user, board){
+    const response = await get('/users/' + user + '/reject/' + board);
+
+    switch (response.status) {
+        case 201:
+        case 200:
+            return true;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred when rejecting: " + response.status)
+            return true;
+    }
+}
+
+/**
+ * 
+ * @param {number} host host id
+ * @param {number} guest guest id
+ * @param {number} board board id
+ * @returns {Promise<boolean>} success
+ */
+export async function acceptInvitation(host, guest, board){
+    const response = await post('/taskboards/' + board + '/users', {user_id: guest, host: host});
+    switch (response.status) {
+        case 201:
+        case 200:
+            return true;
+        case 404:
+        case 400:
+        case 403:
+        case 409:
+            response.json().then(data => alert(data.error))
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred when accepting: " + response.status)
             return false;
     }
 }
