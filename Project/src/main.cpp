@@ -565,6 +565,7 @@ int main() {
                 int i = 0;
                 for (const auto& taskboard : taskboards) {
                     // DO NOT CHANGE THIS!!!!! @Yash
+                    std::cout << "Recovered " << taskboard.tasklist.size() << " Tasks for " << taskboard.name << '\n';
                     response["taskboards"][i] = getTaskBoardJSON(taskboard);
                     i++;
                 }
@@ -736,7 +737,7 @@ int main() {
         }
     });
 
-    // Get User's Invitations
+    // reject Invitations
     CROW_ROUTE(app, "/users/<int>/reject/<int>")
     ([](const crow::request& req, int user_id, int board_id){
         std::cout << "rejecting invitation\n";
