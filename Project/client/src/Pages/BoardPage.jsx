@@ -452,11 +452,11 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
                           <Typography className="pixel-text" sx={{ color: '#fff', fontWeight: 700 }}>{task.title || 'Untitled'}</Typography>
                           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
                             <Chip label={`${task.reward ?? 20} XP`} size="small" className="chip-reward" style={{ background: '#fff700ff', color: '#000000ff', fontWeight: 700, boxShadow: '0 6px 18px rgba(59,7,16,0.08)' }} />
-                            <Chip icon={<CalendarTodayIcon />} label={task.due_date ?? 'TODAY'} size="small" className="chip-date" style={{ background: '#05f2fac1', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(29,78,216,0.08)' }} />
-                            {task.pinned && <Chip label="PINNED" size="small" className="chip-pinned" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
-                            {task.start_date > currentDate && <Chip label={"Starting On " + task.start_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
-                            {"finished_date" in task && <Chip label={"Finished On " + task.finished_date} size="small" style={{ background: '#43e69fff', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
-                            {!("finished_date" in task) && task.due_date < currentDate && <Chip label={"OVERDUE"} size="small" style={{ background: '#ff0000ff', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            <Chip icon={<CalendarTodayIcon />} label={task.due_date ?? 'TODAY'} size="small" className="chip-date" style={{ background: '#05f2fac1', color: '#000', fontWeight: 700, boxShadow: '0 6px 18px rgba(29,78,216,0.08)' }} />
+                            {task.pinned && <Chip label="PINNED" size="small" className="chip-pinned" style={{ background: '#5243e6', color: '#000', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {task.start_date > currentDate && <Chip label={"Starting On " + task.start_date} size="small" style={{ background: '#5243e6', color: '#000', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {"finished_date" in task && <Chip label={"Finished On " + task.finished_date} size="small" style={{ background: '#43e69fff', color: '#000', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {!("finished_date" in task) && task.due_date < currentDate && <Chip label={"OVERDUE"} size="small" style={{ background: '#ff0000ff', color: '#000', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
                           </Stack>
                         </Box>
                       </Stack>
@@ -499,11 +499,11 @@ import TaskboardDialog from '../Components/NewBoardDialogue'
                           <Typography className="pixel-text" sx={{ color: '#fff', fontWeight: 700 }}>{task.title || 'Untitled'}</Typography>
                           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
                             <Chip label={`${task.reward ?? 20} XP`} size="small" className="chip-reward" style={{ background: '#fff700ff', color: '#000000ff', fontWeight: 700, boxShadow: '0 6px 18px rgba(59,7,16,0.08)' }} />
-                            <Chip icon={<CalendarTodayIcon />} label={task.due_date ?? 'TODAY'} size="small" className="chip-date" style={{ background: '#05f2fac1', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(29,78,216,0.08)' }} />
-                            {task.pinned && <Chip label="PINNED" size="small" className="chip-pinned" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
-                            {task.start_date > currentDate && <Chip label={"Starting On " + task.start_date} size="small" style={{ background: '#5243e6', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
-                            {"finished_date" in task && <Chip label={"Finished On " + task.finished_date} size="small" style={{ background: '#43e69fff', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
-                            {!("finished_date" in task) && task.due_date < currentDate && <Chip label={"OVERDUE"} size="small" style={{ background: '#ff0000ff', color: '#fff', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            <Chip icon={<CalendarTodayIcon />} label={task.due_date ?? 'TODAY'} size="small" className="chip-date" style={{ background: '#05f2fac1', color: '#000', fontWeight: 700, boxShadow: '0 6px 18px rgba(29,78,216,0.08)' }} />
+                            {task.pinned && <Chip label="PINNED" size="small" className="chip-pinned" style={{ background: '#5243e6', color: '#000', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {task.start_date > currentDate && <Chip label={"Starting On " + task.start_date} size="small" style={{ background: '#5243e6', color: '#000', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {"finished_date" in task && <Chip label={"Finished On " + task.finished_date} size="small" style={{ background: '#43e69fff', color: '#000', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
+                            {!("finished_date" in task) && task.due_date < currentDate && <Chip label={"OVERDUE"} size="small" style={{ background: '#ff0000ff', color: '#000', fontWeight: 700, boxShadow: '0 6px 18px rgba(82,67,230,0.08)' }} />}
                           </Stack>
                         </Box>
                       </Stack>

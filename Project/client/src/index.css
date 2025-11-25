@@ -31,3 +31,47 @@ a {
 button {
   font: inherit;
 }
+
+/* ===== MUI DATE PICKER DARK STYLE ===== */
+
+/* Whole calendar popup background + text */
+.MuiPickersLayout-root,
+.MuiDayCalendar-root,
+.MuiPaper-root.MuiPickersPopper-paper {
+  background-color: #0A1121 !important;
+  color: #fff !important;
+}
+
+/* Every day cell: black circle + white text */
+.MuiPickersDay-root,
+.MuiPickersDay-day {
+  background-color: #000 !important;
+  color: #fff !important;
+  border-radius: 999px !important; /* keep it circular */
+}
+
+/* Selected day stays black/white */
+.MuiPickersDay-root.Mui-selected,
+.MuiPickersDay-day.Mui-selected {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+/* Hover also black/white */
+.MuiPickersDay-root:hover,
+.MuiPickersDay-day:hover {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+/* Make the calendar navigation arrows white */
+.MuiPickersArrowSwitcher-button svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+/* Month dropdown arrow */
+.MuiPickersCalendarHeader-switchViewButton svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
