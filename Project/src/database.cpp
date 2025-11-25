@@ -45,6 +45,7 @@ TaskBoard::TaskBoard(mysqlx::Row board){
 
     // get all tasks
     std::list<mysqlx::Row> tasks = taskTable->select("*").where("board_id = :bid").bind("bid", taskboard_id).execute().fetchAll();
+    std::cout << "Found " << tasks.size() << " Tasks for " << this->name << std::endl;
     for (mysqlx::Row task : tasks){
         // prepare user
         User user;
@@ -66,7 +67,9 @@ TaskBoard::TaskBoard(mysqlx::Row board){
 	    if (returnedTask.finished) returnedTask.finishedOn = date(task[7]);
 		returnedTask.pinned = task[8].get<bool>();
         this->tasklist.insert(returnedTask);
+        std::cout << "Inserted task " << returnedTask.title << '\n';
     }
+    std::cout << "Found " << this->tasklist.size() << " Tasks for " << this->name << std::endl;
 }
 
 void initDatabase() {
@@ -217,6 +220,7 @@ DatabaseResult addTask(unsigned int taskboard_id, Task& task, unsigned int perfo
 
         // check if we already have an identical task
         if (taskTable->select("*").where("board_id = :board_id and title = :title and type = :type").bind("board_id", taskboard_id).bind("title", task.title).bind("type", task.type).execute().count() != 0){
+            std::cout << "Already Exist!\n" << std::endl;
             return ALREADY_EXIST;
         }
 
@@ -264,18 +268,11 @@ DatabaseResult updateTask(Task task, unsigned int performed_by) {
         if (task.type.length() > 100) return NAME_OVERFLOW;
 
         // check time conflict
+        std::cout << "due: " << task.duedate.toString() << "start: " << task.startDate.toString() << "op: " << (task.duedate < task.startDate) << std::endl;
         if (task.duedate < task.startDate) return TIME_CONFLICT;
-        if (task.duedate < date()) return TIME_CONFLICT;
 
-		// check if assigned user is valid
         if (task.assigned) {
             if (userTable->select("*").where("user_id = :uid").bind("uid", task.assignedUser.userid).execute().count() != 1) return DOES_NOT_EXIST;
-        }
-
-        // check if finished date is valid
-        if (task.finished) {
-            if (task.finishedOn < task.startDate) return TIME_CONFLICT;
-			if (task.finishedOn < date()) return TIME_CONFLICT;
         }
 
 		// ensure that the task remain in the same taskboard
@@ -301,6 +298,7 @@ DatabaseResult updateTask(Task task, unsigned int performed_by) {
 DatabaseResult getTask(unsigned int task_id, Task &returnedTask) {
     try {
         // first check if we actually have that task
+        std::cout << "checking task " << task_id << std::endl;
         if (taskTable->select("*").where("task_id = :task_id").bind("task_id", task_id).execute().count() != 1) return DOES_NOT_EXIST;
 
 		mysqlx::Row row = taskTable->select("*").where("task_id = :task_id").bind("task_id", task_id).execute().fetchOne();
@@ -366,6 +364,7 @@ DatabaseResult getTaskBoardByUser(unsigned int user_id, std::vector<TaskBoard> &
         for (mysqlx::Row board : rows) {
             TaskBoard tb;
             getTaskBoardByID(board[0].get<unsigned int>(), tb);
+            std::cout << "Discovered " << tb.tasklist.size() << " Tasks for " << tb.name << '\n';
             returnedTaskList.push_back(tb);
         }
 
@@ -383,9 +382,9 @@ DatabaseResult createTaskBoard(unsigned int owner_id, std::string name, TaskBoar
     DatabaseResult result = getUser(owner_id, owner);
     if (result != SUCCESS) return result;
     createdTaskboard.name = name;
-    createdTaskboard.tasklist = std::set<Task>();
-    createdTaskboard.users = std::set<User>();
-    createdTaskboard.admins = std::set<User>();
+    createdTaskboard.tasklist = std::multiset<Task>();
+    createdTaskboard.users = std::multiset<User>();
+    createdTaskboard.admins = std::multiset<User>();
     createdTaskboard.users.insert(owner);
     createdTaskboard.admins.insert(owner);
 
@@ -519,7 +518,8 @@ DatabaseResult kickOutUserFromTaskboard(unsigned int user_id, unsigned int taskb
             return DOES_NOT_EXIST;
         }
 
-        DatabaseResult isValid = userPrivilegeCheck(performed_by, taskboard_id);
+        // kinda lazy to create a new function for 'user leaving taskboard'. Therefore, no privilege needed if users remove themselves
+        DatabaseResult isValid = userPrivilegeCheck(performed_by, taskboard_id, user_id != taskboard_id);
         if (isValid != SUCCESS) return isValid;
 
         // make sure the database has at least one member
@@ -565,6 +565,11 @@ DatabaseResult inviteUser(unsigned int fromUser, unsigned int toUser, unsigned i
 
         // test if that user is already in
         if (taskboardUserTable->select("*").where("user_id = :uid AND board_id = :bid").bind("uid", toUser).bind("bid", taskBoard_id).execute().count() != 0){
+            return ALREADY_EXIST;
+        }
+
+        // test if that same user is invited by the same host
+        if (invitationTable->select("*").where("board_id = :bid AND host = :hst AND guest = :gst").bind("bid", taskBoard_id).bind("hst", fromUser).bind("gst", toUser).execute().count() != 0){
             return ALREADY_EXIST;
         }
 

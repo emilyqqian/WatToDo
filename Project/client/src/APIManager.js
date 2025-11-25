@@ -129,15 +129,12 @@ async function loginUser(username, password) {
 * @returns bool
 */
 async function updateUser(user, id) {
-    console.log(user.xp_points)
-
     const response = await post('/updateuser/' + id, user, 'PUT');
 
     if (response === null) return null;
 
     switch (response.status) {
         case 200:
-            alert("Successfully Update User Information")
             return true;
         case 409:
             alert("Username Already Exist!")
@@ -158,7 +155,7 @@ async function updateUser(user, id) {
 * Get user by name. Returns user object on success, or null on failure
 * @param {string} name the name of the user to retrieve
 * @returns {Promise<{
-  "user_id": number,
+  "userId": number,
   "username": string,
   "xp_points": number
 }>} 
@@ -249,6 +246,7 @@ async function getLeaderboard(){
  *      {
  *          taskboard_id: number,
  *          name: string,
+ *          isShared: boolean, // will need to be added manually
  *          tasks: [
  *              {
  *                  task_id: number,
@@ -302,7 +300,9 @@ export async function getTaskboards(user){
  * Add taskboard to database
  * @param {string} name name of the taskboard
  * @param {number} owner id of owner
- * @returns {number} id of the taskboard
+ * @returns {Promise<{
+ * taskboard_id: number,
+ * }>} 
  */
 export async function addTaskboard(name, owner){
     const response = await post("/taskboards", {name:name, owner:owner});
@@ -327,6 +327,285 @@ export async function addTaskboard(name, owner){
             alert("An Unexpected Error Occurred: " + response.status)
             //console.error("An Unexpected Error Occurred: " + response.status)
             return null;
+    }
+}
+
+/**
+ * 
+ * @param {number} task taskId
+ * @param {number} operator the user performing this operation
+ * @returns {Promise<boolean>}}
+ */
+export async function deleteTask(task, operator){
+    const response = await post("/tasks/" + task, {operator: operator}, "DELETE")
+
+    if (response === null) {
+        alert("Unknown Error")
+        return false;
+    }
+
+    if (response.ok) return true
+
+    switch (response.status) {
+        case 200:
+            return true;
+        case 403:
+            alert("You do not have the permission to delete this task!")
+            return false;
+        case 404:
+            alert("task not found")
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
+}
+
+/**
+ * 
+ * @param {*} task task to add
+ * @param {*} board board to add
+ * @param {*} operator user who performed this action
+ * @returns {Promise<number>} the id of the new task
+ */
+export async function addTask(task, board, operator){
+    const response = await post('/addTask/' + board + '/' + operator, task)
+
+    if (response === null) {
+        alert("Unknown Error")
+        return -1;
+    }
+
+    switch (response.status) {
+        case 201:
+            return response.json();
+        case 403:
+            alert("You do not have the permission to add this task!")
+            return -1;
+        case 400:
+            //alert(response.json().error)
+            response.json().then(data => alert(data.error))
+            return -1;
+        case 500:
+            alert("Internal Server Error")
+            return -1;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return -1;
+    }
+}
+
+/**
+ * 
+ * @param {*} task task to add
+ * @param {*} operator user who performed this action
+ * @returns {Promise<boolean>} success
+ */
+export async function updateTask(task, operator){
+    const response = await post('/updateTask/' + task.task_id + '/' + operator, task, "PUT")
+
+    if (response === null) {
+        alert("Unknown Error")
+        return false;
+    }
+
+    switch (response.status) {
+        case 200:
+            return true;
+        case 403:
+            alert("You do not have the permission to add this task!")
+            return false;
+        case 404:
+        case 400:
+            response.json().then(data => alert(data.error))
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
+}
+
+/**
+ * 
+ * @param {number} user userid who performed this action
+ * @param {number} board the board id to be deleted
+ * @returns {Promise<boolean>} success
+ */
+export async function deleteBoard(user, board){
+    const response = await post('/taskboards/' + user + '/' + board, {}, "DELETE")
+
+    if (response === null) {
+        alert("Unknown Error")
+        return false;
+    }
+
+    switch (response.status) {
+        case 200:
+            return true;
+        case 403:
+            alert("You do not have the permission to delete this board!")
+            return false;
+        case 404:
+        case 400:
+            alert(response.json().error)
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
+}
+
+/**
+ * 
+ * @param {number} user userId of the user to be removed
+ * @param {number} board board id of the target taskboard
+ * @param {number} operator userid of the user who performed this action
+ * @returns {Promise<boolean>} success
+ */
+export async function removeUserFromBoard(user, board, operator){
+    const response = await post('/removeUserFromBoard/' + user + '/' + board + '/' + operator, {}, "DELETE")
+
+    if (response === null) {
+        alert("Unknown Error")
+        return false;
+    }
+
+    switch (response.status) {
+        case 200:
+            return true;
+        case 403:
+            alert("You do not have the permission to leave this board!")
+            return false;
+        case 404:
+        case 400:
+            alert(response.json().error)
+            return false;
+        case 409:
+            if(confirm("If you leave this taskboard, there will be no admins in this taskboard. Do you wish to delete this taskboard?")){
+                return deleteBoard(operator, board)
+            }
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
+}
+
+/**
+ * 
+ * @param {number} board board id
+ * @param {string} name new name
+ * @param {number} operator user id of the person who renamed the board
+ * @returns {Promise<boolean>} success
+ */
+export async function renameBoard(board, name, operator){
+    const response = await post('/taskboards/' + board + '/rename/' + operator, {name: name}, "PUT")
+
+    if (response === null) {
+        alert("Unknown Error")
+        return false;
+    }
+
+    switch (response.status) {
+        case 200:
+            return true;
+        case 403:
+            alert("You do not have the permission to leave this board!")
+            return false;
+        case 404:
+        case 400:
+            response.json().then(data => alert(data.error))
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
+}
+
+/**
+ * send invitation to guest to join the board
+ * 
+ * @param {number} board taskboard id
+ * @param {string} guest guest name
+ * @param {number} host id of the person who send the invitation
+ * @returns {Promise<boolean>} success
+ */
+export async function sendInvitation(board, guest, host){
+    const guestInfo = await getUserByName(guest);    
+    if (guestInfo == null) return false;
+
+    const response = await post('/taskboards/' + board + '/invite', { from: host, to: guestInfo.userId });
+    if (response === null) {
+        alert("Unknown Error")
+        return false;
+    }
+
+    switch (response.status) {
+        case 201:
+            return true;
+        case 403:
+            alert("You do not have the permission to send invitations!")
+            return false;
+        case 404:
+        case 400:
+        case 409:
+            response.json().then(data => alert(data.error))
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
+    }
+}
+
+
+/**
+ * promote or demote the target user
+ * 
+ * @param {number} board board id
+ * @param {number} target the person who needs to be promoted or demoted
+ * @param {boolean} newState new admin state
+ * @param {number} operator user id of the person who renamed the board
+ * @returns {Promise<boolean>} success
+ */
+export async function changeAdminStatus(board, target, newState, operator){
+    const response = await post('/taskboards/' + board + '/users/' + target + '/status', { is_admin: newState, user_id: operator}, 'PUT');
+
+    switch (response.status) {
+        case 201:
+        case 200:
+            return true;
+        case 403:
+            alert("You do not have the permission to change user statue!")
+            return false;
+        case 404:
+        case 400:
+        case 409:
+            response.json().then(data => alert(data.error))
+            return false;
+        case 500:
+            alert("Internal Server Error")
+            return false;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return false;
     }
 }
 

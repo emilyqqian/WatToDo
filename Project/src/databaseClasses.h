@@ -176,7 +176,9 @@ public:
 	}
 
     bool operator <(const Task& other) const {
-        if (this->duedate == other.duedate) return this->startDate < other.startDate;
+        if (this->duedate == other.duedate) {
+            return this->startDate < other.startDate;
+        }
         return this->duedate < other.duedate;
     }
 
@@ -189,9 +191,9 @@ class TaskBoard {
 public:
     unsigned int taskboard_id;
     std::string name;
-    std::set<Task> tasklist;
-    std::set<User> users;
-    std::set<User> admins;
+    std::multiset<Task> tasklist;
+    std::multiset<User> users;
+    std::multiset<User> admins;
 
     TaskBoard(){}
 

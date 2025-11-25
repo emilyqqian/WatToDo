@@ -27,13 +27,14 @@ crow::json::wvalue getTaskBoardJSON(TaskBoard taskboard){
         response["tasks"][task_index]["start_date"] = task.startDate.toString();
         response["tasks"][task_index]["due_date"] = task.duedate.toString();
         response["tasks"][task_index]["pinned"] = task.pinned;
-        if (task.finished) response["tasks"][task_index]["finished"] = task.finishedOn.toString();
+        response["tasks"][task_index]["finished"] = task.finished;
+        if (task.finished) response["tasks"][task_index]["finished_date"] = task.finishedOn.toString();
                     
         if (task.assigned) {
-            response["tasks"][task_index]["assigned_user"]["userId"] = task.assignedUser.userid;
-            response["tasks"][task_index]["assigned_user"]["username"] = task.assignedUser.username;
+            response["tasks"][task_index]["assignedUser"]["userId"] = task.assignedUser.userid;
+            response["tasks"][task_index]["assignedUser"]["username"] = task.assignedUser.username;
         } else {
-            response["tasks"][task_index]["assigned_user"] = nullptr;
+            response["tasks"][task_index]["assignedUser"] = nullptr;
         }
                     
         task_index++;
@@ -222,10 +223,12 @@ int main() {
      });
 
     // Add Task to Taskboard
-      CROW_ROUTE(app, "/taskboards/<int>/tasks").methods("POST"_method)
-      ([](const crow::request& req, int board_id){
+      CROW_ROUTE(app, "/addTask/<int>/<int>").methods("POST"_method)
+      ([](const crow::request& req, int board_id, int performed_by){
         try {
             auto json = crow::json::load(req.body);
+            crow::json::wvalue response;
+
             if (!json) {
                 crow::json::wvalue error;
                 error["error"] = "Invalid JSON";
@@ -258,11 +261,11 @@ int main() {
             task.finished = false;
 
             // For now, use a default user ID - you'll want to get this from authentication
-            unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
+            // fuck you
+            //unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
 
             DatabaseResult result = addTask(board_id, task, performed_by);
             
-            crow::json::wvalue response;
             switch(result) {
             case SUCCESS:
                 response["message"] = "Task created successfully";
@@ -279,7 +282,7 @@ int main() {
                 return crow::response(400, response);
             case ALREADY_EXIST:
                 response["error"] = "Task with same title and type already exists";
-                return crow::response(409, response);
+                return crow::response(400, response);
             default:
                 response["error"] = "Failed to create task";
                 return crow::response(500, response);
@@ -336,8 +339,8 @@ int main() {
     });
 
 // Update Task
-      CROW_ROUTE(app, "/tasks/<int>").methods("PUT"_method)
-      ([](const crow::request& req, int task_id){
+      CROW_ROUTE(app, "/updateTask/<int>/<int>").methods("PUT"_method)
+      ([](const crow::request& req, int task_id, int performed_by){
         try {
             auto json = crow::json::load(req.body);
             if (!json) {
@@ -379,7 +382,7 @@ int main() {
             }
             
             // Handle completion
-            if (json.has("finished")) {
+            if (json.has("finished") && !existingTask.finished) {
                 existingTask.finished = json["finished"].b();
                 if (existingTask.finished) {
                     existingTask.finishedOn = date(); // current date
@@ -387,7 +390,8 @@ int main() {
             }
 
             // For now, use a default user ID
-            unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
+            // Fuck you
+            //unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
 
             DatabaseResult result = updateTask(existingTask, performed_by);
             
@@ -424,7 +428,9 @@ int main() {
       ([](const crow::request& req, int task_id){
         try {
                 // For now, use a default user ID
-                unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
+                //unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
+
+                unsigned int performed_by = crow::json::load(req.body)["operator"].i();
 
                 DatabaseResult result = deleteTask(task_id, performed_by);
                 
@@ -558,10 +564,9 @@ int main() {
                 crow::json::wvalue response;
                 int i = 0;
                 for (const auto& taskboard : taskboards) {
-                    response["taskboards"][i]["taskboard_id"] = taskboard.taskboard_id;
-                    response["taskboards"][i]["name"] = taskboard.name;
-                    response["taskboards"][i]["user_count"] = taskboard.users.size();
-                    response["taskboards"][i]["task_count"] = taskboard.tasklist.size();
+                    // DO NOT CHANGE THIS!!!!! @Yash
+                    std::cout << "Recovered " << taskboard.tasklist.size() << " Tasks for " << taskboard.name << '\n';
+                    response["taskboards"][i] = getTaskBoardJSON(taskboard);
                     i++;
                 }
                 return crow::response(200, response);
@@ -578,8 +583,8 @@ int main() {
     });
 
 // Rename Taskboard
-      CROW_ROUTE(app, "/taskboards/<int>/rename").methods("PUT"_method)
-      ([](const crow::request& req, int taskboard_id){
+      CROW_ROUTE(app, "/taskboards/<int>/rename/<int>").methods("PUT"_method)
+      ([](const crow::request& req, int taskboard_id, int performed_by){
         try {
             auto json = crow::json::load(req.body);
             if (!json) {
@@ -587,11 +592,11 @@ int main() {
                 error["error"] = "Invalid JSON";
                 return crow::response(400, error);
             }
-            
+
             std::string new_name = json["name"].s();
             
             // For now, use a default user ID
-            unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
+            //unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
 
             DatabaseResult result = renameTaskBoard(taskboard_id, new_name, performed_by);
             
@@ -616,16 +621,15 @@ int main() {
         } catch (const std::exception& e) {
             crow::json::wvalue error;
             error["error"] = "Server error";
+            std::cout << "exception: " << e.what() << "\n";
             return crow::response(500, error);
         }
     });
 
 // Delete Taskboard
-      CROW_ROUTE(app, "/taskboards/<int>").methods("DELETE"_method)
-      ([](const crow::request& req, int taskboard_id){
+      CROW_ROUTE(app, "/taskboards/<int>/<int>").methods("DELETE"_method)
+      ([](const crow::request& req, int taskboard_id, int performed_by){
         try {
-            // For now, use a default user ID
-            unsigned int performed_by = 1; // TODO: Replace with actual user ID from auth
 
             DatabaseResult result = deleteTaskBoard(taskboard_id, performed_by);
             
@@ -650,10 +654,196 @@ int main() {
             return crow::response(500, error);
         }
     });
+
+    // Update User Status in Taskboard (Make Admin/Remove Admin)
+    CROW_ROUTE(app, "/taskboards/<int>/users/<int>/status").methods("PUT"_method)
+    ([](const crow::request& req, int taskboard_id, int user_id){
+        try {
+            auto json = crow::json::load(req.body);
+            if (!json) {
+                crow::json::wvalue error;
+                error["error"] = "Invalid JSON";
+                return crow::response(400, error);
+            }
+            
+            bool isAdmin = json["is_admin"].b();
+            unsigned int performed_by = json["user_id"].i();
+
+            DatabaseResult result = updateUserStatus(user_id, taskboard_id, isAdmin, performed_by);
+            
+            crow::json::wvalue response;
+            switch(result) {
+                case SUCCESS:
+                    response["message"] = "User status updated successfully";
+                    return crow::response(200, response);
+                case USER_ACCESS_DENINED:
+                    response["error"] = "Access denied to taskboard";
+                    return crow::response(403, response);
+                case DOES_NOT_EXIST:
+                    response["error"] = "User or taskboard not found";
+                    return crow::response(404, response);
+                case USER_CONFLICT:
+                    response["error"] = "Cannot remove the last admin";
+                    return crow::response(409, response);
+                default:
+                    response["error"] = "Failed to update user status";
+                    return crow::response(500, response);
+            }
+        } catch (const std::exception& e) {
+            crow::json::wvalue error;
+            error["error"] = "Server error";
+            return crow::response(500, error);
+        }
+    });
+
+    // Add User to Taskboard
+    CROW_ROUTE(app, "/taskboards/<int>/users").methods("POST"_method)
+    ([](const crow::request& req, int taskboard_id){
+        try {
+            auto json = crow::json::load(req.body);
+            if (!json) {
+                crow::json::wvalue error;
+                error["error"] = "Invalid JSON";
+                return crow::response(400, error);
+            }
+            
+            unsigned int user_id = json["user_id"].i();
+            unsigned int performed_by = json["host"].i();
+
+            DatabaseResult result = addUserToTaskboard(user_id, taskboard_id, performed_by);
+            
+            crow::json::wvalue response;
+            switch(result) {
+                case SUCCESS:
+                    response["message"] = "User added to taskboard successfully";
+                    return crow::response(200, response);
+                case USER_ACCESS_DENINED:
+                    response["error"] = "Access denied or user not invited";
+                    return crow::response(403, response);
+                case ALREADY_EXIST:
+                    response["error"] = "User already in taskboard";
+                    return crow::response(409, response);
+                case DOES_NOT_EXIST:
+                    response["error"] = "User or taskboard not found";
+                    return crow::response(404, response);
+                default:
+                    response["error"] = "Failed to add user to taskboard";
+                    return crow::response(500, response);
+            }
+        } catch (const std::exception& e) {
+            crow::json::wvalue error;
+            error["error"] = "Server error";
+            return crow::response(500, error);
+        }
+    });
+
+    // Invite User to Taskboard
+    CROW_ROUTE(app, "/taskboards/<int>/invite").methods("POST"_method)
+    ([](const crow::request& req, int taskboard_id){
+        try {
+            auto json = crow::json::load(req.body);
+            if (!json) {
+                crow::json::wvalue error;
+                error["error"] = "Invalid JSON";
+                return crow::response(400, error);
+            }
+            
+            unsigned int to_user_id = json["to"].i();
+            unsigned int from_user_id = json["from"].i();
+
+            DatabaseResult result = inviteUser(from_user_id, to_user_id, taskboard_id);
+            
+            crow::json::wvalue response;
+            switch(result) {
+                case SUCCESS:
+                    response["message"] = "Invitation sent successfully";
+                    return crow::response(201, response);
+                case USER_ACCESS_DENINED:
+                    response["error"] = "Access denied to taskboard";
+                    return crow::response(403, response);
+                case ALREADY_EXIST:
+                    response["error"] = "User already in taskboard or have already been invited by your";
+                    return crow::response(409, response);
+                case DOES_NOT_EXIST:
+                    response["error"] = "User or taskboard not found";
+                    return crow::response(404, response);
+                default:
+                    response["error"] = "Failed to send invitation";
+                    return crow::response(500, response);
+            }
+        } catch (const std::exception& e) {
+            crow::json::wvalue error;
+            error["error"] = "Server error";
+            return crow::response(500, error);
+        }
+    });
+
+    // Get User's Invitations
+    CROW_ROUTE(app, "/users/<int>/invitations")
+    ([](int user_id){
+        try {
+            std::unordered_multimap<User, TaskBoard, UserHasher> invitations;
+            DatabaseResult result = getAllInvitation(user_id, invitations);
+            
+            if (result == SUCCESS) {
+                crow::json::wvalue response;
+                int i = 0;
+                for (const auto& [inviter, taskboard] : invitations) {
+                    response["invitations"][i]["inviter"]["user_id"] = inviter.userid;
+                    response["invitations"][i]["inviter"]["username"] = inviter.username;
+                    response["invitations"][i]["taskboard"]["taskboard_id"] = taskboard.taskboard_id;
+                    response["invitations"][i]["taskboard"]["name"] = taskboard.name;
+                    i++;
+                }
+                return crow::response(200, response);
+            } else {
+                crow::json::wvalue error;
+                error["error"] = "Failed to get invitations";
+                return crow::response(500, error);
+            }
+        } catch (const std::exception& e) {
+            crow::json::wvalue error;
+            error["error"] = "Server error";
+            return crow::response(500, error);
+        }
+    });
+
+
     // Test endpoint
       CROW_ROUTE(app, "/test")([](){
         return "Crow server is running with complete user management!";
     });
+
+    CROW_ROUTE(app, "/removeUserFromBoard/<int>/<int>/<int>").methods("DELETE"_method)
+      ([](const crow::request& req, int user, int taskboard_id, int performer){
+        try {
+
+            DatabaseResult res = kickOutUserFromTaskboard(user, taskboard_id, performer);
+            
+            crow::json::wvalue response;
+            switch(res) {
+            case SUCCESS:
+                response["message"] = "deleted successfully";
+                return crow::response(200, response);
+            case USER_ACCESS_DENINED:
+                response["error"] = "Access denied to taskboard";
+                return crow::response(403, response);
+            case DOES_NOT_EXIST:
+                response["error"] = "User not found";
+                return crow::response(404, response);
+            case USER_CONFLICT:
+                response["error"] = "User Conflict";
+                return crow::response(409, response);
+            default:
+                response["error"] = "Server Error";
+                return crow::response(500, response);
+            }
+        } catch (const std::exception& e) {
+            crow::json::wvalue error;
+            error["error"] = "Server error";
+            return crow::response(500, error);
+        }
+      });
 
       std::cout << "Starting WatToDo backend server on port 18080..." << std::endl;
       std::cout << "CORS enabled for React frontend (localhost:3000)" << std::endl;

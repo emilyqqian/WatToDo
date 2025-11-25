@@ -30,14 +30,38 @@ function Login(){
         });
     }
 
+    function sort(a, b){
+
+        // if a task is already finished put it in the back
+        if ("finished_date" in a && "finished_date" in b){
+          return a.finished_date < b.finished_date;
+        }else if ("finished_date" in a){
+          return 1
+        } else if("finished_date" in b){
+          return -1
+        }
+
+        if (a.pinned === b.pinned){
+            if (a.due_date < b.due_date) return -1;
+            else if (a.due_date > b.due_date) return 1;
+            if (a.start_date < b.start_date) return -1;
+            else if (a.start_date > b.start_date)return 1;
+
+            return 0;
+        }
+        return a.pinned ? -1 : 1; 
+    }
+
     function addTaskboards(data){
         data = data.taskboards;
         let privateBoards = []
         let sharedBoards = []
+        console.dir(data, {depth:null})
 
-        console.dir(data, {depth: null})
+        for (let i = 0; i < data.length; i++){            
+            if (data[i].tasks === undefined) data[i].tasks = []
+            data[i].tasks.sort(sort)
 
-        for (let i = 0; i < data.length; i++){
             if (data[i].users.length === 1){
                 data[i].isShared = false;
                 privateBoards.push(data[i])
@@ -46,8 +70,6 @@ function Login(){
                 sharedBoards.push(data[i])
             }
         }
-
-        console.dir(privateBoards, {depth:null})
 
         updateState({privateTaskboardList: privateBoards, sharedTaskboardList: sharedBoards})
     }
@@ -77,12 +99,12 @@ function Login(){
                 sx={{mb: '5%'}}
             />
             <Grid container justifyContent="space-between">
-                <Grid item>
+                <Grid>
                     <Link href="/register">
                         Register New Account
                     </Link>
                 </Grid>
-                <Grid item>
+                <Grid>
                     <Button variant="contained" onClick={handleLogin}>
                         Login
                     </Button>
