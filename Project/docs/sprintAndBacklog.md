@@ -1,11 +1,4 @@
 # Backlogs:
-- Add/Update task use case
-- register/login user use case
-- show tasks use case
-- add taskboard use case
-- invite user use case
-- promote/demote user use case
-
 # Sprints:
 
 ## Sprints 1 (Oct 28 - Nov 4):
@@ -42,9 +35,10 @@
 - Sort tasks acording to pinned statues and duedate - Sam
 
 # Sprints 5 (Nov 25 - Dec 2):
-- Define promote/demote member use case
-- Implement promote/demote member use case
-- Define register user use case
-- Implement register user use case
-- Define update user info use case
-- Implement update user info use case
+- Authentication system - Sam
+- Calender/Assign user ui bugfix - Sam
+- User Manual - Yash
+- Video Demo - Everytime Thursday (After Calc)
+- Video Editing - Harsh & Jaite
+- Sprint Retrospective (for all) - Emily
+- README & Setup guide - Yash &  Emily
