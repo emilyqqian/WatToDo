@@ -9,7 +9,8 @@ export function GlobalProvider({ children }) {
     loggedIn: false,
     privateTaskboardList: [],
     sharedTaskboardList: [],
-    currentTaskBoard: null
+    currentTaskBoard: null,
+    invitation: []
   });
 
   const updateState = (partial) =>

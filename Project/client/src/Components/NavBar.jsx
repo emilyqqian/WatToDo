@@ -14,10 +14,14 @@ function NavBar() {
   return (
     <AppBar
       position="sticky"
-      elevation={8}
+      elevation={0}
       sx={{
-        background: 'linear-gradient(120deg, #1d3557 0%, #457b9d 50%, #a8dadc 100%)',
+        background: '#9ca4c6e4',
+        backdropFilter: 'none',
+        border: 'none',
+        borderRadius: '0px',
         color: 'common.white',
+        boxShadow: 'none',
       }}
     >
       <Container maxWidth="lg">

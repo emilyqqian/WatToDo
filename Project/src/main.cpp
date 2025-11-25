@@ -737,6 +737,30 @@ int main() {
         }
     });
 
+    // reject Invitations
+    CROW_ROUTE(app, "/users/<int>/reject/<int>")
+    ([](const crow::request& req, int user_id, int board_id){
+        std::cout << "rejecting invitation\n";
+
+        try {
+            DatabaseResult result = rejectInvitation(user_id, board_id);
+            
+            if (result == SUCCESS) {
+                crow::json::wvalue response;
+                response["message"] = "Success";
+                return crow::response(200, response);
+            } else {
+                crow::json::wvalue error;
+                error["error"] = "Failed to get invitations";
+                return crow::response(500, error);
+            }
+        } catch (const std::exception& e) {
+            crow::json::wvalue error;
+            error["error"] = "Server error";
+            return crow::response(500, error);
+        }
+    });
+
     // Invite User to Taskboard
     CROW_ROUTE(app, "/taskboards/<int>/invite").methods("POST"_method)
     ([](const crow::request& req, int taskboard_id){
@@ -780,7 +804,7 @@ int main() {
 
     // Get User's Invitations
     CROW_ROUTE(app, "/users/<int>/invitations")
-    ([](int user_id){
+    ([](const crow::request& req, int user_id){
         try {
             std::unordered_multimap<User, TaskBoard, UserHasher> invitations;
             DatabaseResult result = getAllInvitation(user_id, invitations);

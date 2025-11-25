@@ -3,14 +3,20 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import {
   Box,
   Button,
-  Container,
+  Dialog,
+  DialogTitle,
+  DialogActions,
   Stack,
   Typography,
+  Grid,
 } from '@mui/material'
 import { useGlobal } from '../SessionManager'
 import BoardSection from '../Components/BoardSection'
 import TaskboardDialog from '../Components/NewBoardDialogue'
-import { addTaskboard } from '../APIManager'
+import { addTaskboard, rejectInvitation, acceptInvitation, getInvitation, getTaskboards } from '../APIManager'
+import UserStats from '../Components/UserStats'
+import LeaderboardSidebar from '../Components/LeaderboardSidebar'
+import Invitation from '../Components/Invitation'
 
 function Home() {
   const { state, updateState } = useGlobal()
@@ -21,6 +27,8 @@ function Home() {
   }
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [invitationOpen, setInvitationOpen] = useState(false)
+  const [currentInvitation, setCurrentInvitation] = useState({taskboard: {name: ""}});
 
   const openDialog = () => setIsDialogOpen(true)
   const closeDialog = () => setIsDialogOpen(false)
@@ -42,56 +50,152 @@ function Home() {
           }
         ]
       })
-      updateState({privateTaskboardList: tmp})
+      updateState({ privateTaskboardList: tmp })
     })
   }
+
+  function onInvitationClicked(invitation){
+    setCurrentInvitation(invitation)
+    setInvitationOpen(true);
+  } 
 
   const handleBoardClick = (board) => {
     updateState({ currentTaskBoard: board })
     navigate('/board')
   }
 
-  return (
-    <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Stack spacing={6}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
-            justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start', md: 'center' },
-            gap: 2,
-          }}
-        >
-          <Box>
-            <Typography variant="h3" fontWeight={700}>
-              Wat to Do Dashboard
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-              Organize your personal focus and collaborate on shared priorities.
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            size="large"
-            onClick={openDialog}
-            sx={{ alignSelf: { xs: 'stretch', md: 'center' } }}
-          >
-            + New Board
-          </Button>
-        </Box>
+  function sort(a, b){
 
-        <BoardSection
-          title="Personal Task Boards"
-          boards={state.privateTaskboardList}
-          onBoardClick={handleBoardClick}
-        />
-        <BoardSection
-          title="Shared Task Boards"
-          boards={state.sharedTaskboardList}
-          onBoardClick={handleBoardClick}
-        />
-      </Stack>
+        // if a task is already finished put it in the back
+        if ("finished_date" in a && "finished_date" in b){
+          return a.finished_date < b.finished_date;
+        }else if ("finished_date" in a){
+          return 1
+        } else if("finished_date" in b){
+          return -1
+        }
+
+        if (a.pinned === b.pinned){
+            if (a.due_date < b.due_date) return -1;
+            else if (a.due_date > b.due_date) return 1;
+            if (a.start_date < b.start_date) return -1;
+            else if (a.start_date > b.start_date)return 1;
+
+            return 0;
+        }
+        return a.pinned ? -1 : 1; 
+    }
+
+  function addTaskboards(data){
+    data = data != null && "taskboards" in data ? data.taskboards : [];
+    let privateBoards = []
+    let sharedBoards = []
+    console.dir(data, {depth:null})
+
+    for (let i = 0; i < data.length; i++){            
+      if (data[i].tasks === undefined) data[i].tasks = []
+      data[i].tasks.sort(sort)
+
+      if (data[i].users.length === 1){
+        data[i].isShared = false;
+        privateBoards.push(data[i])
+      } else{
+        data[i].isShared = true;
+        sharedBoards.push(data[i])
+      }
+    }
+
+    updateState({privateTaskboardList: privateBoards, sharedTaskboardList: sharedBoards})
+  }
+
+  function handleInvitationAccept(){
+    acceptInvitation(currentInvitation.inviter.user_id, state.user.userId, currentInvitation.taskboard.taskboard_id).then(data => {
+      if (data){
+        getTaskboards(state.user.userId).then(addTaskboards);
+        getInvitation(state.user.userId).then(data2 => updateState({ invitation: data2 }));
+        setInvitationOpen(false)
+      }
+    });
+  }
+
+  function handleInvitationDeny(){
+    rejectInvitation(state.user.userId, currentInvitation.taskboard.taskboard_id).then(data => {
+      getInvitation(state.user.userId).then(data2 => updateState({ invitation: data2 }));
+      setInvitationOpen(false)
+    })
+  }
+
+  // Calculate user level based on XP (100 XP per level)
+  const userLevel = Math.floor((state.user?.xp_points || 0) / 100) + 1
+
+  return (
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: `linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)), url('/background.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        py: 0,
+        px: 2,
+      }}
+    >
+      <Box sx={{ maxWidth: '1400px', mx: 'auto', pt: 3, px: 2 }}>
+        <Grid container spacing={3} sx={{ display: 'flex', flexWrap: 'nowrap' }}>
+          {/* Main Content - Takes up remaining space */}
+          <Grid item sx={{ flex: 1, minWidth: 0 }}>
+            <Stack spacing={3}>
+              {/* Hero Section - No Box */}
+              <Box>
+                <Typography variant="h4" fontWeight={700} sx={{ mb: 1, fontSize: '2rem' }}>
+                  Welcome back, {state.user?.username}!
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                  You're on Level {userLevel}. Keep building your productivity streak!
+                </Typography>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={openDialog}
+                  sx={{
+                    background: 'linear-gradient(135deg, #c5bed6ff 0%, #b5b3cbff 100%)',
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  Create New Board
+                </Button>
+              </Box>
+
+              {/* Boards Section */}
+              <BoardSection
+                title="Personal Task Boards"
+                boards={state.privateTaskboardList}
+                onBoardClick={handleBoardClick}
+              />
+              <BoardSection
+                title="Shared Task Boards"
+                boards={state.sharedTaskboardList}
+                onBoardClick={handleBoardClick}
+              />
+            </Stack>
+          </Grid>
+
+          {/* Leaderboard - Right Side Fixed Width */}
+          <Grid item sx={{ width: '300px', flexShrink: 0 }}>
+            <Box sx={{ position: 'sticky', top: '100px' }}>
+              {/* User Stats Card at Top */}
+              <UserStats user={state.user} userLevel={userLevel} />
+
+              <Invitation onClick={invitation => {onInvitationClicked(invitation)}}/>
+
+              {/* Leaderboard */}
+              <LeaderboardSidebar userId={state.user?.userId} />
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
 
       <TaskboardDialog
         open={isDialogOpen}
@@ -99,7 +203,20 @@ function Home() {
         onClose={closeDialog}
         onSave={handleSaveBoard}
       />
-    </Container>
+
+      <Dialog open={invitationOpen} onClose={() => setInvitationOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Do you want to accept the invitation to join {currentInvitation.taskboard.name} ?</DialogTitle>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+                <Button onClick={() => setInvitationOpen(false)}>Cancel</Button>
+                <Button variant="contained" onClick={handleInvitationAccept}>
+                  Accept
+                </Button>
+                <Button variant="contained" onClick={handleInvitationDeny}>
+                  Deny
+                </Button>
+              </DialogActions>
+      </Dialog>
+    </Box>
   )
 }
 
