@@ -9,17 +9,27 @@ import {
   Box
 } from '@mui/material'
 import SetUsername from "../Components/SetUsername";
+import { logout } from "../APIManager";
+import { useNavigate } from 'react-router-dom';
 
 function Profile() {
-  const { state } = useGlobal();
+  const { state, updateState } = useGlobal();
 
   const [isUsernamePanelOpen, setUsernamePanelOpen] = useState(false)
   const [isPasswordPanelOpen, setPasswordPanelOpen] = useState(false)
+
+  const navigator = useNavigate();
 
   if (!state.loggedIn) {
       return (
         <Navigate to="/login" replace />
       )
+  }
+
+  function onLogOut(){
+    logout(state.user.userId);
+    updateState({ loggedIn: false, user: null })
+    navigator('/')
   }
 
   return (
@@ -78,6 +88,17 @@ function Profile() {
         open={isUsernamePanelOpen}
         onClose={() => setUsernamePanelOpen(false)}
       />
+
+      <p>
+        <Button
+          variant="contained"
+          size="medium"
+          onClick={onLogOut}
+          sx={{ alignSelf: { xs: 'stretch', md: 'center' } }}
+        >
+          Logout
+        </Button>
+      </p>
     </Box>
   )
 }

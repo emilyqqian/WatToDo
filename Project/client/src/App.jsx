@@ -7,8 +7,14 @@ import NavBar from './Components/NavBar.jsx'
 import Login from './Pages/Login.jsx'
 import Register from './Pages/Register.jsx'
 import BoardPage from './Pages/BoardPage.jsx'
-import { GlobalProvider } from './SessionManager.jsx'
+import { GlobalProvider, useGlobal } from './SessionManager.jsx'
+import { setAuthToken } from './APIManager.js'
 
+function SetAuth(){
+  const { state } = useGlobal();
+  setAuthToken(state.authToken);
+  return (<div></div>);
+}
 
 function App() {
   return (
@@ -22,6 +28,7 @@ function App() {
             backgroundColor: 'background.default',
           }}
         >
+          <SetAuth />
           <NavBar />
           <Box
             component="main"
