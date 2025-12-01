@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { loginUser,getStringHashCode, getInvitation, getTaskboards } from '../APIManager'
+import { loginUser,getStringHashCode, getInvitation, getTaskboards, setAuthToken, tryLogin } from '../APIManager'
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -16,15 +16,40 @@ function Login(){
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
-    const { updateState } = useGlobal();
+    const { state, updateState } = useGlobal();
 
     const navigator = useNavigate();
 
+    if (state.tryAutoLogin){
+        tryLogin().then(data => {
+            if (data == null){
+                updateState({tryAutoLogin: false});
+                return;
+            }
+
+            console.log("returned token: " + data.auth);
+            setAuthToken(data.auth);
+
+            data.password = getStringHashCode(password)
+            updateState({ user: data, loggedIn: true, authToken: data.auth})
+            getTaskboards(data.userId).then(addTaskboards);
+            getInvitation(data.userId).then(data => updateState({ invitation: data }));
+            navigator('/')
+        })
+
+        return (<h1>Loading...</h1>);
+    }
+
     function handleLogin(){
+        console.log("password hash: " + getStringHashCode(password))
+
         loginUser(username, password).then(data=>{
             if (data != null){
+                console.log("returned token: " + data.auth);
+                setAuthToken(data.auth);
+
                 data.password = getStringHashCode(password)
-                updateState({ user: data, loggedIn: true})
+                updateState({ user: data, loggedIn: true, authToken: data.auth})
                 getTaskboards(data.userId).then(addTaskboards);
                 getInvitation(data.userId).then(data => updateState({ invitation: data }));
                 navigator('/')

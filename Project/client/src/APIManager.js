@@ -5,14 +5,22 @@
  * @param {string} method HTTP method
  * @returns response object
  */
+let authToken = '';
+
+export function setAuthToken(token){
+    //console.log('Set Authentication Token To ' + token)
+    authToken = token;
+}
+
 async function post(url = '', data = {}, method = 'POST') {
     try {
-        const response = await fetch('http://127.0.0.1:18080' + url, {
-            method: method, // Specify HTTP method
+        const response = await fetch('http://localhost:18080' + url, {
+            method: method, 
             headers: {
-                "Content-Type": "application/json", // Tell server we're sending JSON
-                "Accept": "application/json"        // Expect JSON response
+                'Authorization': `Bearer ${authToken}`,
+                "Content-Type": "application/json", 
             },
+            //credentials: "include",
             body: JSON.stringify(data)
         });
 
@@ -31,13 +39,51 @@ async function post(url = '', data = {}, method = 'POST') {
  */
 async function get(url = '') {
     try {
-        const response = await fetch('http://127.0.0.1:18080' + url, { method: 'GET' });
+        const response = await fetch('http://127.0.0.1:18080' + url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+            },
+            //credentials: "include"
+        });
 
         return response;
     } catch (err) {
         console.error('Failed to fetch API:', err)
         alert("An Internal Error Occurred: " + err.message)
         return null;
+    }
+}
+
+/**
+ * Creates a new user in the database. Returns true on success
+ * @returns {Promise<{
+ *  username: string, 
+ *  password: number,
+ *  xp: number,
+ *  userId: number
+ *  auth: number
+ * }>} indicating success
+ */
+export async function tryLogin(){
+    const response = await post('/auto-login');
+
+    if (response === null) return null;
+
+    switch (response.status) {
+        case 200:
+            return await response.json();
+        case 401:
+        case 404:
+        case 403:
+            console.log('invalid token, auto-login failed')
+            return null
+        case 500:
+            alert("Internal Server Error")
+            return null;
+        default:
+            alert("An Unexpected Error Occurred: " + response.status)
+            return null;
     }
 }
 
@@ -93,6 +139,7 @@ export function getStringHashCode(s) {
   "password": number,
   "xp": number,
   "userId": number
+  "auth": number
 }>} indicating success
  */
 async function loginUser(username, password) {
@@ -689,6 +736,14 @@ export async function acceptInvitation(host, guest, board){
             alert("An Unexpected Error Occurred when accepting: " + response.status)
             return false;
     }
+}
+
+/**
+ * 
+ * @param {number} userId user id
+ */
+export async function logout (userId){
+    post('/logout/' + userId);
 }
 
 export {registerUser, loginUser, updateUser, getUserByID, getUserByName, getLeaderboard};

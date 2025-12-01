@@ -1,8 +1,34 @@
 #include <crow.h>
 #include <crow/middlewares/cors.h>
+#include "crow/middlewares/cookie_parser.h"
 #include <iostream>
 #include "database.h"
+#include <cstdlib>
+#include <unordered_map>
 
+std::unordered_map<std::string, int> sessions;
+
+int auth(const crow::request& req, int userId){
+    std::string token = req.get_header_value("Authorization");
+    if (token.length() < 8) {
+        std::cerr << "Auth Token Not Found In Header" << std::endl;
+        return 401;
+    }
+    token = token.substr(7);
+
+    if (sessions.find(token) == sessions.end()){
+        std::cerr << "Non-Existing Auth Token" << std::endl;
+        return 401;
+    }
+    if (sessions[token] != userId) {
+        std::cerr << "Incorrect Auth Token" << std::endl;
+        return 403;
+    }
+
+    std::cout << "Auth Successful\n";
+
+    return 0;
+}
 
 crow::json::wvalue getTaskBoardJSON(TaskBoard taskboard){
     crow::json::wvalue response;
@@ -43,22 +69,24 @@ crow::json::wvalue getTaskBoardJSON(TaskBoard taskboard){
 }
 
 int main() {
+    srand(time(0));
     std::cout << "Compiled with:" << std::endl;
     std::cout << "MYSQL_USER: " << MYSQL_USER << std::endl;
     std::cout << "MYSQL_DB_NAME: " << MYSQL_DB_NAME << std::endl;
     initDatabase();
     
     // Use CORS middleware
-    crow::App<crow::CORSHandler> app;
+    crow::App<crow::CORSHandler, crow::CookieParser> app;
 
     // Configure CORS for React development server
     auto& cors = app.get_middleware<crow::CORSHandler>();
-    
+
     cors
     .global()
-      .origin("*")//.origin("http://localhost:5173")  // React dev server
+      .origin("http://localhost:5173")  // React dev server
       .methods("GET"_method, "POST"_method, "PUT"_method, "DELETE"_method, "OPTIONS"_method)
-      .headers("Content-Type", "Authorization");
+      .headers("Content-Type", "Authorization")
+      .allow_credentials();
 
     // Complete Update user info endpoint with proper error handling
       CROW_ROUTE(app, "/updateuser/<int>").methods("PUT"_method)
@@ -95,9 +123,78 @@ int main() {
         return crow::response(500, "Server error");
     }
 });
+    CROW_ROUTE(app, "/logout/<int>").methods("POST"_method)
+    ([](const crow::request& req, int userId){
+        std::string token = req.get_header_value("Authorization");
+        if (token.length() < 8) {
+            std::cerr << "Auth Token Not Found In Header" << std::endl;
+            return crow::response(401, "Auth Token Not Found In Header");
+        }
+        token = token.substr(7);
+
+        if (sessions.find(token) == sessions.end()){
+            std::cerr << "Non-Existing Auth Token" << std::endl;
+            return crow::response(401, "Auth Token Does Not Exist");
+        }
+        if (sessions[token] != userId) {
+            std::cerr << "Incorrect Auth Token" << std::endl;
+            return crow::response(403, "Incorrect Auth Token");
+        }
+        std::cout << "Logout Successful\n";
+        sessions.erase(token);
+        return crow::response(200, "Logout Successful");
+    });
+
+      CROW_ROUTE(app, "/auto-login").methods("POST"_method)
+      ([&app](const crow::request& req){
+        try{
+            std::cout << "attempting to auto-login\n";
+
+            auto& ctx = app.get_context<crow::CookieParser>(req);
+
+            std::string cookieHeader = req.get_header_value("Cookie");
+            std::string token;
+
+            auto pos = cookieHeader.find("session_id=");
+            if (pos != std::string::npos) {
+                pos += strlen("session_id=");
+                auto end = cookieHeader.find(';', pos);
+                token = cookieHeader.substr(pos, end - pos);
+            }
+
+            // Check if a cookie exists
+            if (token.empty()) {
+                std::cout << "session id does not exist in cookie\n";
+                return crow::response(404, "Session Id Not Found");
+            }
+            
+            if (sessions.find(token) == sessions.end()){
+                std::cerr << "Invalid" << std::endl;
+                return crow::response(400, "Invalid Token");
+            }
+
+            User user;
+            DatabaseResult result = getUser(sessions[token], user);
+            
+            crow::json::wvalue response;
+            response["auth"] = token;
+            response["userId"] = user.userid;
+            response["username"] = user.username;
+            response["password"] = user.password;
+            response["xp_points"] = user.points;
+            response["xp"] = user.points;
+            std::cout << "Login Successful Using Cookie\n";
+
+            crow::response res = crow::response(200, response);
+            res.add_header("Set-Cookie", "session_id=" + token + "; Path=/; SameSite=None; HttpOnly");
+            return res;
+        }catch (const std::exception& e) {
+            return crow::response(500, "Server error");
+        }
+      });
 
       CROW_ROUTE(app, "/login").methods("POST"_method)
-      ([](const crow::request& req){
+      ([&app](const crow::request& req){
         try {
             auto json = crow::json::load(req.body);
             if (!json) return crow::response(400, "Invalid JSON");
@@ -111,16 +208,35 @@ int main() {
             switch(result) {
             case SUCCESS:
                     // who cares about password?
+                    // I cares about password
 
-                    //if (user.password == password){
-                if (true){
+                if (user.password == password){
+                //if (true){
+                    std::string sessionId = std::to_string(rand());
+                    sessions[sessionId] = user.userid;
+                    std::cout << "Created session " << sessionId << " for user " << user.userid << std::endl;
+
+                    //crow::CookieParser::Cookie myCookie("session_id", sessionId);
+                    //myCookie.max_age(3600 * 24 * 3); // Expires in 3 days
+                    //myCookie.path("/");
+                    //myCookie.secure(); // Only send over HTTPS
+                    //app.get_context<crow::CookieParser>(req).set_cookie(myCookie);
+                    //auto& ctx = app.get_context<crow::CookieParser>(req);
+                    //ctx.set_cookie("session_id", sessionId)
+                    //    .path("/")
+                    //    .max_age(3600); // Expires in 1 hour
+                    
+
                     crow::json::wvalue response;
+                    response["auth"] = sessionId;
                     response["userId"] = user.userid;
                     response["username"] = user.username;
                     response["password"] = user.password;
                     response["xp_points"] = user.points;
                     response["xp"] = user.points;
-                    return crow::response(200, response);
+                    crow::response res = crow::response(200, response);
+                    res.add_header("Set-Cookie", "session_id=" + sessionId + "; Path=/; SameSite=None; HttpOnly");
+                    return res;
                 }
                 else return crow::response(409, "Wrong Username or Password");
             case DOES_NOT_EXIST:
@@ -226,6 +342,14 @@ int main() {
       CROW_ROUTE(app, "/addTask/<int>/<int>").methods("POST"_method)
       ([](const crow::request& req, int board_id, int performed_by){
         try {
+
+            int authed = auth(req, performed_by);
+            if (authed){
+                crow::json::wvalue error;
+                error["error"] = "Authentication Failed";
+                return crow::response(authed, error);
+            }
+
             auto json = crow::json::load(req.body);
             crow::json::wvalue response;
 
@@ -342,6 +466,14 @@ int main() {
       CROW_ROUTE(app, "/updateTask/<int>/<int>").methods("PUT"_method)
       ([](const crow::request& req, int task_id, int performed_by){
         try {
+
+            int authed = auth(req, performed_by);
+            if (authed){
+                crow::json::wvalue error;
+                error["error"] = "Authentication Failed";
+                return crow::response(authed, error);
+            }
+
             auto json = crow::json::load(req.body);
             if (!json) {
                 crow::json::wvalue error;
@@ -432,6 +564,13 @@ int main() {
 
                 unsigned int performed_by = crow::json::load(req.body)["operator"].i();
 
+            int authed = auth(req, performed_by);
+            if (authed){
+                crow::json::wvalue error;
+                error["error"] = "Authentication Failed";
+                return crow::response(authed, error);
+            }
+
                 DatabaseResult result = deleteTask(task_id, performed_by);
                 
                 crow::json::wvalue response;
@@ -503,7 +642,14 @@ int main() {
             std::string name = json["name"].s();
             
             // For now, use a default user ID - you'll want to get this from authentication
-            unsigned int owner_id = 1; // TODO: Replace with actual user ID from auth
+            unsigned int owner_id = json["owner"].i();//1; // TODO: Replace with actual user ID from auth
+
+            int authed = auth(req, owner_id);
+            if (authed){
+                crow::json::wvalue error;
+                error["error"] = "Authentication Failed";
+                return crow::response(authed, error);
+            }
 
             TaskBoard createdTaskboard;
             DatabaseResult result = createTaskBoard(owner_id, name, createdTaskboard);
@@ -534,7 +680,7 @@ int main() {
 
 // Get Taskboard by ID
       CROW_ROUTE(app, "/taskboards/<int>")
-      ([](int taskboard_id){
+      ([](const crow::request& req, int taskboard_id){
         try {
             TaskBoard taskboard;
             DatabaseResult result = getTaskBoardByID(taskboard_id, taskboard);
@@ -555,8 +701,15 @@ int main() {
 
 // Get Taskboards for User
       CROW_ROUTE(app, "/users/<int>/taskboards")
-      ([](int user_id){
+      ([](const crow::request& req, int user_id){
         try {
+            int authed = auth(req, user_id);
+            if (authed){
+                crow::json::wvalue error;
+                error["error"] = "Authentication Failed";
+                return crow::response(authed, error);
+            }
+
             std::vector<TaskBoard> taskboards;
             DatabaseResult result = getTaskBoardByUser(user_id, taskboards);
             
@@ -586,6 +739,13 @@ int main() {
       CROW_ROUTE(app, "/taskboards/<int>/rename/<int>").methods("PUT"_method)
       ([](const crow::request& req, int taskboard_id, int performed_by){
         try {
+            int authed = auth(req, performed_by);
+            if (authed){
+                crow::json::wvalue error;
+                error["error"] = "Authentication Failed";
+                return crow::response(authed, error);
+            }
+
             auto json = crow::json::load(req.body);
             if (!json) {
                 crow::json::wvalue error;
@@ -630,6 +790,12 @@ int main() {
       CROW_ROUTE(app, "/taskboards/<int>/<int>").methods("DELETE"_method)
       ([](const crow::request& req, int taskboard_id, int performed_by){
         try {
+            int authed = auth(req, performed_by);
+            if (authed){
+                crow::json::wvalue error;
+                error["error"] = "Authentication Failed";
+                return crow::response(authed, error);
+            }
 
             DatabaseResult result = deleteTaskBoard(taskboard_id, performed_by);
             
@@ -659,6 +825,13 @@ int main() {
     CROW_ROUTE(app, "/taskboards/<int>/users/<int>/status").methods("PUT"_method)
     ([](const crow::request& req, int taskboard_id, int user_id){
         try {
+            int authed = auth(req, user_id);
+            if (authed){
+                crow::json::wvalue error;
+                error["error"] = "Authentication Failed";
+                return crow::response(authed, error);
+            }
+
             auto json = crow::json::load(req.body);
             if (!json) {
                 crow::json::wvalue error;
@@ -775,6 +948,13 @@ int main() {
             unsigned int to_user_id = json["to"].i();
             unsigned int from_user_id = json["from"].i();
 
+            int authed = auth(req, from_user_id);
+            if (authed){
+                crow::json::wvalue error;
+                error["error"] = "Authentication Failed";
+                return crow::response(authed, error);
+            }
+
             DatabaseResult result = inviteUser(from_user_id, to_user_id, taskboard_id);
             
             crow::json::wvalue response;
@@ -806,6 +986,14 @@ int main() {
     CROW_ROUTE(app, "/users/<int>/invitations")
     ([](const crow::request& req, int user_id){
         try {
+
+            int authed = auth(req, user_id);
+            if (authed){
+                crow::json::wvalue error;
+                error["error"] = "Authentication Failed";
+                return crow::response(authed, error);
+            }
+
             std::unordered_multimap<User, TaskBoard, UserHasher> invitations;
             DatabaseResult result = getAllInvitation(user_id, invitations);
             
@@ -841,6 +1029,13 @@ int main() {
     CROW_ROUTE(app, "/removeUserFromBoard/<int>/<int>/<int>").methods("DELETE"_method)
       ([](const crow::request& req, int user, int taskboard_id, int performer){
         try {
+
+            int authed = auth(req, performer);
+            if (authed){
+                crow::json::wvalue error;
+                error["error"] = "Authentication Failed";
+                return crow::response(authed, error);
+            }
 
             DatabaseResult res = kickOutUserFromTaskboard(user, taskboard_id, performer);
             

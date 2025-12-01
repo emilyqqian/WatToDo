@@ -21,7 +21,6 @@ export default function Invitation({ onClick }) {
                 borderRadius: '0px',
                 p: 3,
                 height: 'fit-content',
-                position: 'sticky',
                 top: '100px',
                 mb: 3,
                 boxShadow: '4px 4px 0px rgba(0, 0, 0, 0.15)',
