@@ -36,9 +36,10 @@
 
 # Sprints 5 (Nov 25 - Dec 2):
 - Authentication system - Sam
+    - password check and login status check
 - Calender/Assign user ui bugfix - Sam
+    - dates must be clear
 - User Manual - Yash
 - Video Demo - Everytime Thursday (After Calc)
 - Video Editing - Harsh & Jaite
-- Sprint Retrospective (for all) - Emily
 - README & Setup guide - Yash &  Emily
