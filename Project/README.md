@@ -8,7 +8,7 @@ Make sure you have the following libraries installed:
 - Mysqlsh (Optional but Recommended)
 - mysqlcppconn (Version 9.5)
 - CMake
-- Crow (@yash please write something about this)
+- Crow 
 
 ## Database Setup:
 - After connecting to a database, run the script in `src/databaseScheme.sql` to set up the necessary tables.
@@ -87,13 +87,4 @@ MYSQL_CONCPP_DIR = "C:/Program Files/MySQL/MySQL Connector C++ 9.5"
 ---
 
 ## Troubleshooting
-
-ChatGPT goated.
-
-
-```
-If you are using Windows and have installed mysqlcppconn in the default location, your `MYSQL_CONCPP_DIR` would be:
-"C:/Program Files/MySQL/MySQL Connector C++ 9.5"
-
-## Troubleshooting:
 [Chatgpt goated](https://chatgpt.com/share/69028f5f-50b4-8003-8409-90088d953218)

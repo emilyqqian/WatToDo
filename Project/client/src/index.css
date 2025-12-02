@@ -75,3 +75,40 @@ button {
   color: #ffffff !important;
   fill: #ffffff !important;
 }
+
+/* index.css */
+
+/* Style the Select input itself */
+.MuiSelect-root {
+  background-color: #0A1121; /* dark background */
+  color: #fff;            /* white text */
+}
+
+/* Style the placeholder text */
+.MuiSelect-root .MuiSelect-select {
+  color: #fff;
+}
+
+/* Style the dropdown arrow */
+.MuiSelect-icon {
+  color: #fff;
+}
+
+/* Style the dropdown menu */
+.MuiPaper-root.MuiMenu-paper {
+  background-color: #000; /* dark menu background */
+  color: #fff;            /* white menu text */
+}
+
+/* Style individual menu items */
+.MuiMenuItem-root {
+  background-color: #000;
+  color: #fff;
+}
+
+/* Highlight hovered/selected menu item */
+.MuiMenuItem-root:hover,
+.MuiMenuItem-root.Mui-selected {
+  background-color: #0A1121;
+  color: #fff;
+}
