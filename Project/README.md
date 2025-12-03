@@ -1,7 +1,6 @@
 # Setup Guide:
 
 The following instructions will (hopefully) help you set up the development environment for the backend of the To-Do App project.
-- If not, ask chatgpt. Don't ask me. I spent 2h trying to compile my code
 
 ## Libraries:
 Make sure you have the following libraries installed:
