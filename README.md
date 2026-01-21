@@ -13,7 +13,7 @@ A modular task management platform featuring real-time shared boards and gamifie
 - **User Authentication**: Secure login system with JWT authentication
 - **Real-time Updates**: See changes instantly across all users
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 **Frontend:**
 - HTML/CSS/JavaScript
@@ -24,7 +24,7 @@ A modular task management platform featuring real-time shared boards and gamifie
 - **MySQL** database for persistent data storage
 - JWT-based authentication
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -63,7 +63,7 @@ make
 
 ---
 
-## 🔒 Security
+## Security
 
 - Password hashing with bcrypt
 - JWT tokens for session management
