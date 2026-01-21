@@ -1,63 +1,71 @@
-# Team Project Repo
+# WatToDo - Gamified Task Manager
 
-In this repo there are two subdirectories:
+A modular task management platform featuring real-time shared boards and gamified productivity elements to enhance user engagement and collaboration.
 
-1. To-Do-App
-2. Project
+## Features
 
-In the To-Do-App directory you are required to
-1. Create a project charter for a web-access To-Do-App. Place it in `charter.md`
-   in the docs directory.
-2. Create requirements for functions:
-   a. add()
-   b. update()
-   c. delete()
-   d. next()
-   e. today()
-   f. tomorrow()
-   where all changes in the To-Do list are reflected in the database.  Since we
-   are headed toward having a web-accessible version of this To-Do App, you will
-   want to add a userid to the task table.  For now, though, security can be
-   left at the level of "whichever userid is logged into the database server
-   will be the userid for the To-Do list" though this will affect the SQL query
-   necessary to access only that user's tasks:
+- **Shared Task Boards**: Collaborate with others in real-time on shared task lists
+- **Gamification System**: 
+  - Earn XP for completing tasks
+  - Track progress on leaderboards
+  - Compete with friends and teammates
+- **Full CRUD Operations**: Create, read, update, and delete tasks with ease
+- **User Authentication**: Secure login system with JWT authentication
+- **Real-time Updates**: See changes instantly across all users
 
-	SELECT ... AND userid = '...";
-   
-3. We wish to work toward a web-accessible version of this application.
-   Initiallly we do this as a "local-only" web setup (the web server will be on
-   your local machine and running as a python application).  To do this, install
-   the python web framework: 
+## 🛠️ Tech Stack
 
-	pip install flask
+**Frontend:**
+- HTML/CSS/JavaScript
+- Responsive design for cross-device compatibility
 
-4. Using your favourite LLMs, work out how to add in the web functionality.
+**Backend:**
+- **C++** with Crow framework for high-performance REST API
+- **MySQL** database for persistent data storage
+- JWT-based authentication
 
-5. Create an appropriate test plan and testcases for this.
+## 🚀 Getting Started
 
-When doing this work, you are required to:
+### Prerequisites
 
-0. Create an issue and branch for this work.  For individual functions, tests,
-   *etc.* you should create subbranches from that branch.
-1. Have each team member work on one of the functions, within their own subbranch.
-2. Have a separate team member create the test cases for that functions.
-3. Have a third team member require the merge request, approving or not, as they
-   see fit. If not approved, the dev and tester should fix things until it is
-   approved.
-4. When all functions and tests are complete and merged into your To-Do-App
-   branch, issue a Merge Request and assign it to `d3feng`.
+- C++ compiler (C++17 or later)
+- MySQL 8.0+
+- Python 3.x with Flask
+- Docker (optional, for containerized deployment)
 
-In the Project directory, options are as follows:
+### Installation
 
-1. Extend the To-Do-App to make it a fully featured web application.  Note that
-   there will be some additional work within the labs in this space, though only
-   with respect to making it a fully web-accessible web application, rather than
-   local only.
-2. Extend the To-Do-App to make it a fully featured Android application (only
-   Teams 1-23)
-3. Propose a project of your own devising.  This must be approved by the SE101
-   instruction team.
+1. Clone the repository
+```bash
+git clone https://github.com/yourusername/wattodo.git
+cd wattodo
+```
 
-Discuss in your team your ideas, and within the `Projects/docs` directory write
-a `charter.md` file with the project you are proposing.
+2. Set up MySQL database
+```sql
+CREATE DATABASE wattodo;
+-- Run schema.sql to create tables
+```
 
+3. Configure environment variables
+```bash
+cp .env.example .env
+# Edit .env with your database credentials
+```
+
+4. Build and run
+```bash
+mkdir build && cd build
+cmake ..
+make
+./wattodo
+```
+
+---
+
+## 🔒 Security
+
+- Password hashing with bcrypt
+- JWT tokens for session management
+- SQL injection prevention with prepared statements
+- Input validation on all endpoints
